@@ -4,7 +4,7 @@
     "description": "Speed up your TYPO3 installation",
     "homepage": "https://www.steffenkroggel.de",
     "license": ["GPL-2.0+"],
-    "keywords": ["TYPO3 CMS", "Critical CSS", "CDN", "HTML Minify", "Varnish"],
+	"keywords": ["TYPO3 CMS", "Critical CSS", "Above The Fold", "CDN", "HTML Minify", "Responsive Images", "Varnish"],
     "support": {
         "email": "developer@steffenkroggel.de"
     },
