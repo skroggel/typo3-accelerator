@@ -1,0 +1,55 @@
+plugin.tx_accelerator {
+	view {
+		# cat=plugin.tx_accelerator/file; type=string; label=Path to template root (FE)
+		templateRootPath = EXT:accelerator/Resources/Private/Templates/
+
+		# cat=plugin.tx_accelerator/file; type=string; label=Path to template partials (FE)
+		partialRootPath = EXT:accelerator/Resources/Private/Partials/
+
+		# cat=plugin.tx_accelerator/file; type=string; label=Path to template layouts (FE)
+		layoutRootPath = EXT:accelerator/Resources/Private/Layouts/
+	}
+	persistence {
+		# cat=plugin.tx_accelerator//a; type=string; label=Default storage PID
+		storagePid =
+	}
+
+	settings {
+        cdn {
+
+            # cat=plugin.tx_accelerator//a; type=boolean; label=Activate CDN
+            enable = 0
+
+            # cat=plugin.tx_accelerator//a; type=integer; label=Maximum number of connections per domain
+            maxConnectionsPerDomain = 4
+
+            # cat=plugin.tx_accelerator//a; type=integer; label=Maximum number of subdomains
+            maxSubdomains = 100
+
+            # cat=plugin.tx_accelerator//a; type=string; label=Ignore some files like CSS and JS because browser security stuff may cause problems
+            ignoreIfContains = /\.css|\.js|\.pdf|\?noCdn=1/
+
+            # cat=plugin.tx_accelerator//a; type=string; label=Regular expression for replacement
+            search = /(href="|src="|srcset=")\/?((uploads\/media|uploads\/pics|typo3temp\/compressor|typo3temp\/GB|typo3conf\/ext|fileadmin)([^"]+))/i
+        }
+
+        htmlMinify {
+
+            # cat=plugin.tx_accelerator//a; type=boolean; label=Activate HTML Minifier
+            enable = 0
+
+            # cat=plugin.tx_accelerator//a; type=string; label=Pids to exclude, comma-separated
+            excludePids =
+
+            # cat=plugin.tx_accelerator//a; type=string; label=Page types to include, comma-separated
+            includePageTypes = 0
+        }
+
+        criticalCss {
+
+            # cat=plugin.tx_accelerator//a; type=boolean; label=Activate Rendering for Critical-CSS
+            enable = 0
+        }
+	}
+}
+

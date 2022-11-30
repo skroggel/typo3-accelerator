@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dataset>
+
+    <pages>
+        <uid>20</uid>
+        <pid>1</pid>
+        <title>Page</title>
+        <doktype>1</doktype>
+        <tx_accelerator_proxy_caching>1</tx_accelerator_proxy_caching>
+    </pages>
+    <pages>
+        <uid>201</uid>
+        <pid>20</pid>
+        <title>Page</title>
+        <doktype>1</doktype>
+        <tx_accelerator_proxy_caching>0</tx_accelerator_proxy_caching>
+    </pages>
+
+</dataset>

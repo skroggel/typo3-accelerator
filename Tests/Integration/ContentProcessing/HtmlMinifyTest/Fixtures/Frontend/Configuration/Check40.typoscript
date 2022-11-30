@@ -1,0 +1,18 @@
+plugin.tx_accelerator {
+
+    settings {
+        htmlMinify {
+            # cat=plugin.tx_accelerator//a; type=boolean; label=Activate HTML Minifier
+            enable = 1
+
+            # cat=plugin.tx_accelerator//a; type=string; label=Pids to exclude, comma-separated
+            excludePids =
+
+            # cat=plugin.tx_accelerator//a; type=string; label=Page types to include, comma-separated
+            includePageTypes = 99
+        }
+	}
+}
+
+// needed because of BE-Mode with test
+module.tx_accelerator < plugin.tx_accelerator

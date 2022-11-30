@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2014-02-18T14:15:57Z" product-name="accelerator">
+		<header/>
+		<body>
+
+            <!-- tx_accelerator_domain_model_pages -->
+            <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_proxy_caching">
+                <source>Allow Proxy Caching (ATTENTION: valid even for logged in FE-users)</source>
+                <target>Proxy Caching erlauben (ACHTUNG: gilt auch für angemeldete FE-Nutzer)</target>
+            </trans-unit>
+            <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_proxy_caching.I.inherit">
+                <source>Inherit</source>
+                <target>Vererben</target>
+            </trans-unit>
+            <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_proxy_caching.I.enabled">
+                <source>Allow</source>
+                <target>Erlauben</target>
+            </trans-unit>
+            <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_proxy_caching.I.disabled">
+                <source>Disallow</source>
+                <target>Verbieten</target>
+            </trans-unit>
+
+		</body>
+	</file>
+</xliff>

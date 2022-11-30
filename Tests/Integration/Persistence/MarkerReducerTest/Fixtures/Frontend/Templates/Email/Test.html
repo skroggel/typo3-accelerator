@@ -1,0 +1,62 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true">
+
+    <f:layout name="Email/{mailType}" />
+    
+    <!-- plaintext -->
+    <f:section name="Plaintext">
+        ROOTPAGE
+        queueMail.uid: {queueMail.uid}
+        queueMail.settingsPid: {queueMail.settingsPid}
+        mailType: {mailType}
+        settings.redirectPid: {settings.redirectPid}
+        baseUrl: ###baseUrl###
+        baseUrlImages: ###baseUrlImages###
+        baseUrlLogo: ###baseUrlLogo###
+    
+        queueRecipient.uid: {queueRecipient.uid}
+        queueRecipient.firstName: {queueRecipient.firstName}
+        queueRecipient.lastName: {queueRecipient.lastName}
+        test1.uid: {test1.uid}
+        test2: {test2}
+        currentTime: {currentTime}
+     </f:section>
+    
+    <!-- HTML -->
+    <f:section name="Html">
+        ROOTPAGE
+        queueMail.uid: {queueMail.uid}
+        queueMail.settingsPid: {queueMail.settingsPid}
+        mailType: {mailType}
+        settings.redirectPid: {settings.redirectPid}
+        baseUrl: ###baseUrl###
+        baseUrlImages: ###baseUrlImages###
+        baseUrlLogo: ###baseUrlLogo###
+    
+        queueRecipient.uid: {queueRecipient.uid}
+        queueRecipient.firstName: {queueRecipient.firstName}
+        queueRecipient.lastName: {queueRecipient.lastName}
+        test1.uid: {test1.uid}
+        test2: {test2}
+        currentTime: {currentTime}
+    </f:section>
+    
+    <!-- Calendar -->
+    <f:section name="Calendar">
+        ROOTPAGE
+        queueMail.uid: {queueMail.uid}
+        queueMail.settingsPid: {queueMail.settingsPid}
+        mailType: {mailType}
+        settings.redirectPid: {settings.redirectPid}
+        baseUrl: ###baseUrl###
+        baseUrlImages: ###baseUrlImages###
+        baseUrlLogo: ###baseUrlLogo###
+    
+        queueRecipient.uid: {queueRecipient.uid}
+        queueRecipient.firstName: {queueRecipient.firstName}
+        queueRecipient.lastName: {queueRecipient.lastName}
+        test1.uid: {test1.uid}
+        test2: {test2}
+        currentTime: {currentTime}
+    </f:section>
+</html>

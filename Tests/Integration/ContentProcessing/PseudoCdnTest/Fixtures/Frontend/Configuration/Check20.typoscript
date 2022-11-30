@@ -1,0 +1,11 @@
+plugin.tx_accelerator {
+
+    settings {
+        cdn {
+            ignoreIfContains = New-Setup-Test
+        }
+	}
+}
+
+// needed because of BE-Mode with test
+module.tx_accelerator < plugin.tx_accelerator

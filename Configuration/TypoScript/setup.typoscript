@@ -1,0 +1,61 @@
+#############################################################################
+# Configuration
+#############################################################################
+plugin.tx_accelerator  {
+    view {
+        templateRootPath = {$plugin.tx_accelerator.view.templateRootPath}
+        partialRootPath = {$plugin.tx_accelerator.view.partialRootPath}
+        layoutRootPath = {$plugin.tx_accelerator.view.layoutRootPath}
+    }
+
+    persistence {
+        storagePid = {$plugin.tx_accelerator.persistence.storagePid}
+    }
+
+    features {
+        # uncomment the following line to enable the new Property Mapper.
+        # rewrittenPropertyMapper = 1
+    }
+
+    #===============================================================
+    # Settings
+    #===============================================================
+    settings {
+        cdn {
+            enable = {$plugin.tx_accelerator.settings.cdn.enable}
+            maxConnectionsPerDomain = {$plugin.tx_accelerator.settings.cdn.maxConnectionsPerDomain}
+            maxSubdomains = {$plugin.tx_accelerator.settings.cdn.maxSubdomains}
+            ignoreIfContains = {$plugin.tx_accelerator.settings.cdn.ignoreIfContains}
+            search = {$plugin.tx_accelerator.settings.cdn.search}
+        }
+
+        htmlMinify {
+            enable = {$plugin.tx_accelerator.settings.htmlMinify.enable}
+            excludePids = {$plugin.tx_accelerator.settings.htmlMinify.excludePids}
+            includePageTypes = {$plugin.tx_accelerator.settings.htmlMinify.includePageTypes}
+        }
+
+        criticalCss {
+            enable = {$plugin.tx_accelerator.settings.criticalCss.enable}
+            filesForLayout {
+
+            }
+            filesToRemoveWhenActive {
+
+            }
+        }
+    }
+}
+
+
+#===============================================================
+# CSS
+#===============================================================
+plugin.tx_accelerator._CSS_DEFAULT_STYLE (
+
+)
+
+#===============================================================
+# Includes
+#===============================================================
+<INCLUDE_TYPOSCRIPT: source="DIR:./Includes" extensions="typoscript">

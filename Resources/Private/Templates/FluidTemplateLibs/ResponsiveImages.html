@@ -1,0 +1,32 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:accelerator="http://typo3.org/ns/Madj2k/Accelerator/ViewHelpers"
+    data-namespace-typo3-fluid="true">
+
+    <f:if condition="{file}">
+        <!-- Responsive Images v2.0 -->
+        <picture{f:if(condition:'{additionalAttributes}', then: ' {additionalAttributes -> f:format.raw()}', else: ' {settings.additionalAttributes -> f:format.raw()}')}>
+            <f:render section="SrcSet" arguments="{file: '{file}', isReference: '{f:if(condition: \'{treatIdAsReference}\', then: \'1\', else: \'0\')}', maxWidth: '{settings.maxWidth.desktop}', breakpoint: '{settings.breakpoint.desktop}', cropVariant: '{settings.cropVariant.desktop}'}" />
+            <f:render section="SrcSet" arguments="{file: '{file}', isReference: '{f:if(condition: \'{treatIdAsReference}\', then: \'1\', else: \'0\')}', maxWidth: '{settings.maxWidth.tablet}', breakpoint: '{settings.breakpoint.tablet}', cropVariant: '{settings.cropVariant.tablet}'}" />
+            <f:render section="SrcSet" arguments="{file: '{file}', isReference: '{f:if(condition: \'{treatIdAsReference}\', then: \'1\', else: \'0\')}', maxWidth: '{settings.maxWidth.mobile2}', breakpoint: '{settings.breakpoint.mobile2}', cropVariant: '{settings.cropVariant.mobile2}'}" />
+            <f:render section="SrcSet" arguments="{file: '{file}', isReference: '{f:if(condition: \'{treatIdAsReference}\', then: \'1\', else: \'0\')}', maxWidth: '{settings.maxWidth.mobile}', breakpoint: '{settings.breakpoint.mobile}', cropVariant: '{settings.cropVariant.mobile}'}" />
+            <f:render section="Fallback" arguments="{file: '{file}', isReference: '{f:if(condition: \'{treatIdAsReference}\', then: \'1\', else: \'0\')}', maxWidth: '{settings.maxWidth.fallback}', breakpoint: '0', cropVariant: '{settings.cropVariant.fallback}', title: '{f:if(condition:\'{title}\', then: \'{title}\', else: \' {settings.titleFallback}\')}', lazyLoading: '{settings.lazyLoading}'}" />
+        </picture>
+    </f:if>
+
+
+    <f:section name="SrcSet">
+        <f:if condition="{breakpoint}">
+            <!-- maxWidth: {maxWidth}, breakPoint: {breakpoint} -->
+            <source srcset="{f:uri.image(src:'{file}', treatIdAsReference:'{isReference}', maxWidth:'{accelerator:responsiveImageCalc(maxWidth:\'{maxWidth}\', resolution:\'2\')}', cropVariant:'{cropVariant}')}" media="(min-width: {breakpoint}px) AND (min-resolution: 192dpi)" />
+            <source srcset="{f:uri.image(src:'{file}', treatIdAsReference:'{isReference}', maxWidth:'{maxWidth}', cropVariant:'{cropVariant}')}" media="(min-width: {breakpoint}px)" />
+        </f:if>
+    </f:section>
+
+
+    <f:section name="Fallback">
+        <!-- maxWidth: {maxWidth}, breakPoint: {breakpoint} -->
+        <source srcset="{f:uri.image(src:'{file}', treatIdAsReference:'{isReference}', maxWidth:'{accelerator:responsiveImageCalc(maxWidth:\'{maxWidth}\', resolution:\'2\')}', cropVariant:'{cropVariant}')}" media="(min-width: {breakpoint}px) AND (min-resolution: 192dpi)" />
+        <img src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=" alt="{title->accelerator:format.trim()}" loading="{f:if(condition:'{lazyLoading}', then: 'lazy', else: 'auto')}" srcset="{f:uri.image(src:'{file}', treatIdAsReference:'{isReference}', maxWidth:'{maxWidth}', cropVariant:'{cropVariant}')}" />
+    </f:section>
+
+</html>

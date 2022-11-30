@@ -1,0 +1,108 @@
+####################################################################
+# Responsive Images v2.0
+####################################################################
+lib.txAccelerator {
+
+	responsiveImage = FLUIDTEMPLATE
+	responsiveImage {
+
+        file = {$plugin.tx_accelerator.view.templateRootPath}FluidTemplateLibs/ResponsiveImages.html
+        settings {
+
+            lazyLoading = 1
+            titleFallback = Image
+            additionalAttributes =
+
+            breakpoint {
+                desktop = {$plugin.tx_accelerator.settings.responsiveImages.breakpoints.desktop}
+                tablet =  {$plugin.tx_accelerator.settings.responsiveImages.breakpoints.tablet}
+                mobile2 = {$plugin.tx_accelerator.settings.responsiveImages.breakpoints.mobile2}
+                mobile = {$plugin.tx_accelerator.settings.responsiveImages.breakpoints.mobile}
+            }
+
+            maxWidth {
+                desktop = 2000
+                tablet = {$plugin.tx_accelerator.settings.responsiveImages.breakpoints.desktop}
+                mobile2 = {$plugin.tx_accelerator.settings.responsiveImages.breakpoints.tablet}
+                mobile = {$plugin.tx_accelerator.settings.responsiveImages.breakpoints.mobile2}
+                fallback = {$plugin.tx_accelerator.settings.responsiveImages.breakpoints.mobile}
+            }
+
+            cropVariant {
+                desktop = Default
+                tablet = Default
+                mobile2 = Default
+                mobile = Default
+                fallback = Default
+            }
+        }
+
+        variables {
+
+            file = TEXT
+            file {
+                data = field:file
+                stdWrap.ifEmpty.cObject = TEXT
+                stdWrap.ifEmpty.cObject {
+                    value.current = 1
+                }
+            }
+
+            additionalAttributes = TEXT
+            additionalAttributes {
+                data = field:additionalAttributes
+            }
+
+            treatIdAsReference = TEXT
+            treatIdAsReference {
+                data = field:treatIdAsReference
+                stdWrap.ifEmpty.cObject = COA
+                stdWrap.ifEmpty.cObject {
+
+                    // set default to 1, but do NOT do this in case value was explicitly set to zero
+                    10 = TEXT
+                    10 {
+                        value = 1
+                        if.equals.data = field:treatIdAsReference
+                        if.value = 0
+                        if.negate = 1
+                    }
+                }
+            }
+
+            title = TEXT
+            title {
+
+                data = field:title
+                stdWrap.ifEmpty.cObject = COA
+                stdWrap.ifEmpty.cObject {
+
+                    // get title of references
+                    10 = FILES
+                    10 {
+                        if.isPositive < lib.txAccelerator.responsiveImage.variables.file
+                        if.isPositive.if.isTrue < lib.txAccelerator.responsiveImage.variables.treatIdAsReference
+                        references < lib.txAccelerator.responsiveImage.variables.file
+                        renderObj = TEXT
+                        renderObj {
+                           data = file:current:title
+                        }
+                    }
+
+                    // get title of normal files
+                    20 = FILES
+                    20 {
+                        if.isPositive < lib.txAccelerator.responsiveImage.variables.file
+                        if.isPositive.if.isFalse < lib.txAccelerator.responsiveImage.variables.treatIdAsReference
+                        files < lib.txAccelerator.responsiveImage.variables.file
+                        renderObj = TEXT
+                        renderObj {
+                           data = file:current:title
+                        }
+                    }
+                }
+            }
+        }
+	}
+}
+

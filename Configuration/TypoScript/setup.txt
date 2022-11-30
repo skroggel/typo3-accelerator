@@ -1,0 +1,5 @@
+# !!! DEPRECATED – only for compatibility reasons !!!
+# We're moving from ".ts" and ".txt" to ".typoscript".
+# @see: https://docs.typo3.org/c/typo3/cms-core/master/en-us/Changelog/8.7.x/Feature-78161-IntroduceTypoScriptFileExtension.html
+
+<INCLUDE_TYPOSCRIPT: source="FILE:./setup.typoscript">
