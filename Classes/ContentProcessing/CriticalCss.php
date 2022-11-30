@@ -55,7 +55,7 @@ class CriticalCss
      * @param \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer
      * @return string
      */
-    public function process(&$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer): string
+    public function process(array &$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer): string
     {
 
         if (
@@ -120,7 +120,7 @@ class CriticalCss
      * @param \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer
      * @return bool
      */
-    public function preProcess(&$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer): bool
+    public function preProcess(array &$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer): bool
     {
 
         if (
@@ -253,9 +253,9 @@ class CriticalCss
                 // inherit layout from parent pages
                 if (
                     ($key != (count($rootlinePages)-1))
-                    && ($page['tx_accelerator_fe_layout_next_level'])
+                    && ($page['tx_root_fe_layout_next_level'])
                 ) {
-                    return intval($page['tx_accelerator_fe_layout_next_level']);
+                    return intval($page['tx_root_fe_layout_next_level']);
                 }
 
             }
@@ -297,7 +297,7 @@ class CriticalCss
      * @param bool $fromWebDir
      * @return string
      */
-    public function getFilePath (string $file, $fromWebDir = false): string
+    public function getFilePath (string $file, bool $fromWebDir = false): string
     {
         if (
             (strpos($file, 'http://') === false)
@@ -334,7 +334,7 @@ class CriticalCss
         $configurationManager = $objectManager->get(ConfigurationManagerInterface::class);
         $configuration = $configurationManager->getConfiguration(
             ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
-            'Rkwbasics'
+            'Accelerator'
         );
 
         if (

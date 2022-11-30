@@ -36,7 +36,7 @@ class CriticalCssHook
      * @param \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer
      * @return void The content is passed by reference
      */
-    function render_postTransform(&$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer)
+    function render_postTransform(array &$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer)
     {
 
         /** @var \Madj2k\Accelerator\ContentProcessing\CriticalCss $criticalCss */
@@ -44,7 +44,6 @@ class CriticalCssHook
 
         // Replace content
         array_unshift($params['headerData'], $criticalCss->process($params, $pageRenderer));
-
     }
 
 
@@ -55,13 +54,12 @@ class CriticalCssHook
      * @param \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer
      * @return void The content is passed by reference
      */
-    function render_preProcess(&$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer)
+    function render_preProcess(array &$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer)
     {
 
         /** @var \Madj2k\Accelerator\ContentProcessing\CriticalCss $criticalCss */
         $criticalCss = GeneralUtility::makeInstance(CriticalCss::class);
         $criticalCss->preProcess($params, $pageRenderer);
-
     }
 
 }

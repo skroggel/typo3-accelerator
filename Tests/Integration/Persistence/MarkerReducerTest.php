@@ -17,7 +17,7 @@ namespace RKW\RkwMailer\Tests\Integration\Persistence;
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 use Madj2k\Accelerator\Domain\Model\Pages;
 use Madj2k\Accelerator\Persistence\MarkerReducer;
-use \Madj2k\Accelerator\Domain\Repository\PagesRepository;
+use Madj2k\Accelerator\Domain\Repository\PagesRepository;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
