@@ -41,7 +41,7 @@ class MarkerReducer
      *
      * @const string
      */
-    const NAMESPACE_KEYWORD = 'TX_SPEEDUP_NAMESPACES';
+    const NAMESPACE_KEYWORD = 'TX_ACCELERATOR_NAMESPACES';
 
 
     /**
@@ -58,7 +58,7 @@ class MarkerReducer
      *
      * @const string
      */
-    const NAMESPACE_ARRAY_KEYWORD = 'TX_SPEEDUP_NAMESPACES_ARRAY';
+    const NAMESPACE_ARRAY_KEYWORD = 'TX_ACCELERATOR_NAMESPACES_ARRAY';
 
 
     /**

@@ -64,7 +64,7 @@ class PseudoCdn
      * @param string $path path
      * @return string new path
      */
-    protected function addDomain($prefix, $path)
+    protected function addDomain(string $prefix, string $path): string
     {
 
         // check if counter has reached maximum and set new domain
@@ -100,7 +100,7 @@ class PseudoCdn
      * @param string $content content to replace
      * @return string new content
      */
-    public function process($content)
+    public function process(string $content): string
     {
 
         // check if enabled
@@ -134,7 +134,7 @@ class PseudoCdn
      *
      * @return array
      */
-    public function getSettings()
+    public function getSettings(): array
     {
 
         $settings = [
@@ -162,7 +162,7 @@ class PseudoCdn
             $configurationManager = $objectManager->get(ConfigurationManagerInterface::class);
             $configuration = $configurationManager->getConfiguration(
                 ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
-                'Rkwbasics'
+                'Accelerator'
             );
 
             if (

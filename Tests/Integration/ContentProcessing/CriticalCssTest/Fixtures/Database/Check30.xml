@@ -6,7 +6,7 @@
         <title>Subpage</title>
         <doktype>1</doktype>
         <layout>50</layout>
-        <tx_accelerator_fe_layout_next_level>60</tx_accelerator_fe_layout_next_level>
+        <tx_coreextended_fe_layout_next_level>60</tx_coreextended_fe_layout_next_level>
 
     </pages>
 

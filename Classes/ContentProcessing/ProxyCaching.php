@@ -32,10 +32,10 @@ class ProxyCaching {
     /**
      * Returns set proxy-caching setting recursively
      *
-     * @param $pid
+     * @param int $pid
      * @return int
      */
-    static function getProxyCachingSetting ($pid)
+    static function getProxyCachingSetting (int $pid): int
     {
         // get PageRepository and rootline
         $rootlinePages = GeneralUtility::makeInstance(RootlineUtility::class, $pid)->get();
@@ -68,11 +68,10 @@ class ProxyCaching {
      *
      * @return string
      */
-    static function getSiteTag()
+    static function getSiteTag(): string
     {
         return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
     }
-
 
 
     /**
@@ -81,7 +80,7 @@ class ProxyCaching {
      * @param int $pid
      * @return string
      */
-    static function getPageTag($pid = 0)
+    static function getPageTag(int $pid = 0): string
     {
         return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] . '_' . $pid);
     }

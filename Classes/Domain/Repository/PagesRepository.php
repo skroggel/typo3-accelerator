@@ -1,6 +1,6 @@
 <?php
 
-namespace Madj2k\Accelerator\Hooks;
+namespace Madj2k\Accelerator\Domain\Repository;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -15,37 +15,18 @@ namespace Madj2k\Accelerator\Hooks;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Madj2k\Accelerator\ContentProcessing\PseudoCdn;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-
 /**
- * Class PseudoCdnHooks
+ * Class PagesRepository
  *
  * @author Steffen Kroggel <developer@steffenkroggel.de>
  * @copyright Steffen Kroggel
  * @package Madj2k_Accelerator
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  */
-class PseudoCdnHook
+class PagesRepository extends \Madj2k\CoreExtended\Domain\Repository\PagesRepository
 {
 
-    /**
-     * Called before page is outputed in order to include INT-Scripts
-     *
-     * @param array $params
-     * @return void The content is passed by reference
-     */
-    function hook_contentPostProc(array &$params): void
-    {
-        // get object
-        $obj = $params['pObj'];
 
-        // get CDN
-        $cdn = GeneralUtility::makeInstance(PseudoCdn::class);
-
-        // Replace content
-        $obj->content = $cdn->process($obj->content);
-
-    }
 
 }
+

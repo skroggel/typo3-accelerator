@@ -51,7 +51,7 @@ class HtmlMinify
      * @param string $content content to replace
      * @return string new content
      */
-    public function process($content)
+    public function process(string $content): string
     {
 
         if (!$this->settings['enable']) {
@@ -82,7 +82,7 @@ class HtmlMinify
      * @param string $content
      * @return string $content
      */
-    protected function minify($content)
+    protected function minify(string $content): string
     {
         $content = preg_replace('%(?>[^\S ]\s*| \s{2,})(?=(?:(?:[^<]++| <(?!/?(?:textarea|pre|script)\b))*+)(?:<(?>textarea|pre|script)\b| \z))%ix', ' ', $content);
         return $content;
@@ -94,7 +94,7 @@ class HtmlMinify
      *
      * @return array
      */
-    public function getSettings()
+    public function getSettings(): array
     {
 
         $settings = [
@@ -108,7 +108,7 @@ class HtmlMinify
         $configurationManager = $objectManager->get(ConfigurationManagerInterface::class);
         $configuration = $configurationManager->getConfiguration(
             ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
-            'Rkwbasics'
+            'Accelerator'
         );
 
         if (

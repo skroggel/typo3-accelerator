@@ -5,16 +5,22 @@ call_user_func(
     function($extKey)
     {
 
+        //=================================================================
+        // Add Rootline Fields
+        //=================================================================
+        $rootlineFields = &$GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields'];
+        $newRootlineFields = 'tx_accelerator_proxy_caching,';
+        $rootlineFields .= (empty($rootlineFields))? $newRootlineFields : ',' . $newRootlineFields;
 
         //=================================================================
         // Register Hooks
         //=================================================================
         if (TYPO3_MODE !== 'BE') {
-            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-output'][] = 'RKW\\RkwBasics\\Hooks\\PseudoCdnHook->hook_contentPostProc';
-            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-output'][] = 'RKW\\RkwBasics\\Hooks\\HtmlMinifyHook->hook_contentPostProc';
-            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-output'][] = 'RKW\\RkwBasics\\Hooks\\ProxyCachingHook->sendHeader';
-            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_pagerenderer.php']['render-preProcess'][] = 'RKW\\RkwBasics\\Hooks\\CriticalCssHook->render_preProcess';
-            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_pagerenderer.php']['render-postTransform'][] = 'RKW\\RkwBasics\\Hooks\\CriticalCssHook->render_postTransform';
+            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-output'][] = 'Madj2k\\Accelerator\\Hooks\\PseudoCdnHook->hook_contentPostProc';
+            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-output'][] = 'Madj2k\\Accelerator\\Hooks\\HtmlMinifyHook->hook_contentPostProc';
+            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-output'][] = 'Madj2k\\Accelerator\\Hooks\\ProxyCachingHook->sendHeader';
+            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_pagerenderer.php']['render-preProcess'][] = 'Madj2k\\Accelerator\\Hooks\\CriticalCssHook->render_preProcess';
+            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_pagerenderer.php']['render-postTransform'][] = 'Madj2k\\Accelerator\\Hooks\\CriticalCssHook->render_postTransform';
         }
 
         //=================================================================

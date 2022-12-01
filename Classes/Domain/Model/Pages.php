@@ -1,6 +1,6 @@
 <?php
 
-namespace Madj2k\Accelerator\Hooks;
+namespace Madj2k\Accelerator\Domain\Model;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -15,37 +15,45 @@ namespace Madj2k\Accelerator\Hooks;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Madj2k\Accelerator\ContentProcessing\PseudoCdn;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-
 /**
- * Class PseudoCdnHooks
+ * Class Pages
  *
  * @author Steffen Kroggel <developer@steffenkroggel.de>
  * @copyright Steffen Kroggel
  * @package Madj2k_Accelerator
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  */
-class PseudoCdnHook
+class Pages extends \Madj2k\CoreExtended\Domain\Model\Pages
 {
 
+
     /**
-     * Called before page is outputed in order to include INT-Scripts
-     *
-     * @param array $params
-     * @return void The content is passed by reference
+     * @var integer
      */
-    function hook_contentPostProc(array &$params): void
+    protected $txAcceleratorProxyCaching = 0;
+
+
+    /**
+     * Returns the txAcceleratorProxyCaching
+     *
+     * @return int
+     */
+    public function getTxAcceleratorProxyCaching(): int
     {
-        // get object
-        $obj = $params['pObj'];
+        return $this->pid;
+    }
 
-        // get CDN
-        $cdn = GeneralUtility::makeInstance(PseudoCdn::class);
 
-        // Replace content
-        $obj->content = $cdn->process($obj->content);
-
+    /**
+     * Sets the txAcceleratorProxyCaching
+     *
+     * @param int $txAcceleratorProxyCaching
+     * @return void
+     * @api
+     */
+    public function setTxAcceleratorProxyCaching(int $txAcceleratorProxyCaching): void
+    {
+        $this->txAcceleratorProxyCaching = $txAcceleratorProxyCaching;
     }
 
 }
