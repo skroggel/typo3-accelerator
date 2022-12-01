@@ -253,9 +253,9 @@ class CriticalCss
                 // inherit layout from parent pages
                 if (
                     ($key != (count($rootlinePages)-1))
-                    && ($page['tx_root_fe_layout_next_level'])
+                    && ($page['tx_coreextended_fe_layout_next_level'])
                 ) {
-                    return intval($page['tx_root_fe_layout_next_level']);
+                    return intval($page['tx_coreextended_fe_layout_next_level']);
                 }
 
             }

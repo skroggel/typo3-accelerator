@@ -1,5 +1,6 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-    xmlns:accelerator="http://typo3.org/ns/Madj2k/Accelerator/ViewHelpers"
+      xmlns:coreExtended="http://typo3.org/ns/Madj2k/CoreExtended/ViewHelpers"
+      xmlns:accelerator="http://typo3.org/ns/Madj2k/Accelerator/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
     <f:if condition="{file}">
@@ -26,7 +27,7 @@
     <f:section name="Fallback">
         <!-- maxWidth: {maxWidth}, breakPoint: {breakpoint} -->
         <source srcset="{f:uri.image(src:'{file}', treatIdAsReference:'{isReference}', maxWidth:'{accelerator:responsiveImageCalc(maxWidth:\'{maxWidth}\', resolution:\'2\')}', cropVariant:'{cropVariant}')}" media="(min-width: {breakpoint}px) AND (min-resolution: 192dpi)" />
-        <img src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=" alt="{title->accelerator:format.trim()}" loading="{f:if(condition:'{lazyLoading}', then: 'lazy', else: 'auto')}" srcset="{f:uri.image(src:'{file}', treatIdAsReference:'{isReference}', maxWidth:'{maxWidth}', cropVariant:'{cropVariant}')}" />
+        <img src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=" alt="{title->coreExtended:format.trim()}" loading="{f:if(condition:'{lazyLoading}', then: 'lazy', else: 'auto')}" srcset="{f:uri.image(src:'{file}', treatIdAsReference:'{isReference}', maxWidth:'{maxWidth}', cropVariant:'{cropVariant}')}" />
     </f:section>
 
 </html>

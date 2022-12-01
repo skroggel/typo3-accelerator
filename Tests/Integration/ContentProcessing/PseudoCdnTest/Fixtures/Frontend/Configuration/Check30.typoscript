@@ -3,7 +3,7 @@ plugin.tx_accelerator {
     settings {
         cdn {
             enable = 1
-            baseDomain = rkw-kompetenzzentrum.rkw.local
+            baseDomain = example.local
         }
 	}
 }

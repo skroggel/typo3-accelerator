@@ -18,7 +18,7 @@ use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 use Madj2k\Accelerator\ContentProcessing\CriticalCss;
 use Madj2k\Accelerator\ContentProcessing\HtmlMinify;
 use Madj2k\Accelerator\ContentProcessing\PseudoCdn;
-use Madj2k\Accelerator\Utility\FrontendSimulatorUtility;
+use Madj2k\CoreExtended\Utility\FrontendSimulatorUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -40,6 +40,7 @@ class CriticalCssTest extends FunctionalTestCase
      * @var string[]
      */
     protected $testExtensionsToLoad = [
+        'typo3conf/ext/core_extended',
         'typo3conf/ext/accelerator',
     ];
 

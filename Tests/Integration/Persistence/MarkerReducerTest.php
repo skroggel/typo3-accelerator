@@ -28,7 +28,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  *
  * @author Steffen Kroggel <developer@steffenkroggel.de>
  * @copyright Steffen Kroggel
- * @package RKW_RkwMailer
+ * @package Madj2k_Accelerator
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  */
 class MarkerReducerTest extends FunctionalTestCase
@@ -43,6 +43,7 @@ class MarkerReducerTest extends FunctionalTestCase
      * @var string[]
      */
     protected $testExtensionsToLoad = [
+        'typo3conf/ext/core_extended',
         'typo3conf/ext/accelerator',
     ];
 
@@ -138,10 +139,10 @@ class MarkerReducerTest extends FunctionalTestCase
         ];
 
         $expected = [
-            'test1' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
-            'test2' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
-            'test3' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
-            'test4' => 'accelerator_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:2,Madj2k\Accelerator\Domain\Model\Pages:3',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
+            'test2' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
+            'test3' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
+            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:2,Madj2k\Accelerator\Domain\Model\Pages:3',
         ];
 
         $result = MarkerReducer::implode($marker);
@@ -201,9 +202,9 @@ class MarkerReducerTest extends FunctionalTestCase
         ];
 
         $expected = [
-            'test1' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
             'test2' => $entityTwo,
-            'test3' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
+            'test3' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
             'test4' => $objectStorage,
         ];
 
@@ -248,7 +249,7 @@ class MarkerReducerTest extends FunctionalTestCase
         ];
 
         $expected = [
-            'test1' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
             'test2' => [0, 12],
             'test3' => 'example string',
         ];
@@ -305,10 +306,10 @@ class MarkerReducerTest extends FunctionalTestCase
         $objectStorage->attach($entityThree);
 
         $marker = [
-            'test1' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
-            'test2' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
-            'test3' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
-            'test4' => 'accelerator_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:2,Madj2k\Accelerator\Domain\Model\Pages:3',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
+            'test2' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
+            'test3' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
+            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:2,Madj2k\Accelerator\Domain\Model\Pages:3',
         ];
 
         $expected = [
@@ -384,10 +385,10 @@ class MarkerReducerTest extends FunctionalTestCase
         $objectStorage->attach($entityThree);
 
         $marker = [
-            'test1' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
-            'test2' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
-            'test3' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
-            'test4' => 'accelerator_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:2,Madj2k\Accelerator\Domain\Model\Pages:3',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
+            'test2' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
+            'test3' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
+            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:2,Madj2k\Accelerator\Domain\Model\Pages:3',
         ];
 
         $expected = [
@@ -466,10 +467,10 @@ class MarkerReducerTest extends FunctionalTestCase
         $objectStorage->attach($entityThree);
 
         $marker = [
-            'test1' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
-            'test2' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
-            'test3' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
-            'test4' => 'accelerator_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:2,Madj2k\Accelerator\Domain\Model\Pages:3',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
+            'test2' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
+            'test3' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
+            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:2,Madj2k\Accelerator\Domain\Model\Pages:3',
         ];
 
         $expected = [
@@ -543,10 +544,10 @@ class MarkerReducerTest extends FunctionalTestCase
         $objectStorage->attach($entityThree);
 
         $marker = [
-            'test1' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
-            'test2' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
-            'test3' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:9999',
-            'test4' => 'accelerator_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:3,Madj2k\Accelerator\Domain\Model\MediaSources:9999',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
+            'test2' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
+            'test3' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:9999',
+            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:3,Madj2k\Accelerator\Domain\Model\MediaSources:9999',
         ];
 
         $expected = [
@@ -613,10 +614,10 @@ class MarkerReducerTest extends FunctionalTestCase
         ];
 
         $marker = [
-            'test1' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
-            'test2' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
-            'test3' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:9999',
-            'test4' => 'accelerator_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:8888,Madj2k\Accelerator\Domain\Model\MediaSources:9999',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
+            'test2' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
+            'test3' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:9999',
+            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:8888,Madj2k\Accelerator\Domain\Model\MediaSources:9999',
         ];
 
         $result = MarkerReducer::explode($marker);
@@ -673,8 +674,8 @@ class MarkerReducerTest extends FunctionalTestCase
         ];
 
         $marker = [
-            'test1' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
-            'test2' => 'accelerator_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
+            'test2' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
             'test3' => 'RKW_TESTER_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
             'test4' => 'RKW_TESTER_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:8888,Madj2k\Accelerator\Domain\Model\MediaSources:9999',
         ];

@@ -11,8 +11,8 @@
  ***************************************************************/
 
 $EM_CONF[$_EXTKEY] = [
-	'title' => 'Accelerator',
-	'description' => 'Extension with some basic extensions for BE and FE',
+	'title' => 'TYPO3 Accelerator',
+	'description' => 'Speed up your TYPO3 installation',
 	'category' => 'FE',
 	'author' => 'Steffen Kroggel',
 	'author_email' => 'developer@steffenkroggel.de',
@@ -26,10 +26,11 @@ $EM_CONF[$_EXTKEY] = [
 	'modify_tables' => '',
 	'clearCacheOnLoad' => 0,
 	'lockType' => '',
-	'version' => '9.5.0',
+	'version' => '9.5.1',
     'constraints' => [
 		'depends' => [
 			'typo3' => '9.5.0-9.5.99',
+            'core_extended' => '9.5.0-9.5.99'
         ],
 		'conflicts' => [
 		],

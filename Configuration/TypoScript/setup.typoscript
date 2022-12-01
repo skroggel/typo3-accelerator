@@ -1,3 +1,26 @@
+config.tx_extbase {
+    persistence {
+        classes {
+
+            Madj2k\Accelerator\Domain\Model\Pages {
+                mapping {
+                    tableName = pages
+
+                    # on pages tables it's the doktype
+                    # if we set an value, we filter by it
+                    # if we do not set anything, all pages are found
+                    recordType =
+
+                    # mapping to properties of class
+                    columns {
+
+                    }
+                }
+            }
+        }
+    }
+}
+
 #############################################################################
 # Configuration
 #############################################################################

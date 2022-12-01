@@ -16,7 +16,7 @@ namespace Madj2k\Accelerator\Tests\Integration\ContentProcessing;
 
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 use Madj2k\Accelerator\ContentProcessing\PseudoCdn;
-use Madj2k\Accelerator\Utility\FrontendSimulatorUtility;
+use Madj2k\CoreExtended\Utility\FrontendSimulatorUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -38,6 +38,7 @@ class PseudoCdnTest extends FunctionalTestCase
      * @var string[]
      */
     protected $testExtensionsToLoad = [
+        'typo3conf/ext/core_extended',
         'typo3conf/ext/accelerator',
     ];
 

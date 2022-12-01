@@ -641,4 +641,3 @@ plugin.tx_accelerator {
         }
 	}
 ```
-

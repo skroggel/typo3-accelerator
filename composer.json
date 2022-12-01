@@ -1,5 +1,5 @@
 {
-    "name": "madj2k/accelerator",
+    "name": "madj2k/t3-accelerator",
     "type": "typo3-cms-extension",
     "description": "Speed up your TYPO3 installation",
     "homepage": "https://www.steffenkroggel.de",
@@ -19,7 +19,8 @@
     "require": {
         "php": ">=7.4",
         "ext-json": "*",
-        "typo3/cms-core": "~9.5.0"
+        "typo3/cms-core": "~9.5.0",
+		"madj2k/core-extended": "~9.5.0"
 	},
 	"suggest": {
 		"sopsone-ch/varnish": "~2.4"
