@@ -36,7 +36,7 @@ class CriticalCssHook
      * @param \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer
      * @return void The content is passed by reference
      */
-    function render_postTransform(array &$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer)
+    function render_postTransform(array &$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer): void
     {
 
         /** @var \Madj2k\Accelerator\ContentProcessing\CriticalCss $criticalCss */
@@ -54,7 +54,7 @@ class CriticalCssHook
      * @param \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer
      * @return void The content is passed by reference
      */
-    function render_preProcess(array &$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer)
+    function render_preProcess(array &$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer): void
     {
 
         /** @var \Madj2k\Accelerator\ContentProcessing\CriticalCss $criticalCss */

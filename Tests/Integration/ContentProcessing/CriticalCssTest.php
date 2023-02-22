@@ -33,6 +33,9 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 class CriticalCssTest extends FunctionalTestCase
 {
 
+    /**
+     * @const
+     */
     const FIXTURE_PATH = __DIR__ . '/CriticalCssTest/Fixtures';
 
 
@@ -44,6 +47,7 @@ class CriticalCssTest extends FunctionalTestCase
         'typo3conf/ext/accelerator',
     ];
 
+
     /**
      * @var string[]
      */
@@ -51,16 +55,15 @@ class CriticalCssTest extends FunctionalTestCase
 
 
     /**
-     * @var \Madj2k\Accelerator\ContentProcessing\CriticalCss
+     * @var \Madj2k\Accelerator\ContentProcessing\CriticalCss|null
      */
-    private $subject;
+    private ?CriticalCss $subject = null;
 
 
     /**
-     * @var \TYPO3\CMS\Extbase\Object\ObjectManager
+     * @var \TYPO3\CMS\Extbase\Object\ObjectManager|null
      */
-    private $objectManager;
-
+    private ?ObjectManager $objectManager = null;
 
 
     /**
@@ -79,7 +82,10 @@ class CriticalCssTest extends FunctionalTestCase
 
     }
 
+
     //=============================================
+
+
     /**
      * @test
      */
@@ -113,6 +119,7 @@ class CriticalCssTest extends FunctionalTestCase
 
     }
 
+
     /**
      * @test
      */
@@ -142,7 +149,9 @@ class CriticalCssTest extends FunctionalTestCase
 
     }
 
+
     //=============================================
+
 
     /**
      * @test
@@ -165,6 +174,7 @@ class CriticalCssTest extends FunctionalTestCase
 
         self::assertStringStartsWith(\TYPO3\CMS\Core\Core\Environment::getPublicPath(), $result);
     }
+
 
     /**
      * @test
@@ -190,6 +200,7 @@ class CriticalCssTest extends FunctionalTestCase
         self::assertStringStartsWith('typo3conf/ext/', $result);
     }
 
+
     /**
      * @test
      */
@@ -212,7 +223,9 @@ class CriticalCssTest extends FunctionalTestCase
         self::assertEquals('https://www.google.de/all.css', $result);
     }
 
+
     //=============================================
+
 
     /**
      * @test
@@ -235,7 +248,6 @@ class CriticalCssTest extends FunctionalTestCase
     }
 
 
-
     /**
      * @test
      */
@@ -255,6 +267,7 @@ class CriticalCssTest extends FunctionalTestCase
 
         self::assertEquals('print', $result);
     }
+
 
     /**
      * @test
@@ -318,9 +331,13 @@ class CriticalCssTest extends FunctionalTestCase
         self::assertEquals('print,speech', $result);
     }
 
+
     //=============================================
+
+
     /**
      * @test
+     * @throws \Nimut\TestingFramework\Exception\Exception
      */
     public function getFrontendLayoutOfPageReturnsInheritedLayout()
     {
@@ -354,6 +371,7 @@ class CriticalCssTest extends FunctionalTestCase
         self::assertEquals(10, $result);
 
     }
+
 
     /**
      * @test
@@ -393,6 +411,8 @@ class CriticalCssTest extends FunctionalTestCase
     }
 
     //=============================================
+
+
     /**
      * @test
      */
@@ -433,8 +453,8 @@ class CriticalCssTest extends FunctionalTestCase
             'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/removeTwo.css',
             $result[20]
         );
-
     }
+
 
     /**
      * @test
@@ -470,7 +490,10 @@ class CriticalCssTest extends FunctionalTestCase
 
     }
 
+
     //=============================================
+
+
     /**
      * @test
      */
@@ -512,8 +535,8 @@ class CriticalCssTest extends FunctionalTestCase
             'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/criticalTwo.css',
             $result[20]
         );
-
     }
+
 
     /**
      * @test
@@ -547,10 +570,12 @@ class CriticalCssTest extends FunctionalTestCase
 
         self::assertIsArray( $result);
         self::assertEmpty($result);
-
     }
 
+
     //=============================================
+
+
     /**
      * @test
      */
@@ -578,8 +603,8 @@ class CriticalCssTest extends FunctionalTestCase
     }
 
 
-
     //=============================================
+
 
     /**
      * @test
@@ -617,8 +642,8 @@ class CriticalCssTest extends FunctionalTestCase
         $result = $this->getFrontendResponse(1);
         $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check60.html');
         self::assertStringContainsString($expected, $result->getContent());
-
     }
+
 
     /**
      * @test
@@ -700,6 +725,7 @@ class CriticalCssTest extends FunctionalTestCase
         self::assertStringContainsString('screen.css', $result->getContent());
     }
 
+
     /**
      * @test
      */
@@ -741,6 +767,10 @@ class CriticalCssTest extends FunctionalTestCase
         self::assertStringContainsString('print.css', $result->getContent());
         self::assertStringContainsString('screen.css', $result->getContent());
     }
+
+
+    //=============================================
+
 
     /**
      * TearDown

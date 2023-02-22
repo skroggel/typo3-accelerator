@@ -35,7 +35,7 @@ class HtmlMinifyHook
      * @param array $params
      * @return void The content is passed by reference
      */
-    function hook_contentPostProc(&$params)
+    function hook_contentPostProc(array &$params): void
     {
 
         // get object

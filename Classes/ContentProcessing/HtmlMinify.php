@@ -33,7 +33,7 @@ class HtmlMinify
     /**
      * @var array
      */
-    protected $settings;
+    protected array $settings = [];
 
 
     /**
@@ -84,8 +84,11 @@ class HtmlMinify
      */
     protected function minify(string $content): string
     {
-        $content = preg_replace('%(?>[^\S ]\s*| \s{2,})(?=(?:(?:[^<]++| <(?!/?(?:textarea|pre|script)\b))*+)(?:<(?>textarea|pre|script)\b| \z))%ix', ' ', $content);
-        return $content;
+        return preg_replace(
+            '%(?>[^\S ]\s*| \s{2,})(?=(?:(?:[^<]++| <(?!/?(?:textarea|pre|script)\b))*+)(?:<(?>textarea|pre|script)\b| \z))%ix',
+            ' ',
+            $content
+        );
     }
 
 

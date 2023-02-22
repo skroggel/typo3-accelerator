@@ -15,7 +15,7 @@ namespace Madj2k\Accelerator\Hooks;
  * The TYPO3 project - inspiring people to share!
  */
 
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
+use TYPO3\CMS\Core\Page\PageRenderer;
 
 /**
  * Class InlineCssHook
@@ -35,7 +35,7 @@ class InlineCssHook
      * @param \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer
      * @return void The content is passed by reference
      */
-    public function render_postTransform(&$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer)
+    public function render_postTransform(array &$params, PageRenderer $pageRenderer): void
     {
 
         foreach (['cssFiles', 'cssLibs'] as $category) {
@@ -72,8 +72,5 @@ class InlineCssHook
             }
             array_unshift($params['headerData'], implode(LF, $inlineCss));
         }
-
-       // DebuggerUtility::var_dump($params);
     }
-
 }

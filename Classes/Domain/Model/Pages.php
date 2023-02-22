@@ -28,9 +28,9 @@ class Pages extends \Madj2k\CoreExtended\Domain\Model\Pages
 
 
     /**
-     * @var integer
+     * @var int
      */
-    protected $txAcceleratorProxyCaching = 0;
+    protected int $txAcceleratorProxyCaching = 0;
 
 
     /**

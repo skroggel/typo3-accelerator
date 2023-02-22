@@ -101,7 +101,8 @@ class MarkerReducer
                         self::getLogger()->log(
                             LogLevel::WARNING,
                             sprintf(
-                                'Object with namespace %s in marker-array is not persisted and will be stored as serialized object in the database. This may cause performance issues!',
+                                'Object with namespace %s in marker-array is not persisted and will be '
+                                    . 'stored as serialized object in the database. This may cause performance issues!',
                                 $namespace
                             )
                         );
@@ -149,7 +150,9 @@ class MarkerReducer
                                         $replaceObjectStorage = false;
                                         self::getLogger()->log(
                                             LogLevel::WARNING, sprintf(
-                                                'Object with namespace %s in marker-array is not persisted. The object storage it belongs to will be stored as serialized object in the database. This may cause performance issues!',
+                                                'Object with namespace %s in marker-array is not persisted.'
+                                                    . ' The object storage it belongs to will be stored as serialized '
+                                                    . 'object in the database. This may cause performance issues!',
                                                 $namespace
                                             )
                                         );
@@ -179,7 +182,8 @@ class MarkerReducer
                                 self::getLogger()->log(
                                     LogLevel::DEBUG,
                                     sprintf(
-                                        'Object of class %s in marker-array is empty and will be stored as serialized object in the database.',
+                                        'Object of class %s in marker-array is empty and will be stored as '
+                                            . 'serialized object in the database.',
                                         get_class($value)
                                     )
                                 );
@@ -187,7 +191,8 @@ class MarkerReducer
                                 self::getLogger()->log(
                                     LogLevel::WARNING,
                                     sprintf(
-                                        'Object of class %s in marker-array will be stored as serialized object in the database. This may cause performance issues!',
+                                        'Object of class %s in marker-array will be stored as serialized '
+                                            . 'object in the database. This may cause performance issues!',
                                         get_class($value)
                                     )
                                 );
@@ -200,7 +205,6 @@ class MarkerReducer
 
         return $marker;
     }
-
 
 
     /**
@@ -229,7 +233,9 @@ class MarkerReducer
             ) {
 
                 // check if we have an array here
-                $isArray = (bool)(strpos(trim($value), self::NAMESPACE_ARRAY_KEYWORD) === 0) || (strpos(trim($value), self::NAMESPACE_ARRAY_KEYWORD_OLD) === 0);
+                $isArray = (bool)(strpos(trim($value), self::NAMESPACE_ARRAY_KEYWORD) === 0)
+                    || (strpos(trim($value), self::NAMESPACE_ARRAY_KEYWORD_OLD) === 0);
+
                 self::getLogger()->log(
                     LogLevel::DEBUG,
                     sprintf(

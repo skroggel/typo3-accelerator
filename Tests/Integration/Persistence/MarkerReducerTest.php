@@ -39,6 +39,7 @@ class MarkerReducerTest extends FunctionalTestCase
      */
     const FIXTURE_PATH = __DIR__ . '/MarkerReducerTest/Fixtures';
 
+
     /**
      * @var string[]
      */
@@ -47,25 +48,29 @@ class MarkerReducerTest extends FunctionalTestCase
         'typo3conf/ext/accelerator',
     ];
 
+
     /**
      * @var string[]
      */
     protected $coreExtensionsToLoad = [ ];
 
-    /**
-     * @var \TYPO3\CMS\Extbase\Object\ObjectManager
-     */
-    private $objectManager;
 
     /**
-     * @var \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager
+     * @var \TYPO3\CMS\Extbase\Object\ObjectManager|null
      */
-    private $persistenceManager;
+    private ?ObjectManager $objectManager = null;
+
 
     /**
-     * @var \Madj2k\Accelerator\Domain\Repository\PagesRepository
+     * @var \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager|null
      */
-    private $pagesRepository;
+    private ?PersistenceManager $persistenceManager = null;
+
+
+    /**
+     * @var \Madj2k\Accelerator\Domain\Repository\PagesRepository|null
+     */
+    private ?PagesRepository $pagesRepository = null;
 
 
     /**
@@ -93,8 +98,8 @@ class MarkerReducerTest extends FunctionalTestCase
     }
 
 
-
     //=============================================
+
 
     /**
      * @test
@@ -217,6 +222,7 @@ class MarkerReducerTest extends FunctionalTestCase
         self::assertEquals($expected['test4'], $result['test4']);
     }
 
+
     /**
      * @test
      * @throws \Exception
@@ -261,7 +267,6 @@ class MarkerReducerTest extends FunctionalTestCase
         self::assertEquals($expected['test1'], $result['test1']);
         self::assertEquals($expected['test3'], $result['test3']);
     }
-
 
 
     //=============================================
@@ -420,6 +425,7 @@ class MarkerReducerTest extends FunctionalTestCase
         self::assertEquals($entityThree->getUid(), $resultStorage->current()->getUid());
     }
 
+
     /**
      * @test
      * @throws \Exception
@@ -502,6 +508,7 @@ class MarkerReducerTest extends FunctionalTestCase
         self::assertEquals($entityThree->getUid(), $resultStorage->current()->getUid());
     }
 
+
     /**
      * @test
      * @throws \Exception
@@ -573,6 +580,7 @@ class MarkerReducerTest extends FunctionalTestCase
         self::assertEquals($entityThree->getUid(), $resultStorage->current()->getUid());
     }
 
+
     /**
      * @test
      * @throws \Exception
@@ -632,8 +640,8 @@ class MarkerReducerTest extends FunctionalTestCase
         $resultStorage = $result['test4'];
         self::assertInstanceOf(ObjectStorage::class, $resultStorage);
         self::assertCount(0, $resultStorage);
-
     }
+
 
     /**
      * @test
@@ -693,7 +701,9 @@ class MarkerReducerTest extends FunctionalTestCase
 
     }
 
+
     //=============================================
+
 
     /**
      * TearDown
@@ -702,12 +712,4 @@ class MarkerReducerTest extends FunctionalTestCase
     {
         parent::tearDown();
     }
-
-
-
-
-
-
-
-
 }

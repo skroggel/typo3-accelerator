@@ -33,19 +33,19 @@ class PseudoCdn
     /**
      * @var array
      */
-    protected $settings;
+    protected array $settings = [];
 
 
     /**
-     * @var integer counter for replacements
+     * @var int
      */
-    protected $replacementCnt = 1;
+    protected int $replacementCnt = 1;
 
 
     /**
-     * @var integer counter for domains
+     * @var int
      */
-    protected $domainCnt = 1;
+    protected int $domainCnt = 1;
 
 
     /**

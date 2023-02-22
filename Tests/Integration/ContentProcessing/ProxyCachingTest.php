@@ -29,6 +29,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class ProxyCachingTest extends FunctionalTestCase
 {
 
+    /**
+     * @const
+     */
     const BASE_PATH = __DIR__ . '/ProxyCachingTest';
 
 
@@ -40,6 +43,7 @@ class ProxyCachingTest extends FunctionalTestCase
         'typo3conf/ext/accelerator'
     ];
 
+
     /**
      * @var string[]
      */
@@ -47,9 +51,9 @@ class ProxyCachingTest extends FunctionalTestCase
 
 
     /**
-     * @var \Madj2k\Accelerator\ContentProcessing\ProxyCaching
+     * @var \Madj2k\Accelerator\ContentProcessing\ProxyCaching|null
      */
-    protected $subject;
+    protected ?ProxyCaching $subject = null;
 
 
     /**
@@ -70,10 +74,8 @@ class ProxyCachingTest extends FunctionalTestCase
             ]
         );
 
-        $this->subject = ProxyCaching::class;
-
+        $this->subject = GeneralUtility::makeInstance(ProxyCaching::class);
     }
-
 
 
     //=============================================
@@ -93,6 +95,7 @@ class ProxyCachingTest extends FunctionalTestCase
          */
         self::assertEquals(0, $this->subject::getProxyCachingSetting(1));
     }
+
 
     /**
      * @test
@@ -133,6 +136,7 @@ class ProxyCachingTest extends FunctionalTestCase
         self::assertEquals(1, $this->subject::getProxyCachingSetting(201));
     }
 
+
     /**
      * @test
      * @throws \Exception
@@ -153,7 +157,9 @@ class ProxyCachingTest extends FunctionalTestCase
         self::assertEquals(1, $this->subject::getProxyCachingSetting(2001));
     }
 
+
     //=============================================
+
 
     /**
      * @test
@@ -174,7 +180,9 @@ class ProxyCachingTest extends FunctionalTestCase
         self::assertEquals($expected, $this->subject::getSiteTag());
     }
 
+
     //=============================================
+
 
     /**
      * @test
@@ -195,6 +203,10 @@ class ProxyCachingTest extends FunctionalTestCase
         self::assertEquals($expected, $this->subject::getPageTag(2));
     }
 
+
+    //=============================================
+
+
     /**
      * TearDown
      */
@@ -202,6 +214,4 @@ class ProxyCachingTest extends FunctionalTestCase
     {
         parent::tearDown();
     }
-
-
 }
