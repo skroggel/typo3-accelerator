@@ -31,6 +31,9 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 class PseudoCdnTest extends FunctionalTestCase
 {
 
+    /**
+     * @const
+     */
     const BASE_PATH = __DIR__ . '/PseudoCdnTest';
 
 
@@ -42,6 +45,7 @@ class PseudoCdnTest extends FunctionalTestCase
         'typo3conf/ext/accelerator',
     ];
 
+
     /**
      * @var string[]
      */
@@ -49,16 +53,15 @@ class PseudoCdnTest extends FunctionalTestCase
 
 
     /**
-     * @var \Madj2k\Accelerator\ContentProcessing\PseudoCdn
+     * @var \Madj2k\Accelerator\ContentProcessing\PseudoCdn|null
      */
-    private $subject;
+    private ?PseudoCdn $subject = null;
 
 
     /**
-     * @var \TYPO3\CMS\Extbase\Object\ObjectManager
+     * @var \TYPO3\CMS\Extbase\Object\ObjectManager|null
      */
-    private $objectManager;
-
+    private ?ObjectManager $objectManager = null;
 
 
     /**
@@ -78,8 +81,8 @@ class PseudoCdnTest extends FunctionalTestCase
     }
 
 
-
     //=============================================
+
 
     /**
      * @test
@@ -114,7 +117,6 @@ class PseudoCdnTest extends FunctionalTestCase
     }
 
 
-
     /**
      * @test
      */
@@ -147,6 +149,7 @@ class PseudoCdnTest extends FunctionalTestCase
         self::assertEquals('New-Setup-Test', $result['ignoreIfContains']);
     }
 
+
     /**
      * @test
      */
@@ -176,7 +179,9 @@ class PseudoCdnTest extends FunctionalTestCase
         self::assertEquals('/\.css|\.js|\?noCdn=1/', $result['ignoreIfContains']);
     }
 
+
     //=============================================
+
 
     /**
      * @test
@@ -208,6 +213,7 @@ class PseudoCdnTest extends FunctionalTestCase
         $html = file_get_contents(self::BASE_PATH . '/Fixtures/Frontend/Templates/Default.html');
         self::assertEquals($html, $this->subject->process($html));
     }
+
 
     /**
      * @test
@@ -246,6 +252,8 @@ class PseudoCdnTest extends FunctionalTestCase
     }
 
 
+    //=============================================
+
 
     /**
      * TearDown
@@ -254,6 +262,4 @@ class PseudoCdnTest extends FunctionalTestCase
     {
         parent::tearDown();
     }
-
-
 }

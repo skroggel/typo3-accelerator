@@ -14,7 +14,12 @@ namespace Madj2k\Accelerator\Cache;
  * The TYPO3 project - inspiring people to share!
  */
 
+use Madj2k\CoreExtended\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
+use TYPO3\CMS\Extbase\Mvc\Request;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class CacheAbstract
@@ -24,48 +29,73 @@ use TYPO3\CMS\Core\Cache\CacheManager;
  * @package Madj2k_Accelerator
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  */
-abstract class CacheAbstract implements \TYPO3\CMS\Core\SingletonInterface
+abstract class CacheAbstract implements CacheInterface, \TYPO3\CMS\Core\SingletonInterface
 {
+    /**
+     * @const string
+     */
+    const TAG_IDENTIFIER = '###ID###';
+
 
     /**
-     * @var string Key for cache
+     * @const string
      */
-    protected $_key = 'tx_accelerator';
+    const TAG_IDENTIFIER_PAGE = '###ID_PA###';
+
+
+    /**
+     * @const string
+     */
+    const TAG_EXTENSION = '###ID_EXT###';
+
+
+    /**
+     * @const string
+     */
+    const TAG_EXTENSION_PAGE = '###ID_EXT_PA###';
+
+
+    /**
+     * @const string
+     */
+    const TAG_PLUGIN = '###ID_EXT_PL###';
+
+
+    /**
+     * @const string
+     */
+    const TAG_PLUGIN_PAGE = '###ID_EXT_PL_PA###';
+
+
+    /**
+     * @var \TYPO3\CMS\Extbase\Mvc\Request|null
+     */
+    protected ?Request $request = null;
+
 
     /**
      * @var string Identifier for cache
      */
-    protected $_identifier = 'tx_accelerator';
-
-    /**
-     * @var string Contains context mode (Production, Development...)
-     */
-    protected $contextMode  = '';
-
-    /**
-     * @var string Contains environment mode (FE or BE)
-     */
-    protected $environmentMode = '';
+    protected string $identifier = 'txAccelerator';
 
 
     /**
-     * Constructor
-     *
-     * @param string $environmentMode
-     * @param string $contextMode
-     * @return void
+     * @var string EntryIdentifier for cache
      */
-    public function __construct(string $environmentMode = '', string $contextMode = '')
-    {
+    protected string $entryIdentifier = 'txAccelerator';
 
-        if ($environmentMode) {
-            $this->environmentMode = $environmentMode;
-        }
 
-        if ($contextMode) {
-            $this->contextMode = $contextMode;
-        }
-    }
+    /**
+     * @var bool Contains test mode
+     */
+    protected bool $testMode = false;
+
+
+    /**
+     * @var array Contains relevant tags
+     */
+    protected array $tags = [];
+
 
     /**
      * Returns cache identifier
@@ -74,49 +104,138 @@ abstract class CacheAbstract implements \TYPO3\CMS\Core\SingletonInterface
      */
     public function getIdentifier(): string
     {
-        return $this->_identifier;
+        return GeneralUtility::camelize($this->identifier);
     }
 
 
     /**
-     * Returns cache identifier
+     * sets cache identifier
      *
      * @param string $identifier
-     * @return $this
+     * @return \Madj2k\Accelerator\Cache\CacheInterface
      */
-    public function setIdentifier(string $identifier): self
+    public function setIdentifier(string $identifier): CacheInterface
     {
-        $this->_identifier = sha1($identifier);
+        $this->identifier = $identifier;
         return $this;
+    }
+
+
+    /**
+     * Returns cache entryIdentifier
+     *
+     * @return string
+     */
+    public function getEntryIdentifier(): string
+    {
+        $prefix = '';
+        if ($this->getExtensionName()) {
+            $prefix = $this->getExtensionName() . '_';
+        }
+        if ($this->getPlugin()) {
+            $prefix .= $this->getPlugin() . '_';
+        }
+
+        return $prefix . sha1($this->entryIdentifier);
+    }
+
+
+    /**
+     * sets cache entryIdentifier
+     *
+     * @param string $entryIdentifier
+     * @return \Madj2k\Accelerator\Cache\CacheInterface
+     */
+    public function setEntryIdentifier(string $entryIdentifier): CacheInterface
+    {
+        $this->entryIdentifier = $entryIdentifier;
+        return $this;
+    }
+
+
+    /**
+     * sets request object
+     *
+     * @param \TYPO3\CMS\Extbase\Mvc\Request $request
+     * @return \Madj2k\Accelerator\Cache\CacheInterface
+     */
+    public function setRequest(Request $request): CacheInterface
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+
+    /**
+     * Returns extensionName
+     *
+     * @return string
+     */
+    public function getExtensionName(): string
+    {
+        if ($this->request) {
+            return GeneralUtility::camelize($this->request->getControllerExtensionName());
+        }
+        return '';
+    }
+
+
+    /**
+     * Returns plugin
+     *
+     * @return string
+     */
+    public function getPlugin(): string
+    {
+        if ($this->request) {
+            return GeneralUtility::camelize($this->request->getPluginName());
+        }
+        return '';
+    }
+
+
+     /**
+     * Sets the testMode
+     *
+     * @param bool $testMode
+     * @return \Madj2k\Accelerator\Cache\CacheInterface
+     */
+    public function setTestMode(bool $testMode): CacheInterface
+    {
+        $this->testMode = $testMode;
+        return $this;
+    }
+
+
+    /**
+     * Gets the testMode
+     *
+     * @return bool
+     */
+    public function getTestMode(): bool
+    {
+        return $this->testMode;
     }
 
 
     /**
      * Returns cached object
      *
-     * @param string $identifier
      * @return mixed
      * @throws \TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException
      */
-    public function getContent(string $identifier = '')
+    public function getContent()
     {
-
-        if ($identifier) {
-            $this->setIdentifier($identifier);
-        }
 
         // only use cache when in production
         // and when called from FE
-        if (
-            ($this->getContextMode() != 'Production')
-            || ($this->getEnvironmentMode() != 'FE')
-        ) {
-            return false;
+        if (! $this->isCacheActive()) {
+            return null;
         }
 
-        $this->getCacheManager()
-            ->getCache($this->_key)
-            ->get($this->getIdentifier());
+        return $this->getCacheManager()
+            ->getCache($this->getIdentifier())
+            ->get($this->getEntryIdentifier()) ?: null;
     }
 
 
@@ -124,32 +243,132 @@ abstract class CacheAbstract implements \TYPO3\CMS\Core\SingletonInterface
      * sets cached content
      *
      * @param mixed $data
-     * @param array $tags
-     * @param string $identifier
-     * @param integer $lifetime
-     * @return $this
+     * @param int $lifetime
+     * @return \Madj2k\Accelerator\Cache\CacheInterface
      * @throws \TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException
      */
-    public function setContent($data, array $tags = array(), string $identifier = '', int $lifetime = 21600): self
+    public function setContent($data, int $lifetime = 21600): CacheInterface
     {
-
-        if ($identifier) {
-            $this->setIdentifier($identifier);
-        }
 
         // only use cache when in production
         // and when called from FE
-        if (
-            ($this->getContextMode() != 'Production')
-            || ($this->getEnvironmentMode() != 'FE')
-        ) {
+        if (! $this->isCacheActive()) {
             return $this;
         }
 
         $this->getCacheManager()
-            ->getCache($this->_key)
-            ->set($this->getIdentifier(), $data, $tags, $lifetime);
+            ->getCache($this->getIdentifier())
+            ->set(
+                $this->getEntryIdentifier(),
+                $data,
+                $this->getTags(),
+                $lifetime
+            );
 
+        return $this;
+    }
+
+
+    /**
+     * Checks for cached content
+     *
+     * @return bool
+     * @throws \TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException
+     */
+    public function hasContent(): bool
+    {
+
+        // only use cache when in production
+        // and when called from FE
+        if (! $this->isCacheActive()) {
+            return false;
+        }
+
+        return $this->getCacheManager()
+            ->getCache($this->getIdentifier())
+            ->has($this->getEntryIdentifier());
+    }
+
+
+    /**
+     * Return the resolved tag
+     *
+     * @param string $tag
+     * @return string
+     */
+    public function resolveTag(string $tag): string
+    {
+        switch ($tag) {
+            case self::TAG_IDENTIFIER:
+                return $this->getIdentifier();
+            case self::TAG_IDENTIFIER_PAGE:
+                $pid = intval($GLOBALS['TSFE']->id);
+                return $this->getIdentifier() . '_' . $pid;
+            case self::TAG_EXTENSION:
+                return $this->getIdentifier() . '_' . $this->getExtensionName();
+            case self::TAG_EXTENSION_PAGE:
+                $pid = intval($GLOBALS['TSFE']->id);
+                return $this->getIdentifier() . '_' . $this->getExtensionName() . '_' . $pid;
+            case self::TAG_PLUGIN:
+                return $this->getIdentifier() . '_' . $this->getExtensionName() . '_' . $this->getPlugin();
+            case self::TAG_PLUGIN_PAGE:
+                $pid = intval($GLOBALS['TSFE']->id);
+                return $this->getIdentifier() . '_' . $this->getExtensionName() . '_' . $this->getPlugin() . '_' . $pid;
+        }
+
+        return $tag;
+    }
+
+
+    /**
+     * Gets the relevant tags
+     *
+     * @return array
+     */
+    public function getTags(): array
+    {
+        $defaultTags = [
+            $this->resolveTag(self::TAG_IDENTIFIER),
+            $this->resolveTag(self::TAG_IDENTIFIER_PAGE),
+        ];
+
+        if ($this->getExtensionName()) {
+            $defaultTags[] = $this->resolveTag(self::TAG_EXTENSION);
+            $defaultTags[] = $this->resolveTag(self::TAG_EXTENSION_PAGE);
+        }
+
+        if ($this->getPlugin()) {
+            $defaultTags[] = $this->resolveTag(self::TAG_PLUGIN);
+            $defaultTags[] = $this->resolveTag(self::TAG_PLUGIN_PAGE);
+        }
+
+        return array_merge($defaultTags, $this->tags);
+    }
+
+
+    /**
+     * Sets the relevant tags
+     *
+     * @param array $tags
+     * @return \Madj2k\Accelerator\Cache\CacheInterface
+     */
+    public function setTags(array $tags): CacheInterface
+    {
+        // add prefix
+        $this->tags = $tags;
+        return $this;
+    }
+
+
+    /**
+     * Flushes cache by tag
+     *
+     * @param string $tag
+     * @return \Madj2k\Accelerator\Cache\CacheInterface
+     */
+    public function flushByTag(string $tag): CacheInterface
+    {
+        $this->getCacheManager()->flushCachesByTag($this->resolveTag($tag));
         return $this;
     }
 
@@ -168,39 +387,24 @@ abstract class CacheAbstract implements \TYPO3\CMS\Core\SingletonInterface
 
 
     /**
-     * Function to return the current TYPO3_CONTEXT.
-     *
-     * @return string
+     * Function to return cache mode
+     * @return bool
      */
-    protected function getContextMode(): string
+    protected function isCacheActive(): bool
     {
-
-        if (!$this->contextMode) {
-            if (getenv('TYPO3_CONTEXT')) {
-                $this->contextMode = getenv('TYPO3_CONTEXT');
-            }
+        if (
+            (
+                (Environment::getContext()->isProduction())
+                && (TYPO3_MODE == 'FE')
+            )
+            || $this->getTestMode()
+        ) {
+            return true;
         }
 
-        return $this->contextMode ?: '';
+        return false;
     }
 
-    /**
-     * Function to return the current TYPO3_MODE.
-     * This function can be mocked in unit tests to be able to test frontend behaviour.
-     *
-     * @return string
-     * @see \TYPO3\CMS\Core\Resource\AbstractRepository
-     */
-    protected function getEnvironmentMode(): string
-    {
 
-        if (!$this->environmentMode) {
-            if (TYPO3_MODE) {
-                $this->environmentMode = TYPO3_MODE;
-            }
-        }
-
-        return $this->environmentMode ?: '';
-    }
 
 }

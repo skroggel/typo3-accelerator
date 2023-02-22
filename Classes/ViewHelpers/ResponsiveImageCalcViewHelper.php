@@ -28,22 +28,26 @@ class ResponsiveImageCalcViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\Ab
 
     use CompileWithContentArgumentAndRenderStatic;
 
+
     /**
      * @var bool
      */
     protected $escapeOutput = false;
 
+
     /**
      * Initialize arguments.
      *
+     * @return void
      * @throws \TYPO3Fluid\Fluid\Core\ViewHelper\Exception
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         parent::initializeArguments();
         $this->registerArgument('maxWidth', 'int', 'The max-width for the calculation', false, 0);
         $this->registerArgument('resolution', 'int', 'The resolution for the calculation', false, 1);
     }
+
 
     /**
      * Calculate max-width / max-height based on resolution of device

@@ -1,11 +1,6 @@
 <?php
 
 namespace Madj2k\Accelerator\Hooks;
-
-use Madj2k\Accelerator\ContentProcessing\ProxyCaching;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
-
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -18,6 +13,10 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+use Madj2k\Accelerator\ContentProcessing\ProxyCaching;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * Class ProxyCachingHook
@@ -37,7 +36,7 @@ class ProxyCachingHook
      * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parent The parent object
      * @return void
      */
-    public function sendHeader(array $parameters, TypoScriptFrontendController $parent)
+    public function sendHeader(array $parameters, TypoScriptFrontendController $parent): void
     {
 
         /** @var $proxyCaching \Madj2k\Accelerator\ContentProcessing\ProxyCaching */

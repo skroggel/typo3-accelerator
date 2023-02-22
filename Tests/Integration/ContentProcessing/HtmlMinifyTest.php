@@ -42,6 +42,7 @@ class HtmlMinifyTest extends FunctionalTestCase
         'typo3conf/ext/accelerator',
     ];
 
+
     /**
      * @var string[]
      */
@@ -49,16 +50,15 @@ class HtmlMinifyTest extends FunctionalTestCase
 
 
     /**
-     * @var \Madj2k\Accelerator\ContentProcessing\HtmlMinify
+     * @var \Madj2k\Accelerator\ContentProcessing\HtmlMinify|null
      */
-    private $subject;
+    private ?HtmlMinify $subject = null;
 
 
     /**
-     * @var \TYPO3\CMS\Extbase\Object\ObjectManager
+     * @var \TYPO3\CMS\Extbase\Object\ObjectManager|null
      */
-    private $objectManager;
-
+    private ?ObjectManager $objectManager= null;
 
 
     /**
@@ -78,8 +78,8 @@ class HtmlMinifyTest extends FunctionalTestCase
     }
 
 
-
     //=============================================
+
 
     /**
      * @test
@@ -113,6 +113,7 @@ class HtmlMinifyTest extends FunctionalTestCase
         self::assertEquals('9999', $result['excludePids']);
     }
 
+
     /**
      * @test
      */
@@ -144,6 +145,8 @@ class HtmlMinifyTest extends FunctionalTestCase
 
 
     //=============================================
+
+
     /**
      * @test
      */
@@ -247,6 +250,7 @@ class HtmlMinifyTest extends FunctionalTestCase
         self::assertEquals($html, $this->subject->process($html));
     }
 
+
     /**
      * @test
      */
@@ -281,6 +285,8 @@ class HtmlMinifyTest extends FunctionalTestCase
     }
 
 
+    //=============================================
+
 
     /**
      * TearDown
@@ -289,6 +295,4 @@ class HtmlMinifyTest extends FunctionalTestCase
     {
         parent::tearDown();
     }
-
-
 }

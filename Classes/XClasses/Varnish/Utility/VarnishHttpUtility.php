@@ -22,20 +22,18 @@ use Psr\Log\LoggerInterface;
 /**
  * Add logs to varnish extension
  */
-class VarnishHttpUtility extends  \Snowflake\Varnish\Utility\VarnishHttpUtility
+class VarnishHttpUtility extends \Opsone\Varnish\Utility\VarnishHttpUtility
 {
-
 
     /**
      * Add command to cURL Multi-Handle Queue
      *
-     * @param    string $method The methodname
-     * @param    string $url The url
-     * @param    string|array $header The header
-     *
+     * @param string $method The method-name
+     * @param string $url The url
+     * @param string|array $header The header
      * @return void
      */
-    public static function addCommand($method, $url, $header = '')
+    public static function addCommand($method, $url, $header = ''): void
     {
 
         /** @var LoggerInterface $logger */

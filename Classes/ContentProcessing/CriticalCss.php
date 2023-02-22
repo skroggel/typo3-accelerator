@@ -14,13 +14,11 @@ namespace Madj2k\Accelerator\ContentProcessing;
  * The TYPO3 project - inspiring people to share!
  */
 
-use TYPO3\CMS\Core\Resource\ResourceCompressor;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Frontend\Page\PageRepository;
 
 /**
  * Class CriticalCss
@@ -36,7 +34,7 @@ class CriticalCss
     /**
      * @var array
      */
-    protected $settings;
+    protected array $settings = [];
 
 
     /**
@@ -64,7 +62,6 @@ class CriticalCss
         ){
             return '';
         }
-
 
         // first of all we rebuild the existing cssIncludes
         /** @see: PageRenderer->renderCssFiles() */
@@ -113,6 +110,7 @@ class CriticalCss
         return implode(LF, $cssCode);
     }
 
+
     /**
      * Removes default CSS files conditionally
      *
@@ -143,7 +141,7 @@ class CriticalCss
     }
 
 
-        /**
+    /**
      * Rebase relative paths in CSS
      *
      * @param string $filePath
@@ -210,6 +208,7 @@ class CriticalCss
         return [];
     }
 
+
     /**
      * Returns the configured CSS-files that are to be removed
      *
@@ -227,6 +226,7 @@ class CriticalCss
 
         return [];
     }
+
 
     /**
      * Returns the frontend layout of the current page
@@ -278,11 +278,11 @@ class CriticalCss
         foreach ($mediaArray as $key => $mediaString) {
             if ($mediaString == 'screen') {
                 unset($mediaArray[$key]);
-                array_push(  $mediaArray, 'print');
+                $mediaArray[] = 'print';
             }
             if ($mediaString == 'all') {
                 unset($mediaArray[$key]);
-                array_push(  $mediaArray, 'print', 'speech');
+                array_push($mediaArray, 'print', 'speech');
             }
         }
 
@@ -312,7 +312,6 @@ class CriticalCss
 
         return $file;
     }
-
 
 
     /**

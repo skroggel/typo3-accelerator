@@ -15,6 +15,7 @@ namespace Madj2k\Accelerator\XClasses\Extbase\Service;
  */
 
 use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 
@@ -26,12 +27,12 @@ class ImageService extends \TYPO3\CMS\Extbase\Service\ImageService {
     /**
      * Does exactly the same as the class it extends EXCEPT it ALWAYS creates a file
      *
-     * @param File|FileReference $image
+     * @param \TYPO3\CMS\Core\Resource\FileInterface $image
      * @param array $processingInstructions
-     * @return ProcessedFile
+     * @return \TYPO3\CMS\Core\Resource\ProcessedFile
      * @api
      */
-    public function applyProcessingInstructions($image, $processingInstructions)
+    public function applyProcessingInstructions($image, $processingInstructions): ProcessedFile
     {
         $processingInstructions['additionalParameters'] = '-rotate 360';
         return parent::applyProcessingInstructions($image, $processingInstructions);
