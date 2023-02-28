@@ -1,4 +1,4 @@
-<?php
+
 
 /***************************************************************
  * Extension Manager/Repository config file for ext: "accelerator"
