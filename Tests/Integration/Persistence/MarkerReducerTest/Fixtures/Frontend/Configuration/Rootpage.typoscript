@@ -1,48 +1,48 @@
-plugin.tx_rkwmailer {
+plugin.tx_postmaster {
     view {
 
         layoutRootPaths {
-            0 = EXT:rkw_mailer/Resources/Private/Layouts/
-            1 = EXT:rkw_mailer/Tests/Integration/Persistence/MarkerReducerTest/Fixtures/Frontend/Layouts/
+            0 = EXT:postmaster/Resources/Private/Layouts/
+            1 = EXT:postmaster/Tests/Integration/Persistence/MarkerReducerTest/Fixtures/Frontend/Layouts/
         }
 
-        # cat=module.tx_rkwmailer/file; type=string; label=Path to template root (BE)
+        # cat=module.tx_postmaster/file; type=string; label=Path to template root (BE)
         templateRootPaths {
-            0 = EXT:rkw_mailer/Resources/Private/Templates/
-            1 = EXT:rkw_mailer/Tests/Integration/Persistence/MarkerReducerTest/Fixtures/Frontend/Templates/
+            0 = EXT:postmaster/Resources/Private/Templates/
+            1 = EXT:postmaster/Tests/Integration/Persistence/MarkerReducerTest/Fixtures/Frontend/Templates/
         }
 
-        # cat=module.tx_rkwmailer/file; type=string; label=Path to template layouts (BE)
+        # cat=module.tx_postmaster/file; type=string; label=Path to template layouts (BE)
         partialRootPaths {
-            0 = EXT:rkw_mailer/Resources/Private/Partials/
-            1 = EXT:rkw_mailer/Tests/Integration/Persistence/MarkerReducerTest/Fixtures/Frontend/Partials/
+            0 = EXT:postmaster/Resources/Private/Partials/
+            1 = EXT:postmaster/Tests/Integration/Persistence/MarkerReducerTest/Fixtures/Frontend/Partials/
         }
     }
     persistence {
-        # cat=module.tx_rkwmailer//a; type=string; label=Default storage PID
+        # cat=module.tx_postmaster//a; type=string; label=Default storage PID
         storagePid = 9999
     }
 
 
     settings {
 
-        # cat=module.tx_rkwmailer; type=integer; label=Pid of redirect plugin
+        # cat=module.tx_postmaster; type=integer; label=Pid of redirect plugin
         redirectPid = 9999
 
-        # cat=module.tx_rkwmailer; type=integer; label= Delay for redirect (in sec)
+        # cat=module.tx_postmaster; type=integer; label= Delay for redirect (in sec)
         redirectDelay = 5
 
-        # cat=module.tx_rkwmailer; type=integer; label=Pid of plugin for pixel counter (HTML-mails only)
+        # cat=module.tx_postmaster; type=integer; label=Pid of plugin for pixel counter (HTML-mails only)
         counterPixelPid = 9998
 
-        # cat=module.tx_rkwmailer; type=integer; label=URL for hard-links in templates
+        # cat=module.tx_postmaster; type=integer; label=URL for hard-links in templates
         baseUrl = http://www.example.de
 
-        # cat=module.tx_rkwmailer; type=integer; label=URL for images in templates
-        basePathImages =  EXT:rkw_mailer/Resources/Public/Images
+        # cat=module.tx_postmaster; type=integer; label=URL for images in templates
+        basePathImages =  EXT:postmaster/Resources/Public/Images
 
-        # cat=module.tx_rkwmailer; type=integer; label=URL for logo in templates
-        basePathLogo = EXT:rkw_mailer/Resources/Public/Images/logo.png
+        # cat=module.tx_postmaster; type=integer; label=URL for logo in templates
+        basePathLogo = EXT:postmaster/Resources/Public/Images/logo.png
     }
 }
 
