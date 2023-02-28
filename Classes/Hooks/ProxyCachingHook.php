@@ -33,10 +33,10 @@ class ProxyCachingHook
      * ContentPostProc-output hook to add some additional headers
      *
      * @param array $parameters Parameter
-     * @param \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parent The parent object
+     * @param object $parent The parent object
      * @return void
      */
-    public function sendHeader(array $parameters, TypoScriptFrontendController $parent): void
+    public function sendHeader(array $parameters, object $parent): void
     {
 
         /** @var $proxyCaching \Madj2k\Accelerator\ContentProcessing\ProxyCaching */

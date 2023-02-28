@@ -50,6 +50,21 @@ call_user_func(
         ];
 
         //=================================================================
+        // Add TypoScript automatically
+        //=================================================================
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript(
+            'Accelerator',
+            'constants',
+            '<INCLUDE_TYPOSCRIPT: source="FILE: EXT:accelerator/Configuration/TypoScript/constants.typoscript">'
+        );
+
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript(
+            'Accelerator',
+            'setup',
+            '<INCLUDE_TYPOSCRIPT: source="FILE: EXT:accelerator/Configuration/TypoScript/setup.typoscript">'
+        );
+
+        //=================================================================
         // Configure Logger
         //=================================================================
         $GLOBALS['TYPO3_CONF_VARS']['LOG']['Madj2k']['Accelerator']['writerConfiguration'] = array(

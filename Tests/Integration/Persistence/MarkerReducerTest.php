@@ -1,5 +1,5 @@
 <?php
-namespace RKW\RkwMailer\Tests\Integration\Persistence;
+namespace Madj2k\Postmaster\Tests\Integration\Persistence;
 
 /*
  * This file is part of the TYPO3 CMS project.

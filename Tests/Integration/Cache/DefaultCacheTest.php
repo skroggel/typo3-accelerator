@@ -117,7 +117,7 @@ class DefaultCacheTest extends FunctionalTestCase
          * Then the default value is returned
          */
 
-        self::assertEquals('txAccelerator', $this->subject->getIdentifier());
+        self::assertEquals('tx_accelerator', $this->subject->getIdentifier());
     }
 
 
@@ -125,7 +125,7 @@ class DefaultCacheTest extends FunctionalTestCase
      * @test
      * @throws \Exception
      */
-    public function setIdentifierSetsValueAndGetIdentifierReturnsItCamelized()
+    public function setIdentifierSetsValueAndGetIdentifierReturnsItUnderscored()
     {
 
         /**
@@ -135,11 +135,11 @@ class DefaultCacheTest extends FunctionalTestCase
          * Given setIdentifier has been called before with this value
          * When the getIdentifier-method is called
          * Then it returns the set value
-         * Then the returned value is camelized
+         * Then the returned value is underscored
          */
 
         $this->subject->setIdentifier('Test Case');
-        self::assertEquals('testCase', $this->subject->getIdentifier());
+        self::assertEquals('test_case', $this->subject->getIdentifier());
 
     }
 
@@ -555,7 +555,7 @@ class DefaultCacheTest extends FunctionalTestCase
          * Then it returns a string
          * Then the string is the camelized identifier plus plugin
          */
-        self::assertEquals('txAccelerator', $this->subject->resolveTag($this->subject::TAG_IDENTIFIER_PLUGIN));
+        self::assertEquals('txAccelerator', $this->subject->resolveTag($this->subject::TAG_PLUGIN));
     }
 
 
@@ -573,7 +573,7 @@ class DefaultCacheTest extends FunctionalTestCase
          * Then it returns a string
          * Then the string is the camelized identifier plus plugin plus current pid
          */
-        self::assertEquals('txAccelerator', $this->subject->resolveTag($this->subject::TAG_IDENTIFIER_PLUGIN_PAGE));
+        self::assertEquals('txAccelerator', $this->subject->resolveTag($this->subject::TAG_PLUGIN_PAGE));
     }
 
 
@@ -637,9 +637,9 @@ class DefaultCacheTest extends FunctionalTestCase
          * Given setRequest has been called before with this request-object
          * When the method is called
          * Then it returns the four tags
-         * Then the first tag is the camelized idenifier
+         * Then the first tag is the camelized identifier
          * Then the second tag is the camelized identifier plus current pid
-         * Then the third tag is the camelized idenifier plus extensionName
+         * Then the third tag is the camelized identifier plus extensionName
          * Then the fourth tag is the camelized identifier plus extensionName plus current pid
          */
 

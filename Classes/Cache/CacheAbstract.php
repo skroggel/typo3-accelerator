@@ -76,13 +76,13 @@ abstract class CacheAbstract implements CacheInterface, \TYPO3\CMS\Core\Singleto
     /**
      * @var string Identifier for cache
      */
-    protected string $identifier = 'txAccelerator';
+    protected string $identifier = 'tx_accelerator';
 
 
     /**
      * @var string EntryIdentifier for cache
      */
-    protected string $entryIdentifier = 'txAccelerator';
+    protected string $entryIdentifier = 'tx_accelerator';
 
 
     /**
@@ -104,7 +104,7 @@ abstract class CacheAbstract implements CacheInterface, \TYPO3\CMS\Core\Singleto
      */
     public function getIdentifier(): string
     {
-        return GeneralUtility::camelize($this->identifier);
+        return GeneralUtility::underscore($this->identifier);
     }
 
 
@@ -298,22 +298,23 @@ abstract class CacheAbstract implements CacheInterface, \TYPO3\CMS\Core\Singleto
      */
     public function resolveTag(string $tag): string
     {
+        $camelizedIdentifier = GeneralUtility::camelize($this->getIdentifier(), '', '_');
         switch ($tag) {
             case self::TAG_IDENTIFIER:
-                return $this->getIdentifier();
+                return $camelizedIdentifier;
             case self::TAG_IDENTIFIER_PAGE:
                 $pid = intval($GLOBALS['TSFE']->id);
-                return $this->getIdentifier() . '_' . $pid;
+                return $camelizedIdentifier . '_' . $pid;
             case self::TAG_EXTENSION:
-                return $this->getIdentifier() . '_' . $this->getExtensionName();
+                return $camelizedIdentifier . '_' . $this->getExtensionName();
             case self::TAG_EXTENSION_PAGE:
                 $pid = intval($GLOBALS['TSFE']->id);
-                return $this->getIdentifier() . '_' . $this->getExtensionName() . '_' . $pid;
+                return $camelizedIdentifier . '_' . $this->getExtensionName() . '_' . $pid;
             case self::TAG_PLUGIN:
-                return $this->getIdentifier() . '_' . $this->getExtensionName() . '_' . $this->getPlugin();
+                return $camelizedIdentifier . '_' . $this->getExtensionName() . '_' . $this->getPlugin();
             case self::TAG_PLUGIN_PAGE:
                 $pid = intval($GLOBALS['TSFE']->id);
-                return $this->getIdentifier() . '_' . $this->getExtensionName() . '_' . $this->getPlugin() . '_' . $pid;
+                return $camelizedIdentifier . '_' . $this->getExtensionName() . '_' . $this->getPlugin() . '_' . $pid;
         }
 
         return $tag;
