@@ -216,7 +216,6 @@ class MarkerReducer
      */
     public static function explode(array $marker): array
     {
-
         /** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         foreach ($marker as $key => $value) {
