@@ -176,7 +176,7 @@ class PseudoCdnTest extends FunctionalTestCase
         $this->subject = $this->objectManager->get(PseudoCdn::class);
 
         $result = $this->subject->getSettings();
-        self::assertEquals('/\.css|\.js|\?noCdn=1/', $result['ignoreIfContains']);
+        self::assertEquals('/\.css|\.js|\.pdf|\?noCdn=1/', $result['ignoreIfContains']);
     }
 
 

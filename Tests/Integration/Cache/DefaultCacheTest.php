@@ -117,7 +117,7 @@ class DefaultCacheTest extends FunctionalTestCase
          * Then the default value is returned
          */
 
-        self::assertEquals('tx_accelerator', $this->subject->getIdentifier());
+        self::assertEquals('accelerator', $this->subject->getIdentifier());
     }
 
 
@@ -138,7 +138,7 @@ class DefaultCacheTest extends FunctionalTestCase
          * Then the returned value is underscored
          */
 
-        $this->subject->setIdentifier('Test Case');
+        $this->subject->setIdentifier('TestCase');
         self::assertEquals('test_case', $this->subject->getIdentifier());
 
     }
@@ -162,7 +162,7 @@ class DefaultCacheTest extends FunctionalTestCase
          * Then the returned value is the sha1-value of the default-value
          */
 
-        self::assertEquals('txAccelerator', $this->subject->getEntryIdenitfier());
+        self::assertEquals(sha1('accelerator'), $this->subject->getEntryIdentifier());
 
     }
 
@@ -205,7 +205,7 @@ class DefaultCacheTest extends FunctionalTestCase
          * Given that request-object has a plugin. and extension-name set
          * Given setRequest has been called before with this request-object
          * When the getEntryIdentifier-method is called
-         * Then the returned string is prefixed with the extension- and plugin-name
+         * Then the returned string is prefixed with the extension- and plugin-name in lowerCamelCase
          * Then appended to the prefix the sha1-value of the given string is returned
          */
 
@@ -213,8 +213,8 @@ class DefaultCacheTest extends FunctionalTestCase
 
         /** @var \TYPO3\CMS\Extbase\Mvc\Request $request */
         $request = $this->objectManager->get(Request::class);
-        $request->setPluginName('PluginTest');
-        $request->setControllerExtensionName('ExtensionTest');
+        $request->setPluginName('Plugin_Test');
+        $request->setControllerExtensionName('Extension_Test');
 
         $this->subject->setRequest($request);
 
@@ -236,18 +236,18 @@ class DefaultCacheTest extends FunctionalTestCase
          * Given a request-object
          * Given that request-object has a plugin- and extension-name set
          * When the method is called with that request-object as parameter
-         * Then getExtensionName returns the extension-name
-         * Then getPlugin returns the plugin-name
+         * Then getExtensionName returns the extension-name in lowerCamelCase
+         * Then getPlugin returns the plugin-name in lowerCamelCase
          */
 
         /** @var \TYPO3\CMS\Extbase\Mvc\Request $request */
         $request = $this->objectManager->get(Request::class);
-        $request->setPluginName('PluginTest');
-        $request->setControllerExtensionName('ExtensionTest');
+        $request->setPluginName('Plugin_Test');
+        $request->setControllerExtensionName('Extension_Test');
 
         $this->subject->setRequest($request);
-        self::assertEquals('extensiontest', $this->subject->getExtensionName());
-        self::assertEquals('plugintest', $this->subject->getPlugin());
+        self::assertEquals('extensionTest', $this->subject->getExtensionName());
+        self::assertEquals('pluginTest', $this->subject->getPlugin());
 
     }
 
@@ -517,9 +517,9 @@ class DefaultCacheTest extends FunctionalTestCase
          *
          * When the method is called with TAG_IDENTIFIER-constant
          * Then it returns a string
-         * Then the string is the camelized idenifier
+         * Then the string is the camelized identifier
          */
-        self::assertEquals('txAccelerator', $this->subject->resolveTag($this->subject::TAG_IDENTIFIER));
+        self::assertEquals('accelerator', $this->subject->resolveTag($this->subject::TAG_IDENTIFIER));
     }
 
 
@@ -527,7 +527,7 @@ class DefaultCacheTest extends FunctionalTestCase
      * @test
      * @throws \Exception
      */
-    public function resolveTagReturnsIdentifiePlusPid ()
+    public function resolveTagReturnsIdentifierPlusPid ()
     {
 
         /**
@@ -537,7 +537,7 @@ class DefaultCacheTest extends FunctionalTestCase
          * Then it returns a string
          * Then the string is camelized identifier plus current pid
          */
-        self::assertEquals('txAccelerator', $this->subject->resolveTag($this->subject::TAG_IDENTIFIER_PAGE));
+        self::assertEquals('accelerator_1', $this->subject->resolveTag($this->subject::TAG_IDENTIFIER_PAGE));
     }
 
 
@@ -551,11 +551,21 @@ class DefaultCacheTest extends FunctionalTestCase
         /**
          * Scenario:
          *
+         * Given a request-object
+         * Given that request-object has a pluginName set
+         * Given setRequest has been called before with this request-object
          * When the method is called with TAG_IDENTIFIER_PLUGIN-constant
          * Then it returns a string
          * Then the string is the camelized identifier plus plugin
          */
-        self::assertEquals('txAccelerator', $this->subject->resolveTag($this->subject::TAG_PLUGIN));
+
+        /** @var \TYPO3\CMS\Extbase\Mvc\Request $request */
+        $request = $this->objectManager->get(Request::class);
+        $request->setPluginName('PluginTest');
+        $request->setControllerExtensionName('ExtensionTest');
+
+        $this->subject->setRequest($request);
+        self::assertEquals('accelerator_extensionTest_pluginTest', $this->subject->resolveTag($this->subject::TAG_PLUGIN));
     }
 
 
@@ -569,11 +579,21 @@ class DefaultCacheTest extends FunctionalTestCase
         /**
          * Scenario:
          *
+         * Given a request-object
+         * Given that request-object has a pluginName set
+         * Given setRequest has been called before with this request-object
          * When the method is called with TAG_IDENTIFIER_PLUGIN_PAGE-constant
          * Then it returns a string
          * Then the string is the camelized identifier plus plugin plus current pid
          */
-        self::assertEquals('txAccelerator', $this->subject->resolveTag($this->subject::TAG_PLUGIN_PAGE));
+
+        /** @var \TYPO3\CMS\Extbase\Mvc\Request $request */
+        $request = $this->objectManager->get(Request::class);
+        $request->setPluginName('PluginTest');
+        $request->setControllerExtensionName('ExtensionTest');
+
+        $this->subject->setRequest($request);
+        self::assertEquals('accelerator_extensionTest_pluginTest_1', $this->subject->resolveTag($this->subject::TAG_PLUGIN_PAGE));
     }
 
 
@@ -595,6 +615,7 @@ class DefaultCacheTest extends FunctionalTestCase
     }
 
     //=============================================
+
     /**
      * @test
      * @throws \Exception
@@ -613,8 +634,8 @@ class DefaultCacheTest extends FunctionalTestCase
          */
 
         $expected = [
-            0 => 'txAccelerator',
-            1 => 'txAccelerator_1'
+            0 => 'accelerator',
+            1 => 'accelerator_1'
         ];
 
         self::assertEquals($expected, $this->subject->getTags());
@@ -648,10 +669,10 @@ class DefaultCacheTest extends FunctionalTestCase
         $request->setControllerExtensionName('myExtension');
 
         $expected = [
-            0 => 'txAccelerator',
-            1 => 'txAccelerator_1',
-            2 => 'txAccelerator_myExtension',
-            3 => 'txAccelerator_myExtension_1'
+            0 => 'accelerator',
+            1 => 'accelerator_1',
+            2 => 'accelerator_myExtension',
+            3 => 'accelerator_myExtension_1'
         ];
 
         $this->subject->setRequest($request);
@@ -672,14 +693,15 @@ class DefaultCacheTest extends FunctionalTestCase
          *
          * Given no tags have been set
          * Given a request-object
+         * Given that request-object has no extensionName set
          * Given that request-object has a pluginName set
          * Given setRequest has been called before with this request-object
          * When the method is called
          * Then it returns the four tags
          * Then the first tag is the camelized idenifier
          * Then the second tag is the camelized identifier plus current pid
-         * Then the third tag is the camelized idenifier plus pluginName
-         * Then the fourth tag is the camelized identifier plus pluginName plus current pid
+         * Then the third tag is the camelized idenifier plus default plus pluginName
+         * Then the fourth tag is the camelized identifier plus default plus pluginName plus current pid
          */
 
         /** @var \TYPO3\CMS\Extbase\Mvc\Request $request */
@@ -687,10 +709,10 @@ class DefaultCacheTest extends FunctionalTestCase
         $request->setPluginName('myPlugin');
 
         $expected = [
-            0 => 'txAccelerator',
-            1 => 'txAccelerator_1',
-            2 => 'txAccelerator_myPlugin',
-            3 => 'txAccelerator_myPlugin_1'
+            0 => 'accelerator',
+            1 => 'accelerator_1',
+            2 => 'accelerator_default_myPlugin',
+            3 => 'accelerator_default_myPlugin_1'
         ];
 
         $this->subject->setRequest($request);
@@ -728,12 +750,12 @@ class DefaultCacheTest extends FunctionalTestCase
         $request->setPluginName('myPlugin');
 
         $expected = [
-            0 => 'txAccelerator',
-            1 => 'txAccelerator_1',
-            2 => 'txAccelerator_myExtension',
-            3 => 'txAccelerator_myExtension_1',
-            4 => 'txAccelerator_myExtension_myPlugin',
-            5 => 'txAccelerator_myExtension_myPlugin_1'
+            0 => 'accelerator',
+            1 => 'accelerator_1',
+            2 => 'accelerator_myExtension',
+            3 => 'accelerator_myExtension_1',
+            4 => 'accelerator_myExtension_myPlugin',
+            5 => 'accelerator_myExtension_myPlugin_1'
         ];
 
         $this->subject->setRequest($request);
@@ -762,8 +784,8 @@ class DefaultCacheTest extends FunctionalTestCase
          */
 
         $expected = [
-            0 => 'txAccelerator',
-            1 => 'txAccelerator_1',
+            0 => 'accelerator',
+            1 => 'accelerator_1',
             2 => 'sampleTagA',
             3 => 'sampleTagB',
         ];
@@ -783,29 +805,35 @@ class DefaultCacheTest extends FunctionalTestCase
         /**
          * Scenario:
          *
+         * Given a request-object
+         * Given that request-object has no extensionName set
+         * Given that request-object has pluginName set
+         * Given setRequest has been called before with this request-object
          * Given two tags (A and B) have been set
-         * Given a plugin has been set
          * When the method is called
          * Then it returns the four tags
          * Then the first tag is the camelized idenifier
          * Then the second tag is the camelized identifier plus current pid
-         * Then the third tag is the camelized idenifier plus plugin
-         * Then the fourth tag is the camelized identifier plus plugin plus current pid
+         * Then the third tag is the camelized idenifier plus default plus plugin
+         * Then the fourth tag is the camelized identifier plus default plus plugin plus current pid
          * Then the fifth tag is the tag A
          * Then the sixth tag is the tag B
          */
 
+        /** @var \TYPO3\CMS\Extbase\Mvc\Request $request */
+        $request = $this->objectManager->get(Request::class);
+        $request->setPluginName('My Plugin');
 
         $expected = [
-            0 => 'txAccelerator',
-            1 => 'txAccelerator_1',
-            2 => 'txAccelerator_myPlugin',
-            3 => 'txAccelerator_myPlugin_1',
+            0 => 'accelerator',
+            1 => 'accelerator_1',
+            2 => 'accelerator_default_myPlugin',
+            3 => 'accelerator_default_myPlugin_1',
             4 => 'sampleTagA',
             5 => 'sampleTagB',
         ];
 
-        $this->subject->setPlugin('My Plugin');
+        $this->subject->setRequest($request);
         $this->subject->setTags(['sampleTagA', 'sampleTagB']);
         self::assertEquals($expected, $this->subject->getTags());
 
