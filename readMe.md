@@ -707,11 +707,9 @@ class GoogleController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionControlle
         if (!$sitemap = $cache->getContent()) {
 
             $currentPid = $GLOBALS['TSFE']->id;
-            $depth = 999999;
-
             $treeList = explode(
                 ',',
-                \Madj2k\CoreExtended\Utility\GeneralUtility::getTreeList($currentPid , $depth, 0, 1)
+                \Madj2k\CoreExtended\Utility\QueryUtility::getTreeList($currentPid)
             );
 
             $pages = $this->pagesRepository->findByUidListAndDokTypes($treeList);
