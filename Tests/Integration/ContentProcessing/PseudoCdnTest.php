@@ -176,7 +176,7 @@ class PseudoCdnTest extends FunctionalTestCase
         $this->subject = $this->objectManager->get(PseudoCdn::class);
 
         $result = $this->subject->getSettings();
-        self::assertEquals('/\.css|\.js|\.pdf|\?noCdn=1/', $result['ignoreIfContains']);
+        self::assertEquals('/\.css|\.js|\.mp4|\.pdf|\?noCdn=1/', $result['ignoreIfContains']);
     }
 
 
@@ -228,8 +228,8 @@ class PseudoCdnTest extends FunctionalTestCase
          * Given enable is set to true
          * When process is called for an HTML
          * Then the links to static contents are replaced in the HTML
-         * Then links to CSS- files are not replaced
-         * Then links to JS- files are not replaced
+         * Then links to CSS-files are not replaced
+         * Then links to JS-files are not replaced
          * Then normal links are not replaced
          */
         $this->setUpFrontendRootPage(

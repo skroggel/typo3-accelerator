@@ -88,7 +88,7 @@ abstract class CacheAbstract implements CacheInterface, \TYPO3\CMS\Core\Singleto
     /**
      * @var bool Contains test mode
      */
-    protected bool $testMode = false;
+    protected bool $testMode = true;
 
 
     /**
