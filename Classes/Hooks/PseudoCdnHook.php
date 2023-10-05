@@ -43,7 +43,8 @@ class PseudoCdnHook
         // get CDN
         $cdn = GeneralUtility::makeInstance(PseudoCdn::class);
 
-        // Replace content
+        // Replace
+        // @extensionScannerIgnoreLine
         $obj->content = $cdn->process($obj->content);
 
     }
