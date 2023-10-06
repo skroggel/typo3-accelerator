@@ -42,7 +42,7 @@ class CriticalCssHook
         /** @var \Madj2k\Accelerator\ContentProcessing\CriticalCss $criticalCss */
         $criticalCss = GeneralUtility::makeInstance(CriticalCss::class);
 
-        // Replace content
+        // Replace
         array_unshift($params['headerData'], $criticalCss->process($params, $pageRenderer));
     }
 

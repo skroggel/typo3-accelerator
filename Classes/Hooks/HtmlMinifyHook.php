@@ -45,6 +45,7 @@ class HtmlMinifyHook
         $cdn = GeneralUtility::makeInstance(HtmlMinify::class);
 
         // Replace content
+        // @extensionScannerIgnoreLine
         $obj->content = $cdn->process($obj->content);
     }
 
