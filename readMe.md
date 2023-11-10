@@ -248,6 +248,10 @@ mobile = 320
 
 With the CDN functionality it is possible to reduce the loading time of the website considerably by loading static content from subdomains of the respective website.
 This is not a real CDN, but a Pseudo-CDN, since no external servers are used.
+It uses sub-domains of the given domain and therefore it needs
+1. a corresponding DNS-configuration
+2. a wildcard TLS-certificate
+to work properly.
 
 Example without Pseudo-CDN
 ```
@@ -273,6 +277,8 @@ Example with Pseudo-CDN
 ```
 ### 1.2.2 Settings
 IMPORTANT: Since TYPO3 the configuration is no longer possible via TypoScript because it is implemented as Middleware.
+It is recommended to configure the PseudoCdn via `AdditionalConfiguration.php` with `enable=false` and enable it in the page-properties of the rootPage afterwards when
+the DNS for it is set and the Wildcard-TLS-certificate is installed
 
 ```
 $GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn'] = [
@@ -295,7 +301,7 @@ $GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn'] = [
 This function removes unnecessary breaks and spaces from the HTML code. This significantly reduces the size of the HTML code.
 
 ### 1.3.1 Settings
-IMPORTANT: Since TYPO3 the configuration is no longer possible via TypoScript because it is implemented as Middleware.
+IMPORTANT: Since TYPO3 the configuration is no longer possible via TypoScript because it is implemented as Middleware. Use the `AdditionalConfiguration.php` instead:
 ```
 $GLOBALS['TYPO3_CONF_VARS']['FE']['htmlMinify'] = [
     'enable' => true,
