@@ -1,5 +1,6 @@
 <?php
 
+
 /***************************************************************
  * Extension Manager/Repository config file for ext: "accelerator"
  *
@@ -25,7 +26,7 @@ $EM_CONF[$_EXTKEY] = [
 	'modify_tables' => '',
 	'clearCacheOnLoad' => 0,
 	'lockType' => '',
-	'version' => '9.5.9',
+	'version' => '9.5.11',
     'constraints' => [
 		'depends' => [
 			'typo3' => '9.5.0-10.4.99',
