@@ -1,3 +1,8 @@
+/** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  * TABLE-MAPPING IS DEPRECATED SINCE TYPO3 10.4
+  * PLEASE ADD ANY CHANGES TO
+  * EXT:extension/Configuration/Extbase/Persistence/Classes.php
+  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 config.tx_extbase {
     persistence {
         classes {
@@ -44,20 +49,6 @@ plugin.tx_accelerator  {
     # Settings
     #===============================================================
     settings {
-        cdn {
-            enable = {$plugin.tx_accelerator.settings.cdn.enable}
-            maxConnectionsPerDomain = {$plugin.tx_accelerator.settings.cdn.maxConnectionsPerDomain}
-            maxSubdomains = {$plugin.tx_accelerator.settings.cdn.maxSubdomains}
-            ignoreIfContains = {$plugin.tx_accelerator.settings.cdn.ignoreIfContains}
-            search = {$plugin.tx_accelerator.settings.cdn.search}
-        }
-
-        htmlMinify {
-            enable = {$plugin.tx_accelerator.settings.htmlMinify.enable}
-            excludePids = {$plugin.tx_accelerator.settings.htmlMinify.excludePids}
-            includePageTypes = {$plugin.tx_accelerator.settings.htmlMinify.includePageTypes}
-        }
-
         criticalCss {
             enable = {$plugin.tx_accelerator.settings.criticalCss.enable}
             filesForLayout {

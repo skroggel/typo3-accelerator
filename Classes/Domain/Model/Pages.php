@@ -26,11 +26,15 @@ namespace Madj2k\Accelerator\Domain\Model;
 class Pages extends \Madj2k\CoreExtended\Domain\Model\Pages
 {
 
-
     /**
      * @var int
      */
     protected int $txAcceleratorProxyCaching = 0;
+
+    /**
+     * @var int
+     */
+    protected int $txAcceleratorPseudoCdn = 0;
 
 
     /**
@@ -40,7 +44,7 @@ class Pages extends \Madj2k\CoreExtended\Domain\Model\Pages
      */
     public function getTxAcceleratorProxyCaching(): int
     {
-        return $this->pid;
+        return $this->txAcceleratorProxyCaching;
     }
 
 
@@ -54,6 +58,30 @@ class Pages extends \Madj2k\CoreExtended\Domain\Model\Pages
     public function setTxAcceleratorProxyCaching(int $txAcceleratorProxyCaching): void
     {
         $this->txAcceleratorProxyCaching = $txAcceleratorProxyCaching;
+    }
+
+
+    /**
+     * Returns the txAcceleratorPseudoCdn
+     *
+     * @return int
+     */
+    public function getTxAcceleratorPseudoCdn(): int
+    {
+        return $this->txAcceleratorPseudoCdn;
+    }
+
+
+    /**
+     * Sets the txAcceleratorPseudoCdn
+     *
+     * @param int $txAcceleratorPseudoCdn
+     * @return void
+     * @api
+     */
+    public function setTxAcceleratorPseudoCdn(int $txAcceleratorPseudoCdn): void
+    {
+        $this->txAcceleratorPseudoCdn = $txAcceleratorPseudoCdn;
     }
 
 }

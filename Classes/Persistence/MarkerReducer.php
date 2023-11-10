@@ -80,8 +80,10 @@ class MarkerReducer
      */
     public static function implode(array $marker): array
     {
-        /** @var DataMapper $dataMapper */
+        /** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+
+        /** @var \TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper $dataMapper */
         $dataMapper = $objectManager->get(DataMapper::class);
         foreach ($marker as $key => $value) {
 

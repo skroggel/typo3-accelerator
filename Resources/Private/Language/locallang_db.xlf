@@ -7,21 +7,28 @@
             <!-- tx_accelerator_domain_model_pages -->
             <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_proxy_caching">
                 <source>Allow Proxy Caching (ATTENTION: valid even for logged in FE-users)</source>
-                <target>Proxy Caching erlauben (ACHTUNG: gilt auch für angemeldete FE-Nutzer)</target>
             </trans-unit>
             <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_proxy_caching.I.inherit">
                 <source>Inherit</source>
-                <target>Vererben</target>
             </trans-unit>
             <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_proxy_caching.I.enabled">
                 <source>Allow</source>
-                <target>Erlauben</target>
             </trans-unit>
             <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_proxy_caching.I.disabled">
                 <source>Disallow</source>
-                <target>Verbieten</target>
             </trans-unit>
-
+            <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_pseudo_cdn">
+                <source>Activate Pseudo-CDN (requires a Wildcard-TLS-Certificate)</source>
+            </trans-unit>
+            <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_pseudo_cdn.I.inherit">
+                <source>Inherit</source>
+            </trans-unit>
+            <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_pseudo_cdn.I.enabled">
+                <source>Allow</source>
+            </trans-unit>
+            <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_pseudo_cdn.I.disabled">
+                <source>Disallow</source>
+            </trans-unit>
 		</body>
 	</file>
 </xliff>
