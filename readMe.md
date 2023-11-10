@@ -272,28 +272,16 @@ Example with Pseudo-CDN
 </picture>
 ```
 ### 1.2.2 Settings
+IMPORTANT: Since TYPO3 the configuration is no longer possible via TypoScript because it is implemented as Middleware.
+
 ```
-plugin.tx_accelerator {
-    settings {
-        cdn {
-
-            # cat=plugin.tx_accelerator//a; type=boolean; label=Activate CDN
-            enable = 0
-
-            # cat=plugin.tx_accelerator//a; type=integer; label=Maximum number of connections per domain
-            maxConnectionsPerDomain = 4
-
-            # cat=plugin.tx_accelerator//a; type=integer; label=Maximum number of subdomains
-            maxSubdomains = 100
-
-            # cat=plugin.tx_accelerator//a; type=string; label=Ignore some files like CSS and JS because browser security stuff may cause problems
-            ignoreIfContains = /\.css|\.js|\?noCdn=1/
-
-            # cat=plugin.tx_accelerator//a; type=string; label=Regular expression for replacement
-            search = /(href="|src="|srcset=")\/?((uploads\/media|uploads\/pics|typo3temp\/compressor|typo3temp\/GB|typo3conf\/ext|fileadmin)([^"]+))/i
-        }
-    }
-}
+$GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn'] = [
+    'enable' => false,
+    'maxConnectionsPerDomain' => 4,
+    'maxSubdomains' => 100,
+    'search' => '/(href="|src="|srcset="|url\(\')\/?((uploads\/media|uploads\/pics|typo3temp\/compressor|typo3temp\/GB|typo3conf\/ext|fileadmin)([^"\']+))/i',
+    'ignoreIfContains' => '/\.css|\.js|\.mp4|\.pdf|\?noCdn=1/'
+];
 ```
 * **enable** activates the Pseudo-CDN
 * **maxConnectionsPerDomain** defines how many resources are loaded from a subdomain.
@@ -307,22 +295,13 @@ plugin.tx_accelerator {
 This function removes unnecessary breaks and spaces from the HTML code. This significantly reduces the size of the HTML code.
 
 ### 1.3.1 Settings
+IMPORTANT: Since TYPO3 the configuration is no longer possible via TypoScript because it is implemented as Middleware.
 ```
-plugin.tx_accelerator {
-    settings {
-        htmlMinify {
-
-            # cat=plugin.tx_accelerator//a; type=boolean; label=Activate HTML Minifier
-            enable = 0
-
-            # cat=plugin.tx_accelerator//a; type=string; label=Pids to exclude, comma-separated
-            excludePids =
-
-            # cat=plugin.tx_accelerator//a; type=string; label=Page types to include, comma-separated
-            includePageTypes = 0
-        }
-    }
-}
+$GLOBALS['TYPO3_CONF_VARS']['FE']['htmlMinify'] = [
+    'enable' => true,
+    'excludePids' => '',
+    'includePageTypes' => '0'
+];
 ```
 * **enable** activates the HTML Minify
 * **excludePids** excludes the PIDs defined in this comma-separated list
@@ -740,7 +719,7 @@ class GoogleController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionControlle
     protected function getCache(): SitemapCache
     {
         $cache = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(SitemapCache::class);
-        $cache->setIdentifier($this->extensionName); // may differ if you have several caches in your extension
+        $cache->setIdentifier('my_extension'); // may differ if you have several caches in your extension
         $cache->setRequest($this->request);
         return $cache;
     }

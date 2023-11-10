@@ -1,5 +1,5 @@
 <?php
-namespace Madj2k\Accelerator\Tests\Integration\Cache;
+namespace  Madj2k\Accelerator\Tests\Integration\Cache;
 
 /*
  * This file is part of the TYPO3 CMS project.

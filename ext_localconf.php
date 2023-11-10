@@ -16,9 +16,6 @@ call_user_func(
         // Register Hooks
         //=================================================================
         if (TYPO3_MODE !== 'BE') {
-            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-output'][] = 'Madj2k\\Accelerator\\Hooks\\PseudoCdnHook->hook_contentPostProc';
-            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-output'][] = 'Madj2k\\Accelerator\\Hooks\\HtmlMinifyHook->hook_contentPostProc';
-            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-output'][] = 'Madj2k\\Accelerator\\Hooks\\ProxyCachingHook->sendHeader';
             $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_pagerenderer.php']['render-preProcess'][] = 'Madj2k\\Accelerator\\Hooks\\CriticalCssHook->render_preProcess';
             $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_pagerenderer.php']['render-postTransform'][] = 'Madj2k\\Accelerator\\Hooks\\CriticalCssHook->render_postTransform';
         }
@@ -26,7 +23,6 @@ call_user_func(
         //=================================================================
         // Register Caching
         //=================================================================
-
         if( !is_array($GLOBALS['TYPO3_CONF_VARS'] ['SYS']['caching']['cacheConfigurations'][$extKey] ) ) {
             $GLOBALS['TYPO3_CONF_VARS'] ['SYS']['caching']['cacheConfigurations'][$extKey] = array();
         }

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dataset>
+    <pages>
+        <uid>1</uid>
+        <pid>0</pid>
+        <title>Rootpage</title>
+        <doktype>1</doktype>
+        <is_siteroot>1</is_siteroot>
+    </pages>
+    <pages>
+        <uid>2</uid>
+        <pid>1</pid>
+        <title>Subpage</title>
+        <doktype>1</doktype>
+    </pages>
+    <pages>
+        <uid>3</uid>
+        <pid>0</pid>
+        <title>Rootpage 2</title>
+        <doktype>1</doktype>
+        <is_siteroot>1</is_siteroot>
+        <tx_accelerator_pseudo_cdn>2</tx_accelerator_pseudo_cdn>
+    </pages>
+    <pages>
+        <uid>4</uid>
+        <pid>0</pid>
+        <title>Rootpage 3</title>
+        <doktype>1</doktype>
+        <is_siteroot>1</is_siteroot>
+        <tx_accelerator_pseudo_cdn>1</tx_accelerator_pseudo_cdn>
+    </pages>
+</dataset>

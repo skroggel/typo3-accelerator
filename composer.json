@@ -30,6 +30,11 @@
             "Madj2k\\Accelerator\\": "Classes/"
         }
     },
+	"autoload-dev": {
+		"psr-4": {
+			"Madj2k\\Accelerator\\Tests": "Tests/"
+		}
+	},
     "extra": {
         "typo3/cms": {
             "extension-key": "accelerator"

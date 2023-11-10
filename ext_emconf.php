@@ -22,7 +22,6 @@ $EM_CONF[$_EXTKEY] = [
 	'state' => 'stable',
 	'internal' => '',
 	'uploadfolder' => '0',
-	'createDirs' => '',
 	'modify_tables' => '',
 	'clearCacheOnLoad' => 0,
 	'lockType' => '',

@@ -21,6 +21,22 @@
                 <source>Disallow</source>
                 <target>Verbieten</target>
             </trans-unit>
+            <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_pseudo_cdn">
+                <source>Activate Pseudo-CDN (requires a Wildcard-TLS-Certificate)</source>
+                <target>Pseudo-CDN aktivieren (benötigt ein Wildcard-TLS-Zertifikat)</target>
+            </trans-unit>
+            <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_pseudo_cdn.I.inherit">
+                <source>Inherit</source>
+                <target>Vererben</target>
+            </trans-unit>
+            <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_pseudo_cdn.I.enabled">
+                <source>Allow</source>
+                <target>Erlauben</target>
+            </trans-unit>
+            <trans-unit id="tx_accelerator_domain_model_pages.tx_accelerator_pseudo_cdn.I.disabled">
+                <source>Disallow</source>
+                <target>Verbieten</target>
+            </trans-unit>
 
 		</body>
 	</file>

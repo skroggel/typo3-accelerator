@@ -1,5 +1,0 @@
-config {
-    tx_accelerator_cdn {
-        ignoreIfContains = Old-Setup-Test
-    }
-}
