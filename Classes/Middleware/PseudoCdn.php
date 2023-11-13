@@ -22,9 +22,11 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\NullResponse;
+use TYPO3\CMS\Core\Routing\RouteResultInterface;
 use TYPO3\CMS\Core\Routing\SiteMatcher;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class PseudoCdn
@@ -41,6 +43,22 @@ class PseudoCdn implements MiddlewareInterface
      * @var array
      */
     protected array $settings = [];
+
+
+    /**
+     * @var \TYPO3\CMS\Core\Routing\SiteMatcher|null
+     * @TYPO3\CMS\Extbase\Annotation\Inject
+     */
+    protected ?SiteMatcher $siteMatcher = null;
+
+
+    /**
+     * @param \TYPO3\CMS\Core\Routing\SiteMatcher $siteMatcher
+     */
+    public function injectSiteMatcher(SiteMatcher $siteMatcher)
+    {
+        $this->siteMatcher = $siteMatcher;
+    }
 
 
     /**
@@ -169,8 +187,14 @@ class PseudoCdn implements MiddlewareInterface
         /** @var array $serverParams */
         $serverParams = $request->getServerParams();
 
-        /** @var \TYPO3\CMS\Core\Routing\RouteResultInterface $routeResult */
-        $routeResult =$request->getAttribute('routing');;
+        /** fix for strange behavior in test-context without dependency injection */
+        if (!$this->siteMatcher) {
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+            $this->siteMatcher = $objectManager->get(SiteMatcher::class);
+        }
+
+        /** @see \TYPO3\CMS\Core\Routing\RouteResultInterface */
+        $routeResult = $this->siteMatcher->matchRequest($request);
 
         /** @var \TYPO3\CMS\Core\Site\Entity\Site $site */
         $site = $routeResult->getSite();
@@ -192,10 +216,7 @@ class PseudoCdn implements MiddlewareInterface
             $settings = array_merge($settings, $GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn']);
         }
 
-        /** @var \TYPO3\CMS\Core\Site\Entity\Site $site */
-        $site = $request->getAttribute('site');
         $rootPage = $site->getRootPageId();
-
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
         $pageSwitch = $queryBuilder
             ->select('tx_accelerator_pseudo_cdn')

@@ -66,6 +66,12 @@ class PseudoCdnTest extends FunctionalTestCase
 
 
     /**
+     * @var \TYPO3\CMS\Extbase\Object\ObjectManager|null
+     */
+    private ?ObjectManager $objectManager = null;
+
+
+    /**
      * @var array
      */
     private array $defaultSettings = [];
@@ -79,19 +85,12 @@ class PseudoCdnTest extends FunctionalTestCase
     {
 
         parent::setUp();
-
         $this->importDataSet(self::FIXTURE_PATH . '/Database/Global.xml');
-        $this->setUpFrontendRootPage(
-            1,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
-                'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-            ],
-            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/config.yaml']
-        );
 
-        $this->subject = GeneralUtility::makeInstance(PseudoCdn::class);
+        /** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
+        $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+
+        $this->subject = $this->objectManager->get(PseudoCdn::class);
         $this->defaultSettings = [
             'enable' => false,
             'maxConnectionsPerDomain' => 4,
@@ -133,7 +132,7 @@ class PseudoCdnTest extends FunctionalTestCase
 
         include_once(self::FIXTURE_PATH. '/Frontend/Configuration/Check10.php');
 
-        $fakeRequest = GeneralUtility::makeInstance(FakeRequest::class);
+        $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(1);
 
         $result = $this->subject->loadSettings($request);
@@ -169,7 +168,9 @@ class PseudoCdnTest extends FunctionalTestCase
          * Then an array is returned
          * Then the default configuration is returned
          */
-        $fakeRequest = GeneralUtility::makeInstance(FakeRequest::class);
+
+        $this->initDefaultPage();
+        $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(1);
 
         $result = $this->subject->loadSettings($request);
@@ -207,7 +208,8 @@ class PseudoCdnTest extends FunctionalTestCase
 
         include_once(self::FIXTURE_PATH. '/Frontend/Configuration/Check20.php');
 
-        $fakeRequest = GeneralUtility::makeInstance(FakeRequest::class);
+        /** @var \Madj2k\CoreExtended\Testing\FakeRequest $fakeRequest */
+        $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(3);
 
         $result = $this->subject->loadSettings($request);
@@ -245,7 +247,7 @@ class PseudoCdnTest extends FunctionalTestCase
 
         include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check30.php');
 
-        $fakeRequest = GeneralUtility::makeInstance(FakeRequest::class);
+        $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(4);
 
         $result = $this->subject->loadSettings($request);
@@ -273,7 +275,8 @@ class PseudoCdnTest extends FunctionalTestCase
          * Then an absolute path is returned
          * Then the absolute path uses a static domain
          */
-        $fakeRequest = GeneralUtility::makeInstance(FakeRequest::class);
+        $this->initDefaultPage();
+        $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(1);
         $this->subject->loadSettings($request);
 
@@ -307,7 +310,8 @@ class PseudoCdnTest extends FunctionalTestCase
 
         include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check40.php');
 
-        $fakeRequest = GeneralUtility::makeInstance(FakeRequest::class);
+        $this->initDefaultPage();
+        $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(1);
         $this->subject->loadSettings($request);
 
@@ -347,7 +351,8 @@ class PseudoCdnTest extends FunctionalTestCase
          */
         include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check40.php');
 
-        $fakeRequest = GeneralUtility::makeInstance(FakeRequest::class);
+        $this->initDefaultPage();
+        $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(1);
         $this->subject->loadSettings($request);
 
@@ -381,7 +386,9 @@ class PseudoCdnTest extends FunctionalTestCase
          * Then false is returned
          * Then the string is returned unchanged
          */
-        $fakeRequest = GeneralUtility::makeInstance(FakeRequest::class);
+
+        $this->initDefaultPage();
+        $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(1);
         $this->subject->loadSettings($request);
 
@@ -416,7 +423,8 @@ class PseudoCdnTest extends FunctionalTestCase
          */
         include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check20.php');
 
-        $fakeRequest = GeneralUtility::makeInstance(FakeRequest::class);
+        $this->initDefaultPage();
+        $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(1);
         $this->subject->loadSettings($request);
 
@@ -429,6 +437,21 @@ class PseudoCdnTest extends FunctionalTestCase
 
     //=============================================
 
+    /**
+     * @return void
+     */
+    protected function initDefaultPage(): void
+    {
+        $this->setUpFrontendRootPage(
+            1,
+            [
+                'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
+                'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
+                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
+            ],
+            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/config.yaml']
+        );
+    }
 
     /**
      * TearDown
