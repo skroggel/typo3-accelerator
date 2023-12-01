@@ -678,15 +678,6 @@ class GoogleController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionControlle
 
 
     /**
-     * @param \Madj2k\CoreExtended\Domain\Repository\PagesRepository $pagesRepository
-     */
-    public function injectPagesRepository(PagesRepository $pagesRepository)
-    {
-        $this->pagesRepository = $pagesRepository;
-    }
-
-
-    /**
      * action sitemap
      *
      * @return string
