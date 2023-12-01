@@ -673,7 +673,6 @@ class GoogleController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionControlle
      * pagesRepository
      *
      * @var \Madj2k\CoreExtended\Domain\Repository\PagesRepository|null
-     * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected ?PagesRepository $pagesRepository = null;
 

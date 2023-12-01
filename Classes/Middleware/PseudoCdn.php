@@ -46,7 +46,7 @@ class PseudoCdn implements MiddlewareInterface
 
 
     /**
-     * @var \TYPO3\CMS\Core\Routing\SiteMatcher|null
+     * @var \TYPO3\CMS\Core\Routing\SiteMatcher
      * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected ?SiteMatcher $siteMatcher = null;
