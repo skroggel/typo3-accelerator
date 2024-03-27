@@ -102,6 +102,40 @@ lib.txAccelerator {
                     }
                 }
             }
+
+            alternative = TEXT
+            alternative {
+
+                data = field:alternative
+                stdWrap.ifEmpty.cObject = COA
+                stdWrap.ifEmpty.cObject {
+
+                    // get alternative of references
+                    10 = FILES
+                    10 {
+                        if.isPositive < lib.txAccelerator.responsiveImage.variables.file
+                        if.isPositive.if.isTrue < lib.txAccelerator.responsiveImage.variables.treatIdAsReference
+                        references < lib.txAccelerator.responsiveImage.variables.file
+                        renderObj = TEXT
+                        renderObj {
+                            data = file:current:alternative
+                        }
+                    }
+
+                    // get alternative of normal files
+                    20 = FILES
+                    20 {
+                        if.isPositive < lib.txAccelerator.responsiveImage.variables.file
+                        if.isPositive.if.isFalse < lib.txAccelerator.responsiveImage.variables.treatIdAsReference
+                        files < lib.txAccelerator.responsiveImage.variables.file
+                        renderObj = TEXT
+                        renderObj {
+                            data = file:current:alternative
+                        }
+                    }
+                }
+            }
+
         }
 	}
 }
