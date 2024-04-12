@@ -14,11 +14,9 @@ namespace Madj2k\Accelerator\Tests\Integration\Middleware;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Madj2k\Accelerator\Middleware\PseudoCdn;
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 use Madj2k\Accelerator\Middleware\ProxyCachingHeader;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * ProxyCachingTest
@@ -42,11 +40,7 @@ class ProxyCachingTest extends FunctionalTestCase
      * @var string[]
      */
     protected $testExtensionsToLoad = [
-        'typo3conf/ext/core_extended',
         'typo3conf/ext/accelerator',
-        'typo3conf/ext/persisted_sanitized_routing',
-        'typo3conf/ext/sr_freecap',
-        'typo3conf/ext/yoast_seo'
     ];
 
 
@@ -54,8 +48,7 @@ class ProxyCachingTest extends FunctionalTestCase
      * @var string[]
      */
     protected $coreExtensionsToLoad = [
-        'seo',
-        'filemetadata'
+
     ];
 
 

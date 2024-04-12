@@ -19,8 +19,7 @@
     "require": {
         "php": ">=7.4",
         "ext-json": "*",
-        "typo3/cms-core": "~9.5.0 || ~10.4.0",
-		"madj2k/t3-core-extended": "~9.5.4 || ~10.4.0"
+		"typo3/cms-core": "~9.5.0 || ~10.4.0 || ~11.5.0 || ~12.4.0"
 	},
 	"suggest": {
 		"sopsone-ch/varnish": "~2.4"
@@ -30,11 +29,6 @@
             "Madj2k\\Accelerator\\": "Classes/"
         }
     },
-	"autoload-dev": {
-		"psr-4": {
-			"Madj2k\\Accelerator\\Tests": "Tests/"
-		}
-	},
     "extra": {
         "typo3/cms": {
             "extension-key": "accelerator"

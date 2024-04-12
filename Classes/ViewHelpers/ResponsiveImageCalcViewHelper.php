@@ -23,8 +23,9 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithContentArgumentAndRenderS
  * @copyright Steffen Kroggel
  * @package Madj2k_Accelerator
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
+ * @deprecated Will be removed soon, deprecated since 2024-04-05
  */
-class ResponsiveImageCalcViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper {
+final class ResponsiveImageCalcViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper {
 
     use CompileWithContentArgumentAndRenderStatic;
 

@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 namespace Madj2k\Accelerator\Hooks;
 
 /*
@@ -24,8 +24,9 @@ use TYPO3\CMS\Core\Page\PageRenderer;
  * @copyright Steffen Kroggel
  * @package Madj2k_Accelerator
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
+ * @deprecated will be removed soon, deprecated since 2024-04-05
  */
-class InlineCssHook
+final class InlineCssHook
 {
 
     /**

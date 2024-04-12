@@ -31,9 +31,20 @@ config.tx_extbase {
 #############################################################################
 plugin.tx_accelerator  {
     view {
-        templateRootPath = {$plugin.tx_accelerator.view.templateRootPath}
-        partialRootPath = {$plugin.tx_accelerator.view.partialRootPath}
-        layoutRootPath = {$plugin.tx_accelerator.view.layoutRootPath}
+        layoutRootPath {
+            0 = EXT:accelerator/Resources/Private/Layouts/
+            1 = {$plugin.tx_accelerator.view.layoutRootPath}
+        }
+        templateRootPaths {
+            0 = EXT:accelerator/Resources/Private/Templates/
+            1 = {$plugin.tx_accelerator.view.templateRootPath}
+        }
+        partialRootPaths {
+            0 = EXT:accelerator/Resources/Private/Partials/
+            1 = {$plugin.tx_accelerator.view.partialRootPath}
+            1712245685 = EXT:media_utils/Resources/Private/Partials/
+        }
+
     }
 
     persistence {

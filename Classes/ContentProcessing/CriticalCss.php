@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace Madj2k\Accelerator\ContentProcessing;
 
 /*
@@ -28,7 +29,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * @package Madj2k_Accelerator
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  */
-class CriticalCss
+final class CriticalCss
 {
 
     /**
@@ -55,7 +56,6 @@ class CriticalCss
      */
     public function process(array &$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer): string
     {
-
         if (
             (! $this->settings['enable'])
             || (! $criticalCssFiles = $this->getCriticalCssFiles())

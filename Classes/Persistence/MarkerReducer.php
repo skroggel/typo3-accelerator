@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace Madj2k\Accelerator\Persistence;
 
 /*
@@ -33,7 +34,7 @@ use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  * @api
  */
-class MarkerReducer
+final class MarkerReducer
 {
 
     /**
@@ -77,6 +78,7 @@ class MarkerReducer
      * @param array $marker
      * @return array
      * @throws \TYPO3\CMS\Extbase\Persistence\Generic\Exception
+     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public static function implode(array $marker): array
     {

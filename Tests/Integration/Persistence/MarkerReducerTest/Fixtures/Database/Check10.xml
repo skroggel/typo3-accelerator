@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dataset>
 
-    <pages>
+    <fe_users>
+        <uid>1</uid>
+        <pid>0</pid>
+    </fe_users>
+
+    <fe_users>
         <uid>2</uid>
         <pid>0</pid>
-    </pages>
+    </fe_users>
 
-    <pages>
+    <fe_users>
         <uid>3</uid>
         <pid>0</pid>
-    </pages>
+    </fe_users>
 </dataset>

@@ -1,5 +1,6 @@
 ####################################################################
-# Responsive Images v2.0
+# Responsive Images v2.
+# @deprecated - but still used in some extensions!
 ####################################################################
 lib.txAccelerator {
 

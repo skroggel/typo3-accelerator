@@ -14,13 +14,17 @@ namespace Madj2k\Accelerator\XClasses\Extbase\Service;
  * The TYPO3 project - inspiring people to share!
  */
 
-use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Resource\FileInterface;
-use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
+
 
 /**
  * This class enforces all images to be processed - no matter what
+ *
+ * @author Steffen Kroggel <developer@steffenkroggel.de>
+ * @copyright Steffen Kroggel
+ * @package Madj2k_Accelerator
+ * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
+ * @deprecated will be removed soon, deprecated since 2024-04-05
  */
 class ImageService extends \TYPO3\CMS\Extbase\Service\ImageService {
 
