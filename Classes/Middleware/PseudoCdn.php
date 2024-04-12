@@ -36,7 +36,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * @package Madj2k_Accelerator
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  */
-class PseudoCdn implements MiddlewareInterface
+final class PseudoCdn implements MiddlewareInterface
 {
 
     /**
@@ -198,7 +198,6 @@ class PseudoCdn implements MiddlewareInterface
 
         /** @var \TYPO3\CMS\Core\Site\Entity\Site $site */
         $site = $routeResult->getSite();
-
         $domainParts = explode('.', $site->getBase()->getHost());
         $baseDomain = $domainParts[count($domainParts) -2]. '.' . $domainParts[count($domainParts) -1];
 

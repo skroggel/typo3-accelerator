@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 namespace Madj2k\Accelerator\Hooks;
 
 /*
@@ -26,7 +26,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @package Madj2k_Accelerator
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  */
-class CriticalCssHook
+final class CriticalCssHook
 {
 
     /**

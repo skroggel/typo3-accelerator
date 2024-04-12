@@ -22,6 +22,15 @@ use Psr\Log\LoggerInterface;
 /**
  * Add logs to varnish extension
  */
+
+/**
+ * Add logs to varnish extension
+ *
+ * @author Steffen Kroggel <developer@steffenkroggel.de>
+ * @copyright Steffen Kroggel
+ * @package Madj2k_Accelerator
+ * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
+ */
 class VarnishHttpUtility extends \Opsone\Varnish\Utility\VarnishHttpUtility
 {
 

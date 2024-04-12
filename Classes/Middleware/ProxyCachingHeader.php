@@ -2,7 +2,6 @@
 declare(strict_types=1);
 namespace Madj2k\Accelerator\Middleware;
 
-
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,7 +14,6 @@ namespace Madj2k\Accelerator\Middleware;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 
 use Madj2k\Accelerator\ContentProcessing\ProxyCaching;
 use Psr\Http\Message\ResponseInterface;
@@ -35,7 +33,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  * @package Madj2k_Accelerator
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  */
-class ProxyCachingHeader implements MiddlewareInterface
+final class ProxyCachingHeader implements MiddlewareInterface
 {
 
     /**

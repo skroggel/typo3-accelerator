@@ -14,10 +14,8 @@ namespace Madj2k\Accelerator\Tests\Integration\Middleware;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Madj2k\CoreExtended\Testing\FakeRequest;
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 use Madj2k\Accelerator\Middleware\HtmlMinify;
-use Madj2k\CoreExtended\Utility\FrontendSimulatorUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -41,11 +39,7 @@ class HtmlMinifyTest extends FunctionalTestCase
      * @var string[]
      */
     protected $testExtensionsToLoad = [
-        'typo3conf/ext/core_extended',
         'typo3conf/ext/accelerator',
-        'typo3conf/ext/persisted_sanitized_routing',
-        'typo3conf/ext/sr_freecap',
-        'typo3conf/ext/yoast_seo'
     ];
 
 
@@ -53,8 +47,7 @@ class HtmlMinifyTest extends FunctionalTestCase
      * @var string[]
      */
     protected $coreExtensionsToLoad = [
-        'seo',
-        'filemetadata'
+
     ];
 
 
@@ -195,7 +188,10 @@ class HtmlMinifyTest extends FunctionalTestCase
 
         include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check30.php');
         $this->subject->loadSettings();
-        FrontendSimulatorUtility::simulateFrontendEnvironment(1);
+
+        // simulate relevant frontend values
+        $GLOBALS['TSFE']->page['uid'] = 1;
+        $GLOBALS['TSFE']->type = 0;
 
         $html = file_get_contents(self::FIXTURE_PATH . '/Frontend/Templates/Default.html');
         $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check30.html');
@@ -226,7 +222,10 @@ class HtmlMinifyTest extends FunctionalTestCase
 
         include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check40.php');
         $this->subject->loadSettings();
-        FrontendSimulatorUtility::simulateFrontendEnvironment(1);
+
+        // simulate relevant frontend values
+        $GLOBALS['TSFE']->page['uid'] = 1;
+        $GLOBALS['TSFE']->type = 0;
 
         $html = $htmlBefore = file_get_contents(self::FIXTURE_PATH . '/Frontend/Templates/Default.html');
 
@@ -256,8 +255,10 @@ class HtmlMinifyTest extends FunctionalTestCase
 
         include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check50.php');
         $this->subject->loadSettings();
-        FrontendSimulatorUtility::simulateFrontendEnvironment(1);
 
+        // simulate relevant frontend values
+        $GLOBALS['TSFE']->page['uid'] = 1;
+        $GLOBALS['TSFE']->type = 0;
 
         $html = $htmlBefore = file_get_contents(self::FIXTURE_PATH . '/Frontend/Templates/Default.html');
 

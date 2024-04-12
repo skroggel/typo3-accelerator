@@ -1,5 +1,5 @@
 <?php
-namespace Madj2k\Postmaster\Tests\Integration\Persistence;
+namespace Madj2k\Accelerator\Tests\Integration\Persistence;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -15,9 +15,10 @@ namespace Madj2k\Postmaster\Tests\Integration\Persistence;
  */
 
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
-use Madj2k\Accelerator\Domain\Model\Pages;
 use Madj2k\Accelerator\Persistence\MarkerReducer;
-use Madj2k\Accelerator\Domain\Repository\PagesRepository;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Extbase\Domain\Model\FrontendUser;
+use TYPO3\CMS\Extbase\Domain\Repository\FrontendUserRepository;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -44,8 +45,8 @@ class MarkerReducerTest extends FunctionalTestCase
      * @var string[]
      */
     protected $testExtensionsToLoad = [
-        'typo3conf/ext/core_extended',
         'typo3conf/ext/accelerator',
+        'typo3conf/ext/core_extended'
     ];
 
 
@@ -68,9 +69,9 @@ class MarkerReducerTest extends FunctionalTestCase
 
 
     /**
-     * @var \Madj2k\Accelerator\Domain\Repository\PagesRepository|null
+     * @var \TYPO3\CMS\Extbase\Domain\Repository\FrontendUserRepository|null
      */
-    private ?PagesRepository $pagesRepository = null;
+    private ?FrontendUserRepository $frontendUserRepository = null;
 
 
     /**
@@ -94,7 +95,7 @@ class MarkerReducerTest extends FunctionalTestCase
         /** @var \TYPO3\CMS\Extbase\Object\ObjectManager $this->objectManager */
         $this->persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
         $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->pagesRepository = $this->objectManager->get(PagesRepository::class);
+        $this->frontendUserRepository = $this->objectManager->get(FrontendUserRepository::class);
     }
 
 
@@ -122,14 +123,14 @@ class MarkerReducerTest extends FunctionalTestCase
          */
         $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityOne */
-        $entityOne = $this->pagesRepository->findByIdentifier(1);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
+        $entityOne = $this->frontendUserRepository->findByIdentifier(1);
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityTwo */
-        $entityTwo = $this->pagesRepository->findByIdentifier(2);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityTwo */
+        $entityTwo = $this->frontendUserRepository->findByIdentifier(2);
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityThree */
-        $entityThree = $this->pagesRepository->findByIdentifier(3);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityThree */
+        $entityThree = $this->frontendUserRepository->findByIdentifier(3);
 
         /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
         $objectStorage = $this->objectManager->get(ObjectStorage::class);
@@ -144,10 +145,10 @@ class MarkerReducerTest extends FunctionalTestCase
         ];
 
         $expected = [
-            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
-            'test2' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
-            'test3' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
-            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:2,Madj2k\Accelerator\Domain\Model\Pages:3',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:1',
+            'test2' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:2',
+            'test3' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:3',
+            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY TYPO3\CMS\Extbase\Domain\Model\FrontendUser:2,TYPO3\CMS\Extbase\Domain\Model\FrontendUser:3',
         ];
 
         $result = MarkerReducer::implode($marker);
@@ -185,14 +186,14 @@ class MarkerReducerTest extends FunctionalTestCase
          */
         $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityOne */
-        $entityOne = $this->pagesRepository->findByIdentifier(1);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
+        $entityOne = $this->frontendUserRepository->findByIdentifier(1);
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityTwo */
-        $entityTwo = GeneralUtility::makeInstance(Pages::class);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityTwo */
+        $entityTwo = GeneralUtility::makeInstance(FrontendUser::class);
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityThree */
-        $entityThree = $this->pagesRepository->findByIdentifier(3);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityThree */
+        $entityThree = $this->frontendUserRepository->findByIdentifier(3);
 
         /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
         $objectStorage = $this->objectManager->get(ObjectStorage::class);
@@ -207,9 +208,9 @@ class MarkerReducerTest extends FunctionalTestCase
         ];
 
         $expected = [
-            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:1',
             'test2' => $entityTwo,
-            'test3' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
+            'test3' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:3',
             'test4' => $objectStorage,
         ];
 
@@ -245,8 +246,8 @@ class MarkerReducerTest extends FunctionalTestCase
          */
         $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityOne */
-        $entityOne = $this->pagesRepository->findByIdentifier(1);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
+        $entityOne = $this->frontendUserRepository->findByIdentifier(1);
 
         $marker = [
             'test1' => $entityOne,
@@ -255,7 +256,7 @@ class MarkerReducerTest extends FunctionalTestCase
         ];
 
         $expected = [
-            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:1',
             'test2' => [0, 12],
             'test3' => 'example string',
         ];
@@ -296,14 +297,14 @@ class MarkerReducerTest extends FunctionalTestCase
 
         $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityOne */
-        $entityOne = $this->pagesRepository->findByIdentifier(1);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
+        $entityOne = $this->frontendUserRepository->findByIdentifier(1);
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityTwo */
-        $entityTwo = $this->pagesRepository->findByIdentifier(2);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityTwo */
+        $entityTwo = $this->frontendUserRepository->findByIdentifier(2);
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityThree */
-        $entityThree = $this->pagesRepository->findByIdentifier(3);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityThree */
+        $entityThree = $this->frontendUserRepository->findByIdentifier(3);
 
         /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
         $objectStorage = $this->objectManager->get(ObjectStorage::class);
@@ -311,10 +312,10 @@ class MarkerReducerTest extends FunctionalTestCase
         $objectStorage->attach($entityThree);
 
         $marker = [
-            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
-            'test2' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
-            'test3' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
-            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:2,Madj2k\Accelerator\Domain\Model\Pages:3',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:1',
+            'test2' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:2',
+            'test3' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:3',
+            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY TYPO3\CMS\Extbase\Domain\Model\FrontendUser:2,TYPO3\CMS\Extbase\Domain\Model\FrontendUser:3',
         ];
 
         $expected = [
@@ -327,9 +328,9 @@ class MarkerReducerTest extends FunctionalTestCase
         $result = MarkerReducer::explode($marker);
 
         self::assertCount(4, $expected);
-        self::assertInstanceOf(Pages::class, $result['test1']);
-        self::assertInstanceOf(Pages::class, $result['test2']);
-        self::assertInstanceOf(Pages::class, $result['test3']);
+        self::assertInstanceOf(FrontendUser::class, $result['test1']);
+        self::assertInstanceOf(FrontendUser::class, $result['test2']);
+        self::assertInstanceOf(FrontendUser::class, $result['test3']);
         self::assertEquals($expected['test1']->getUid(), $result['test1']->getUid());
         self::assertEquals($expected['test2']->getUid(), $result['test2']->getUid());
         self::assertEquals($expected['test3']->getUid(), $result['test3']->getUid());
@@ -339,10 +340,10 @@ class MarkerReducerTest extends FunctionalTestCase
         self::assertInstanceOf(ObjectStorage::class, $resultStorage);
         self::assertCount(2, $resultStorage);
 
-        self::assertInstanceOf(Pages::class, $resultStorage->current());
+        self::assertInstanceOf(FrontendUser::class, $resultStorage->current());
         self::assertEquals($entityTwo->getUid(), $resultStorage->current()->getUid());
         $resultStorage->next();
-        self::assertInstanceOf(Pages::class, $resultStorage->current());
+        self::assertInstanceOf(FrontendUser::class, $resultStorage->current());
         self::assertEquals($entityThree->getUid(), $resultStorage->current()->getUid());
     }
 
@@ -371,17 +372,17 @@ class MarkerReducerTest extends FunctionalTestCase
 
         $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityOne */
-        $entityOne = $this->pagesRepository->findByIdentifier(1);
-        $this->pagesRepository->remove($entityOne);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
+        $entityOne = $this->frontendUserRepository->findByIdentifier(1);
+        $this->frontendUserRepository->remove($entityOne);
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityTwo */
-        $entityTwo = $this->pagesRepository->findByIdentifier(2);
-        $this->pagesRepository->remove($entityTwo);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityTwo */
+        $entityTwo = $this->frontendUserRepository->findByIdentifier(2);
+        $this->frontendUserRepository->remove($entityTwo);
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityThree */
-        $entityThree = $this->pagesRepository->findByIdentifier(3);
-        $this->pagesRepository->remove($entityThree);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityThree */
+        $entityThree = $this->frontendUserRepository->findByIdentifier(3);
+        $this->frontendUserRepository->remove($entityThree);
         $this->persistenceManager->persistAll();
 
         /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
@@ -390,10 +391,10 @@ class MarkerReducerTest extends FunctionalTestCase
         $objectStorage->attach($entityThree);
 
         $marker = [
-            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
-            'test2' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
-            'test3' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
-            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:2,Madj2k\Accelerator\Domain\Model\Pages:3',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:1',
+            'test2' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:2',
+            'test3' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:3',
+            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY TYPO3\CMS\Extbase\Domain\Model\FrontendUser:2,TYPO3\CMS\Extbase\Domain\Model\FrontendUser:3',
         ];
 
         $expected = [
@@ -406,9 +407,9 @@ class MarkerReducerTest extends FunctionalTestCase
         $result = MarkerReducer::explode($marker);
 
         self::assertCount(4, $expected);
-        self::assertInstanceOf(Pages::class, $result['test1']);
-        self::assertInstanceOf(Pages::class, $result['test2']);
-        self::assertInstanceOf(Pages::class, $result['test3']);
+        self::assertInstanceOf(FrontendUser::class, $result['test1']);
+        self::assertInstanceOf(FrontendUser::class, $result['test2']);
+        self::assertInstanceOf(FrontendUser::class, $result['test3']);
         self::assertEquals($expected['test1']->getUid(), $result['test1']->getUid());
         self::assertEquals($expected['test2']->getUid(), $result['test2']->getUid());
         self::assertEquals($expected['test3']->getUid(), $result['test3']->getUid());
@@ -418,10 +419,10 @@ class MarkerReducerTest extends FunctionalTestCase
         self::assertInstanceOf(ObjectStorage::class, $resultStorage);
         self::assertCount(2, $resultStorage);
 
-        self::assertInstanceOf(Pages::class, $resultStorage->current());
+        self::assertInstanceOf(FrontendUser::class, $resultStorage->current());
         self::assertEquals($entityTwo->getUid(), $resultStorage->current()->getUid());
         $resultStorage->next();
-        self::assertInstanceOf(Pages::class, $resultStorage->current());
+        self::assertInstanceOf(FrontendUser::class, $resultStorage->current());
         self::assertEquals($entityThree->getUid(), $resultStorage->current()->getUid());
     }
 
@@ -437,9 +438,9 @@ class MarkerReducerTest extends FunctionalTestCase
          * Scenario:
          *
          * Given a marker array contains four items
-         * Given three of the items are references to existing but hidden objects in the database
+         * Given three of the items are references to existing but disabled objects in the database
          * Given the fourth item is a reference to an objectStorage with two objects
-         * Given these two objects are references to existing but hidden objects in the database
+         * Given these two objects are references to existing but disabled objects in the database
          * When the method is called
          * Then the marker array returns four items
          * Then the first three items are contain objects of the given type
@@ -450,22 +451,22 @@ class MarkerReducerTest extends FunctionalTestCase
 
         $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityOne */
-        $entityOne = $this->pagesRepository->findByIdentifier(1);
-        $entityOne->setHidden(true);
-        $this->pagesRepository->update($entityOne);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
+        $entityOne = $this->frontendUserRepository->findByIdentifier(1);
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityTwo */
-        $entityTwo = $this->pagesRepository->findByIdentifier(2);
-        $entityTwo->setHidden(true);
-        $this->pagesRepository->update($entityTwo);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityTwo */
+        $entityTwo = $this->frontendUserRepository->findByIdentifier(2);
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityThree */
-        $entityThree = $this->pagesRepository->findByIdentifier(3);
-        $entityThree->setHidden(true);
-        $this->pagesRepository->update($entityThree);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityThree */
+        $entityThree = $this->frontendUserRepository->findByIdentifier(3);
 
-        $this->persistenceManager->persistAll();
+        // set objects as disabled!
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('fe_users');
+        $queryBuilder
+            ->update('fe_users')
+            ->set('disable', 1)
+            ->execute();
 
         /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
         $objectStorage = $this->objectManager->get(ObjectStorage::class);
@@ -473,10 +474,10 @@ class MarkerReducerTest extends FunctionalTestCase
         $objectStorage->attach($entityThree);
 
         $marker = [
-            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
-            'test2' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
-            'test3' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
-            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:2,Madj2k\Accelerator\Domain\Model\Pages:3',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:1',
+            'test2' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:2',
+            'test3' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:3',
+            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY TYPO3\CMS\Extbase\Domain\Model\FrontendUser:2,TYPO3\CMS\Extbase\Domain\Model\FrontendUser:3',
         ];
 
         $expected = [
@@ -489,9 +490,9 @@ class MarkerReducerTest extends FunctionalTestCase
         $result = MarkerReducer::explode($marker);
 
         self::assertCount(4, $expected);
-        self::assertInstanceOf(Pages::class, $result['test1']);
-        self::assertInstanceOf(Pages::class, $result['test2']);
-        self::assertInstanceOf(Pages::class, $result['test3']);
+        self::assertInstanceOf(FrontendUser::class, $result['test1']);
+        self::assertInstanceOf(FrontendUser::class, $result['test2']);
+        self::assertInstanceOf(FrontendUser::class, $result['test3']);
         self::assertEquals($expected['test1']->getUid(), $result['test1']->getUid());
         self::assertEquals($expected['test2']->getUid(), $result['test2']->getUid());
         self::assertEquals($expected['test3']->getUid(), $result['test3']->getUid());
@@ -501,10 +502,10 @@ class MarkerReducerTest extends FunctionalTestCase
         self::assertInstanceOf(ObjectStorage::class, $resultStorage);
         self::assertCount(2, $resultStorage);
 
-        self::assertInstanceOf(Pages::class, $resultStorage->current());
+        self::assertInstanceOf(FrontendUser::class, $resultStorage->current());
         self::assertEquals($entityTwo->getUid(), $resultStorage->current()->getUid());
         $resultStorage->next();
-        self::assertInstanceOf(Pages::class, $resultStorage->current());
+        self::assertInstanceOf(FrontendUser::class, $resultStorage->current());
         self::assertEquals($entityThree->getUid(), $resultStorage->current()->getUid());
     }
 
@@ -537,24 +538,24 @@ class MarkerReducerTest extends FunctionalTestCase
 
         $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityOne */
-        $entityOne = $this->pagesRepository->findByIdentifier(1);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
+        $entityOne = $this->frontendUserRepository->findByIdentifier(1);
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityTwo */
-        $entityTwo = $this->pagesRepository->findByIdentifier(2);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityTwo */
+        $entityTwo = $this->frontendUserRepository->findByIdentifier(2);
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityThree */
-        $entityThree = $this->pagesRepository->findByIdentifier(3);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityThree */
+        $entityThree = $this->frontendUserRepository->findByIdentifier(3);
 
         /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
         $objectStorage = $this->objectManager->get(ObjectStorage::class);
         $objectStorage->attach($entityThree);
 
         $marker = [
-            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
-            'test2' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
-            'test3' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:9999',
-            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:3,Madj2k\Accelerator\Domain\Model\MediaSources:9999',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:1',
+            'test2' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:2',
+            'test3' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:9999',
+            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY TYPO3\CMS\Extbase\Domain\Model\FrontendUser:3,Madj2k\CoreExtended\Domain\Model\MediaSources:9999',
         ];
 
         $expected = [
@@ -566,8 +567,8 @@ class MarkerReducerTest extends FunctionalTestCase
         $result = MarkerReducer::explode($marker);
 
         self::assertCount(3, $expected);
-        self::assertInstanceOf(Pages::class, $result['test1']);
-        self::assertInstanceOf(Pages::class, $result['test2']);
+        self::assertInstanceOf(FrontendUser::class, $result['test1']);
+        self::assertInstanceOf(FrontendUser::class, $result['test2']);
         self::assertEquals($expected['test1']->getUid(), $result['test1']->getUid());
         self::assertEquals($expected['test2']->getUid(), $result['test2']->getUid());
 
@@ -576,7 +577,7 @@ class MarkerReducerTest extends FunctionalTestCase
         self::assertInstanceOf(ObjectStorage::class, $resultStorage);
         self::assertCount(1, $resultStorage);
 
-        self::assertInstanceOf(Pages::class, $resultStorage->current());
+        self::assertInstanceOf(FrontendUser::class, $resultStorage->current());
         self::assertEquals($entityThree->getUid(), $resultStorage->current()->getUid());
     }
 
@@ -606,11 +607,11 @@ class MarkerReducerTest extends FunctionalTestCase
 
         $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityOne */
-        $entityOne = $this->pagesRepository->findByIdentifier(1);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
+        $entityOne = $this->frontendUserRepository->findByIdentifier(1);
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityTwo */
-        $entityTwo = $this->pagesRepository->findByIdentifier(2);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityTwo */
+        $entityTwo = $this->frontendUserRepository->findByIdentifier(2);
 
         /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
         $objectStorage = $this->objectManager->get(ObjectStorage::class);
@@ -622,17 +623,17 @@ class MarkerReducerTest extends FunctionalTestCase
         ];
 
         $marker = [
-            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
-            'test2' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
-            'test3' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:9999',
-            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:8888,Madj2k\Accelerator\Domain\Model\MediaSources:9999',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:1',
+            'test2' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:2',
+            'test3' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:9999',
+            'test4' => 'TX_ACCELERATOR_NAMESPACES_ARRAY TYPO3\CMS\Extbase\Domain\Model\FrontendUser:8888,Madj2k\CoreExtended\Domain\Model\MediaSources:9999',
         ];
 
         $result = MarkerReducer::explode($marker);
 
         self::assertCount(3, $expected);
-        self::assertInstanceOf(Pages::class, $result['test1']);
-        self::assertInstanceOf(Pages::class, $result['test2']);
+        self::assertInstanceOf(FrontendUser::class, $result['test1']);
+        self::assertInstanceOf(FrontendUser::class, $result['test2']);
         self::assertEquals($expected['test1']->getUid(), $result['test1']->getUid());
         self::assertEquals($expected['test2']->getUid(), $result['test2']->getUid());
 
@@ -667,33 +668,33 @@ class MarkerReducerTest extends FunctionalTestCase
 
         $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityOne */
-        $entityOne = $this->pagesRepository->findByIdentifier(1);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
+        $entityOne = $this->frontendUserRepository->findByIdentifier(1);
 
-        /** @var \Madj2k\Accelerator\Domain\Model\Pages $entityTwo */
-        $entityTwo = $this->pagesRepository->findByIdentifier(2);
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityTwo */
+        $entityTwo = $this->frontendUserRepository->findByIdentifier(2);
 
         $expected = [
             'test1' => $entityOne,
             'test2' => $entityTwo,
-            'test3' => 'RKW_TESTER_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
-            'test4' => 'RKW_TESTER_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:8888,Madj2k\Accelerator\Domain\Model\MediaSources:9999',
+            'test3' => 'RKW_TESTER_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:3',
+            'test4' => 'RKW_TESTER_NAMESPACES_ARRAY TYPO3\CMS\Extbase\Domain\Model\FrontendUser:8888,Madj2k\CoreExtended\Domain\Model\MediaSources:9999',
 
         ];
 
         $marker = [
-            'test1' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:1',
-            'test2' => 'TX_ACCELERATOR_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:2',
-            'test3' => 'RKW_TESTER_NAMESPACES Madj2k\Accelerator\Domain\Model\Pages:3',
-            'test4' => 'RKW_TESTER_NAMESPACES_ARRAY Madj2k\Accelerator\Domain\Model\Pages:8888,Madj2k\Accelerator\Domain\Model\MediaSources:9999',
+            'test1' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:1',
+            'test2' => 'TX_ACCELERATOR_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:2',
+            'test3' => 'RKW_TESTER_NAMESPACES TYPO3\CMS\Extbase\Domain\Model\FrontendUser:3',
+            'test4' => 'RKW_TESTER_NAMESPACES_ARRAY TYPO3\CMS\Extbase\Domain\Model\FrontendUser:8888,Madj2k\CoreExtended\Domain\Model\MediaSources:9999',
         ];
 
 
         $result = MarkerReducer::explode($marker);
 
         self::assertCount(4, $expected);
-        self::assertInstanceOf(Pages::class, $result['test1']);
-        self::assertInstanceOf(Pages::class, $result['test2']);
+        self::assertInstanceOf(FrontendUser::class, $result['test1']);
+        self::assertInstanceOf(FrontendUser::class, $result['test2']);
         self::assertEquals($expected['test1']->getUid(), $result['test1']->getUid());
         self::assertEquals($expected['test2']->getUid(), $result['test2']->getUid());
         self::assertEquals($expected['test3'], $result['test3']);

@@ -31,7 +31,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @package Madj2k_Accelerator
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  */
-class HtmlMinify implements MiddlewareInterface
+final class HtmlMinify implements MiddlewareInterface
 {
 
     /**

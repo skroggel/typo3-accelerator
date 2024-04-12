@@ -16,13 +16,8 @@ namespace  Madj2k\Accelerator\Tests\Integration\Cache;
 
 use Madj2k\Accelerator\Cache\DefaultCache;
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
-use Madj2k\Accelerator\ContentProcessing\CriticalCss;
-use Madj2k\Accelerator\ContentProcessing\HtmlMinify;
-use Madj2k\Accelerator\ContentProcessing\PseudoCdn;
-use Madj2k\CoreExtended\Utility\FrontendSimulatorUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -47,7 +42,6 @@ class DefaultCacheTest extends FunctionalTestCase
      * @var string[]
      */
     protected $testExtensionsToLoad = [
-        'typo3conf/ext/core_extended',
         'typo3conf/ext/accelerator',
     ];
 
@@ -90,13 +84,14 @@ class DefaultCacheTest extends FunctionalTestCase
             ]
         );
 
-        FrontendSimulatorUtility::simulateFrontendEnvironment(1);
-
         /** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
         $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
 
         /** @var  \Madj2k\Accelerator\Cache\DefaultCache */
         $this->subject = $this->objectManager->get(DefaultCache::class);
+
+        // simulate frontend id
+        $GLOBALS['TSFE']->id = 1;
     }
 
 
@@ -948,7 +943,6 @@ class DefaultCacheTest extends FunctionalTestCase
      */
     protected function tearDown(): void
     {
-        FrontendSimulatorUtility::resetFrontendEnvironment();
         parent::tearDown();
     }
 

@@ -16,9 +16,6 @@ namespace Madj2k\Accelerator\Tests\Integration\ContentProcessing;
 
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 use Madj2k\Accelerator\ContentProcessing\CriticalCss;
-use Madj2k\Accelerator\ContentProcessing\HtmlMinify;
-use Madj2k\Accelerator\ContentProcessing\PseudoCdn;
-use Madj2k\CoreExtended\Utility\FrontendSimulatorUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -43,7 +40,6 @@ class CriticalCssTest extends FunctionalTestCase
      * @var string[]
      */
     protected $testExtensionsToLoad = [
-        'typo3conf/ext/core_extended',
         'typo3conf/ext/accelerator',
     ];
 
@@ -337,84 +333,6 @@ class CriticalCssTest extends FunctionalTestCase
 
     /**
      * @test
-     * @throws \Nimut\TestingFramework\Exception\Exception
-     */
-    public function getFrontendLayoutOfPageReturnsInheritedLayout()
-    {
-
-        /**
-         * Scenario:
-         *
-         * Given two pages, A and B
-         * Given page A is the rootpage of page B
-         * Given page A as an inherited layout set
-         * Given page B has no layout set
-         * When the method is called
-         * Then the inherited layout from page A is returned
-         */
-        $this->setUpFrontendRootPage(
-            1,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.txt',
-                'EXT:accelerator/Configuration/TypoScript/constants.txt',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-            ]
-        );
-
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Check20.xml');
-
-        FrontendSimulatorUtility::simulateFrontendEnvironment(2);
-
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
-        $result = $this->subject->getFrontendLayoutOfPage();
-
-        self::assertEquals(10, $result);
-
-    }
-
-
-    /**
-     * @test
-     */
-    public function getFrontendLayoutOfPageReturnsOwnLayout()
-    {
-
-        /**
-         * Scenario:
-         *
-         * Given two pages, A and B
-         * Given page A is the rootpage of page B
-         * Given page A as an inherited layout set
-         * Given page B has a layout set
-         * Given page B as an inherited layout set
-         * When the method is called
-         * Then the normal layout from page B is returned
-         */
-        $this->setUpFrontendRootPage(
-            1,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.txt',
-                'EXT:accelerator/Configuration/TypoScript/constants.txt',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-            ]
-        );
-
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Check30.xml');
-
-        FrontendSimulatorUtility::simulateFrontendEnvironment(2);
-
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
-        $result = $this->subject->getFrontendLayoutOfPage();
-
-        self::assertEquals(50, $result);
-
-    }
-
-    //=============================================
-
-
-    /**
-     * @test
      */
     public function getCssFilesToRemoveReturnsConfiguredFiles()
     {
@@ -437,8 +355,6 @@ class CriticalCssTest extends FunctionalTestCase
                 self::FIXTURE_PATH . '/Frontend/Configuration/Check100.typoscript',
             ]
         );
-
-        FrontendSimulatorUtility::simulateFrontendEnvironment(1);
 
         $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
         $result = $this->subject->getCssFilesToRemove();
@@ -480,8 +396,6 @@ class CriticalCssTest extends FunctionalTestCase
             ]
         );
 
-        FrontendSimulatorUtility::simulateFrontendEnvironment(1);
-
         $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
         $result = $this->subject->getCssFilesToRemove();
 
@@ -519,8 +433,6 @@ class CriticalCssTest extends FunctionalTestCase
                 self::FIXTURE_PATH . '/Frontend/Configuration/Check40.typoscript',
             ]
         );
-
-        FrontendSimulatorUtility::simulateFrontendEnvironment(1);
 
         $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
         $result = $this->subject->getCriticalCssFiles();
@@ -562,8 +474,6 @@ class CriticalCssTest extends FunctionalTestCase
                 self::FIXTURE_PATH . '/Frontend/Configuration/Check50.typoscript',
             ]
         );
-
-        FrontendSimulatorUtility::simulateFrontendEnvironment(1);
 
         $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
         $result = $this->subject->getCriticalCssFiles();

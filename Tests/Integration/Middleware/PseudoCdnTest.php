@@ -14,7 +14,7 @@ namespace Madj2k\Accelerator\Tests\Integration\Middleware;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Madj2k\CoreExtended\Testing\FakeRequest;
+use Madj2k\Accelerator\Testing\FakeRequest;
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 use Madj2k\Accelerator\Middleware\PseudoCdn;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -42,11 +42,7 @@ class PseudoCdnTest extends FunctionalTestCase
      * @var string[]
      */
     protected $testExtensionsToLoad = [
-        'typo3conf/ext/core_extended',
         'typo3conf/ext/accelerator',
-        'typo3conf/ext/persisted_sanitized_routing',
-        'typo3conf/ext/sr_freecap',
-        'typo3conf/ext/yoast_seo'
     ];
 
 
@@ -54,8 +50,7 @@ class PseudoCdnTest extends FunctionalTestCase
      * @var string[]
      */
     protected $coreExtensionsToLoad = [
-        'seo',
-        'filemetadata'
+
     ];
 
 
@@ -208,7 +203,7 @@ class PseudoCdnTest extends FunctionalTestCase
 
         include_once(self::FIXTURE_PATH. '/Frontend/Configuration/Check20.php');
 
-        /** @var \Madj2k\CoreExtended\Testing\FakeRequest $fakeRequest */
+        /** @var \Madj2k\Accelerator\Testing\FakeRequest $fakeRequest */
         $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(3);
 
