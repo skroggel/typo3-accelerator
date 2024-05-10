@@ -35,7 +35,7 @@ Example with Pseudo-CDN
 </picture>
 ```
 ### 1.1.2 Settings
-IMPORTANT: Since TYPO3 the configuration is no longer possible via TypoScript because it is implemented as Middleware.
+IMPORTANT: Since TYPO3 v10 the configuration is no longer possible via TypoScript because it is implemented as Middleware.
 It is now possible to configure the PseudoCdn via your site-configuration (YAML) instead. 
 Important: the DNS has to be configured accordingly and a Wildcard-TLS-certificate has to be installed before activating this functonality
 
@@ -60,7 +60,7 @@ accelerator:
 This function removes unnecessary breaks and spaces from the HTML code. This significantly reduces the size of the HTML code.
 
 ### 1.2.1 Settings
-IMPORTANT: Since TYPO3 the configuration is no longer possible via TypoScript because it is implemented as Middleware.
+IMPORTANT: Since TYPO3 v10 the configuration is no longer possible via TypoScript because it is implemented as Middleware.
 It is now possible to configure it via your site-configuration (YAML) instead.
 ```
 accelerator:
