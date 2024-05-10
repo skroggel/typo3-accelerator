@@ -353,6 +353,7 @@ final class CriticalCss
 
             if (
                 ($site = $request->getAttribute('site'))
+                && (! $site instanceof \TYPO3\CMS\Core\Site\Entity\NullSite)
                 && ($siteConfiguration = $site->getConfiguration())
                 && (isset($siteConfiguration['accelerator']['criticalCss']))
             ){
