@@ -15,7 +15,16 @@ call_user_func(
         //=================================================================
         // Register Hooks
         //=================================================================
-        if (TYPO3_MODE !== 'BE') {
+        if (
+            (
+                defined('TYPO3_MODE')
+                && (TYPO3_MODE !== 'BE')
+            )
+            || (
+                defined('TYPO3')
+                && (TYPO3 !== 'BE')
+            )
+        ){
             $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_pagerenderer.php']['render-preProcess'][] = 'Madj2k\\Accelerator\\Hooks\\CriticalCssHook->render_preProcess';
             $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_pagerenderer.php']['render-postTransform'][] = 'Madj2k\\Accelerator\\Hooks\\CriticalCssHook->render_postTransform';
         }
