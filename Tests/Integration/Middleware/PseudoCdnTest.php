@@ -96,6 +96,16 @@ class PseudoCdnTest extends FunctionalTestCase
             'protocol' => 'http://'
         ];
 
+        $this->setUpFrontendRootPage(
+            1,
+            [
+                'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
+                'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
+                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
+            ],
+            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Default.yaml']
+        );
+
     }
 
 
@@ -122,11 +132,10 @@ class PseudoCdnTest extends FunctionalTestCase
                 'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
                 'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
                 self::FIXTURE_PATH. '/Frontend/Configuration/Rootpage.typoscript',
-            ]
+            ],
+            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Check10.yaml']
         );
-
-        include_once(self::FIXTURE_PATH. '/Frontend/Configuration/Check10.php');
-
+        
         $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(1);
 
@@ -164,7 +173,6 @@ class PseudoCdnTest extends FunctionalTestCase
          * Then the default configuration is returned
          */
 
-        $this->initDefaultPage();
         $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(1);
 
@@ -173,82 +181,7 @@ class PseudoCdnTest extends FunctionalTestCase
     }
 
 
-    /**
-     * @test
-     * @throws \Exception
-     * @throws \Doctrine\DBAL\Driver\Exception
-     */
-    public function loadSettingsIsDisabledViaRootpage()
-    {
-
-        /**
-         * Scenario:
-         *
-         * Given a configuration is set
-         * Given pseudoCdn is enabled by configuration
-         * Given pseudoCdn is disabled by the rootPage
-         * When the method is called
-         * Then an array is returned
-         * Then the pseudoCdn is disabled in this configuration
-         */
-        $this->setUpFrontendRootPage(
-            3,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
-                'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-            ],
-            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/config.yaml']
-        );
-
-        include_once(self::FIXTURE_PATH. '/Frontend/Configuration/Check20.php');
-
-        /** @var \Madj2k\Accelerator\Testing\FakeRequest $fakeRequest */
-        $fakeRequest = $this->objectManager->get(FakeRequest::class);
-        $request = $fakeRequest->getRequestForPid(3);
-
-        $result = $this->subject->loadSettings($request);
-        self::assertFalse($result['enable']);
-    }
-
-
-    /**
-     * @test
-     * @throws \Exception
-     * @throws \Doctrine\DBAL\Driver\Exception
-     */
-    public function loadSettingsIsEnabledViaRootpage()
-    {
-
-        /**
-         * Scenario:
-         *
-         * Given a configuration is set
-         * Given pseudoCdn is disabled by configuration
-         * Given pseudoCdn is enabled by the rootPage
-         * When the method is called
-         * Then an array is returned
-         * Then the pseudoCdn is enabled in this configuration
-         */
-        $this->setUpFrontendRootPage(
-            4,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
-                'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-            ],
-            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/config.yaml']
-        );
-
-        include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check30.php');
-
-        $fakeRequest = $this->objectManager->get(FakeRequest::class);
-        $request = $fakeRequest->getRequestForPid(4);
-
-        $result = $this->subject->loadSettings($request);
-        self::assertTrue($result['enable']);
-    }
-
+   
 
     //=============================================
 
@@ -270,7 +203,7 @@ class PseudoCdnTest extends FunctionalTestCase
          * Then an absolute path is returned
          * Then the absolute path uses a static domain
          */
-        $this->initDefaultPage();
+
         $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(1);
         $this->subject->loadSettings($request);
@@ -303,9 +236,16 @@ class PseudoCdnTest extends FunctionalTestCase
          * Then for every maxConnectionsPerDomain a new static domain is used
          */
 
-        include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check40.php');
+        $this->setUpFrontendRootPage(
+            1,
+            [
+                'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
+                'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
+                self::FIXTURE_PATH. '/Frontend/Configuration/Rootpage.typoscript',
+            ],
+            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Check30.yaml']
+        );
 
-        $this->initDefaultPage();
         $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(1);
         $this->subject->loadSettings($request);
@@ -344,9 +284,16 @@ class PseudoCdnTest extends FunctionalTestCase
          * When the method is called more often than maxSubdomains
          * Then the relative path is returned
          */
-        include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check40.php');
+        $this->setUpFrontendRootPage(
+            1,
+            [
+                'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
+                'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
+                self::FIXTURE_PATH. '/Frontend/Configuration/Rootpage.typoscript',
+            ],
+            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Check30.yaml']
+        );
 
-        $this->initDefaultPage();
         $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(1);
         $this->subject->loadSettings($request);
@@ -382,12 +329,10 @@ class PseudoCdnTest extends FunctionalTestCase
          * Then the string is returned unchanged
          */
 
-        $this->initDefaultPage();
         $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(1);
         $this->subject->loadSettings($request);
-
-
+        
         $html = $htmlBefore = file_get_contents(self::FIXTURE_PATH . '/Frontend/Templates/Default.html');
         self::assertFalse($this->subject->replace($html));
         self::assertEquals($html, $htmlBefore);
@@ -416,15 +361,23 @@ class PseudoCdnTest extends FunctionalTestCase
          * Then links to external sites are not replaced*
          * Then normal links are not replaced
          */
-        include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check20.php');
 
-        $this->initDefaultPage();
+        $this->setUpFrontendRootPage(
+            1,
+            [
+                'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
+                'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
+                self::FIXTURE_PATH. '/Frontend/Configuration/Rootpage.typoscript',
+            ],
+            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Check20.yaml']
+        );
+        
         $fakeRequest = $this->objectManager->get(FakeRequest::class);
         $request = $fakeRequest->getRequestForPid(1);
         $this->subject->loadSettings($request);
 
         $html = file_get_contents(self::FIXTURE_PATH . '/Frontend/Templates/Default.html');
-        $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check50.html');
+        $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check20.html');
         self::assertTrue($this->subject->replace($html));
         self::assertEquals($expected, $html);
     }
@@ -432,22 +385,7 @@ class PseudoCdnTest extends FunctionalTestCase
 
     //=============================================
 
-    /**
-     * @return void
-     */
-    protected function initDefaultPage(): void
-    {
-        $this->setUpFrontendRootPage(
-            1,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
-                'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-            ],
-            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/config.yaml']
-        );
-    }
-
+    
     /**
      * TearDown
      */

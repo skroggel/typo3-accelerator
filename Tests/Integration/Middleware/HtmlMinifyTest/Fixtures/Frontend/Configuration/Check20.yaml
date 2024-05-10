@@ -42,8 +42,6 @@ languages:
     fallbacks: ''
 rootPageId: '{rootPageId}'
 routes: {  }
-imports:
-  - { resource: "EXT:core_extended/Configuration/Routes/Default.yaml" }
 
 routeEnhancers:
   #========================================
@@ -62,3 +60,7 @@ routeEnhancers:
       'content-only/': 160
       'plaintext/': 170
       'csv/': 180
+
+accelerator:
+  htmlMinifier:
+    enable: 1

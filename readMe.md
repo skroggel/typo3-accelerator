@@ -36,17 +36,17 @@ Example with Pseudo-CDN
 ```
 ### 1.1.2 Settings
 IMPORTANT: Since TYPO3 the configuration is no longer possible via TypoScript because it is implemented as Middleware.
-It is recommended to configure the PseudoCdn via `AdditionalConfiguration.php` with `enable=false` and enable it in the page-properties of the rootPage afterwards when
-the DNS for it is set and the Wildcard-TLS-certificate is installed
+It is now possible to configure the PseudoCdn via your site-configuration (YAML) instead. 
+Important: the DNS has to be configured accordingly and a Wildcard-TLS-certificate has to be installed before activating this functonality
 
 ```
-$GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn'] = [
-    'enable' => false,
-    'maxConnectionsPerDomain' => 4,
-    'maxSubdomains' => 100,
-    'search' => '/(href="|src="|srcset="|url\(\')\/?((uploads\/media|uploads\/pics|typo3temp\/compressor|typo3temp\/GB|typo3conf\/ext|fileadmin)([^"\']+))/i',
-    'ignoreIfContains' => '/\.css|\.js|\.mp4|\.pdf|\?noCdn=1/'
-];
+accelerator:
+  pseudoCdn:
+    enable: 0
+    maxConnectionsPerDomain: 4
+    maxSubdomains: 100
+    search: '/(href="|src="|srcset="|url\(\')\/?((uploads\/media|uploads\/pics|typo3temp\/compressor|typo3temp\/GB|typo3conf\/ext|fileadmin)([^"\']+))/i'
+    ignoreIfContains: '/\.css|\.js|\.mp4|\.pdf|\?noCdn=1/'
 ```
 * **enable** activates the Pseudo-CDN
 * **maxConnectionsPerDomain** defines how many resources are loaded from a subdomain.
@@ -54,25 +54,54 @@ $GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn'] = [
 * **search** allows to override the regular expression for searching/replacing paths to static content
 * **ignoreIfContains** allows to specify exclusion criteria for the pseudoCDN. Especially JS files should be excluded here (cross-domain issues)
 
-## 1.2 HTML Minify
+## 1.2 HTML Minifier
 ### 1.2.1 Description
 
 This function removes unnecessary breaks and spaces from the HTML code. This significantly reduces the size of the HTML code.
 
 ### 1.2.1 Settings
-IMPORTANT: Since TYPO3 the configuration is no longer possible via TypoScript because it is implemented as Middleware. Use the `AdditionalConfiguration.php` instead:
+IMPORTANT: Since TYPO3 the configuration is no longer possible via TypoScript because it is implemented as Middleware.
+It is now possible to configure it via your site-configuration (YAML) instead.
 ```
-$GLOBALS['TYPO3_CONF_VARS']['FE']['htmlMinify'] = [
-    'enable' => true,
-    'excludePids' => '',
-    'includePageTypes' => '0'
-];
+accelerator:
+  htmlMinifier:
+    enable: 0
+    excludePids: ''
+    includePageTypes: '0'
 ```
 * **enable** activates the HTML Minify
 * **excludePids** excludes the PIDs defined in this comma-separated list
 * **includePageTypes** includes the pageTypes defined in this comma-separated list
 
-## 1.3 Extended ProxyCaching with Varnish
+
+## 1.3 Include Critical CSS (Above-The-Fold)
+To increase the loading speed of your website, so-called critical CSS (above the fold) can be stored in a separate file.
+This critical CSS is then written inline into the HTML of the website, while the rest of the CSS (which is included via page.includeCSS) is added in such a way that it does not block the rendering of the page (as is otherwise usual).
+The critical CSS can be specified per frontend-layout. We use the fields 'backend_layout' and 'backend_layout_next_level' from the pages-table here.
+If no critical CSS is specified for a layout, the CSS files are included normally.
+
+The configuration is done  via yoursite-configuration (YAML).
+```
+accelerator:
+  criticalCss:
+    enable: 1
+    filesForLayout: 
+      home:
+        - 
+          EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/criticalOne.css
+        - 
+          EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/criticalTwo.css          
+    filesToRemoveWhenActive:
+      -
+        EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/removeOne.css
+      - 
+        EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/removeTwo.css          
+```
+* **enable** activates the critical CSS inclusion
+* **filesForLayout** contaons the layout-keys for which the following CSS-files are to be included. If there is no match, no file will be included
+* **filesToRemoveWhenActive** defines files that will be remove from page.includeCss if criticalCSS is activated
+
+## 1.4 Extended ProxyCaching with Varnish
 This extension allows an extended setup with Varnish.
 By default pages are excluded from Varnish caching if a frontend cookie is set. This is to prevent personal data from being cached and thus becoming visible to strangers.
 
@@ -329,56 +358,8 @@ sub vcl_deliver {
 
 ```
 
-## 1.4 Enforced Inline CSS - NOT ACTIVE!!!!
-Ideally, the CSS is output inline directly to the header of the website.
-This saves reloading the CSS files and speeds up the rendering.
-From TYPO3 9 upwards, it is possible to force inline output via TypoScript,
-but this does not work for external CSS files (e.g. TypeKit) (see: https://docs.typo3.org/m/typo3/reference-typoscript/master/en-us/Setup/Page/Index.html#includecss-array).
 
-Using an XClass, this extension forces the integration of all
-specified CSS files as inline CSS and also considers external CSS files.
-
-Currently, this feature cannot yet be deactivated via TypoScript.
-
-
-## 1.5 Include Critical CSS (Above-The-Fold)
-To increase the loading speed of your website, so-called critical CSS (above the fold) can be stored in a separate file.
-This critical CSS is then written inline into the HTML of the website, while the rest of the CSS (which is included via page.includeCSS) is added in such a way that it does not block the rendering of the page (as is otherwise usual).
-The critical CSS can be specified per frontend-layout. We use the fields 'tx_accelerator_fe_layout_next_level' and 'layout' here (layout-field takes precedence in current page).
-If no critical CSS is specified for a layout, the CSS files are included normally.
-
-The configuration is done via Typoscript.
-
-Usage via TypoScript:
-```
-plugin.tx_accelerator {
-
-    settings {
-        criticalCss {
-
-            // globally activate it
-            enable = 1
-
-            filesForLayout {
-
-                // the key is the frontend-layout in which the following files are to be included
-                0 {
-                    // this keys here are only determining the order of the inclusion. Extension-keys can be used.
-                    10 = EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/criticalOne.css
-                    20 = EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/criticalTwo.css
-                }
-            }
-
-            // here you can define CSS files that are included via page.includeCss that are to be removed when critical-CSS is included
-            filesToRemoveWhenActive {
-                10 = EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/removeOne.css
-                20 = EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/removeTwo.css
-            }
-        }
-	}
-```
-
-## 1.6 Cache API for your extension
+## 1.5 Cache API for your extension
 1. Activate it in your extension in `ext_localconf.php` by setting the frontend- and backend-cache.
 ```
 $cacheIdentifier = \Madj2k\CoreExtended\Utility\GeneralUtility::underscore($extKey);

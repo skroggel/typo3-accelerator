@@ -1,34 +1,3 @@
-/** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  * TABLE-MAPPING IS DEPRECATED SINCE TYPO3 10.4
-  * PLEASE ADD ANY CHANGES TO
-  * EXT:extension/Configuration/Extbase/Persistence/Classes.php
-  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-config.tx_extbase {
-    persistence {
-        classes {
-
-            Madj2k\Accelerator\Domain\Model\Pages {
-                mapping {
-                    tableName = pages
-
-                    # on pages tables it's the doktype
-                    # if we set an value, we filter by it
-                    # if we do not set anything, all pages are found
-                    recordType =
-
-                    # mapping to properties of class
-                    columns {
-
-                    }
-                }
-            }
-        }
-    }
-}
-
-#############################################################################
-# Configuration
-#############################################################################
 plugin.tx_accelerator  {
     view {
         layoutRootPath {
@@ -56,31 +25,7 @@ plugin.tx_accelerator  {
         # rewrittenPropertyMapper = 1
     }
 
-    #===============================================================
-    # Settings
-    #===============================================================
     settings {
-        criticalCss {
-            enable = {$plugin.tx_accelerator.settings.criticalCss.enable}
-            filesForLayout {
 
-            }
-            filesToRemoveWhenActive {
-
-            }
-        }
     }
 }
-
-
-#===============================================================
-# CSS
-#===============================================================
-plugin.tx_accelerator._CSS_DEFAULT_STYLE (
-
-)
-
-#===============================================================
-# Includes
-#===============================================================
-<INCLUDE_TYPOSCRIPT: source="DIR:./Includes" extensions="typoscript">

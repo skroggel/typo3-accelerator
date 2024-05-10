@@ -15,11 +15,7 @@ plugin.tx_accelerator {
 	}
 
 	settings {
-        criticalCss {
 
-            # cat=plugin.tx_accelerator//a; type=boolean; label=Activate Rendering for Critical-CSS
-            enable = 0
-        }
 	}
 }
 
