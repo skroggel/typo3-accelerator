@@ -15,6 +15,7 @@ namespace Madj2k\Accelerator\ContentProcessing;
  * The TYPO3 project - inspiring people to share!
  */
 
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
@@ -63,34 +64,27 @@ final class CriticalCss
             return '';
         }
 
-        // first of all we rebuild the existing cssIncludes
+
+        /**
+         * First of all we rebuild the existing cssInclude and cssLibs in order to load this files asynchronous.
+         * Since we have critical css included the latency is better than pausing rendering with synchronous loading
+         */
         /** @see: PageRenderer->renderCssFiles() */
         $cssCode = [];
-        if (is_array($params['cssFiles'])) {
-            foreach ($params['cssFiles'] as $file => $properties) {
+        foreach (['cssLibs', 'cssFiles'] as $paramKey) {
+            if (is_array($params[$paramKey])) {
+                foreach ($params[$paramKey] as $file => $properties) {
 
-                $file = $this->getFilePath($file, true);
-                $tag = '<link'
-                    . ' rel="stylesheet"'
-                    . ' type="text/css" href="' . htmlspecialchars($file) .'"'
-                    . ' media="' . htmlspecialchars($this->rebuildMediaList($properties['media'] ?: 'all')) . '"'
-                    . ' data-media="' . $properties['media'] . '"'
-                    . ($properties['title'] ? ' title="' . htmlspecialchars($properties['title']) . '"' : '')
-                    . ' onload="this.media=this.dataset.media; this.onload = null"'
-                    . ' />';
-                if ($properties['allWrap']) {
-                    $wrapArr = explode($properties['splitChar'] ?: '|', $properties['allWrap'], 2);
-                    $tag = $wrapArr[0] . $tag . $wrapArr[1];
+                    $tag = $this->buildStyleTag($file, $properties);
+                    if ($properties['forceOnTop']) {
+                        array_unshift($cssCode, $tag);
+                    } else {
+                        $cssCode[] = $tag;
+                    }
+
+                    // remove the file from further processing
+                    unset($params[$paramKey][$file]);
                 }
-
-                if ($properties['forceOnTop']) {
-                    array_unshift($cssCode, $tag);
-                } else {
-                    $cssCode[] = $tag;
-                }
-
-                // remove the file from further processing
-                unset($params['cssFiles'][$file]);
             }
         }
 
@@ -108,6 +102,33 @@ final class CriticalCss
         }
         array_unshift($cssCode, $criticalCssCode);
         return implode(LF, $cssCode);
+    }
+
+
+    /**
+     * Build tags which load CSS asynchonous
+     *
+     * @param string $file
+     * @param array $properties
+     * @return string
+     */
+    protected function buildStyleTag (string $file, array $properties): string {
+
+        $file = $this->getFilePath($file, true);
+        $tag = '<link'
+            . ' rel="stylesheet"'
+            . ' type="text/css" href="' . htmlspecialchars($file) .'"'
+            . ' media="' . htmlspecialchars($this->rebuildMediaList($properties['media'] ?: 'all')) . '"'
+            . ' data-media="' . $properties['media'] . '"'
+            . ($properties['title'] ? ' title="' . htmlspecialchars($properties['title']) . '"' : '')
+            . ' onload="this.media=this.dataset.media; this.onload = null"'
+            . ' />';
+        if ($properties['allWrap']) {
+            $wrapArr = explode($properties['splitChar'] ?: '|', $properties['allWrap'], 2);
+            $tag = $wrapArr[0] . $tag . $wrapArr[1];
+        }
+
+        return $tag;
     }
 
 
@@ -196,13 +217,12 @@ final class CriticalCss
      */
     public function getCriticalCssFiles (): array
     {
-
         if (
             (! empty($this->settings['filesForLayout']))
-            && (isset($this->settings['filesForLayout'][$this->getFrontendLayoutOfPage()]))
-            && (is_array($this->settings['filesForLayout'][$this->getFrontendLayoutOfPage()]))
+            && (isset($this->settings['filesForLayout'][$this->getLayoutOfPage()]))
+            && (is_array($this->settings['filesForLayout'][$this->getLayoutOfPage()]))
         ){
-            return $this->settings['filesForLayout'][$this->getFrontendLayoutOfPage()];
+            return $this->settings['filesForLayout'][$this->getLayoutOfPage()];
         }
 
         return [];
@@ -231,31 +251,31 @@ final class CriticalCss
     /**
      * Returns the frontend layout of the current page
      *
-     * @return int
+     * @return string
      */
-    public function getFrontendLayoutOfPage (): int
+    public function getLayoutOfPage (): string
     {
 
-        // get PageRepository and rootline
+        // get rootline
         $rootlinePages = GeneralUtility::makeInstance(RootlineUtility::class, intval($GLOBALS['TSFE']->id))->get();
-        $layout = 0;
+        $layout = '';
         if (is_array($rootlinePages)) {
             foreach ($rootlinePages as $key => $page) {
 
                 // own layout-field overrides all
                 if (
                     ($key == (count($rootlinePages)-1))
-                    && ($page['layout'])
+                    && ($page['backend_layout'])
                 ) {
-                    return intval($page['layout']);
+                    return str_replace('pagets__', '', $page['backend_layout']);
                 }
 
                 // inherit layout from parent pages
                 if (
                     ($key != (count($rootlinePages)-1))
-                    && ($page['tx_coreextended_fe_layout_next_level'])
+                    && ($page['backend_layout_next_level'])
                 ) {
-                    return intval($page['tx_coreextended_fe_layout_next_level']);
+                    return str_replace('pagets__', '', $page['backend_layout_next_level']);
                 }
 
             }
@@ -273,7 +293,6 @@ final class CriticalCss
      */
     public function rebuildMediaList (string $mediaList): string
     {
-
         $mediaArray = GeneralUtility::trimExplode(',', $mediaList, true);
         foreach ($mediaArray as $key => $mediaString) {
             if ($mediaString == 'screen') {
@@ -328,22 +347,29 @@ final class CriticalCss
             'filesToRemoveWhenActive' => []
         ];
 
-        /** @var  $objectManager */
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $configurationManager = $objectManager->get(ConfigurationManagerInterface::class);
-        $configuration = $configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
-            'Accelerator'
-        );
+        /** @var \Psr\Http\Message\ServerRequestInterface $rquest */
+        $request = $this->getRequest();
+        if ($request) {
 
-        if (
-            (isset($configuration['criticalCss']))
-            && (is_array($configuration['criticalCss']))
-        ){
-            $settings = array_merge($settings, $configuration['criticalCss']);
+            if (
+                ($site = $request->getAttribute('site'))
+                && ($siteConfiguration = $site->getConfiguration())
+                && (isset($siteConfiguration['accelerator']['criticalCss']))
+            ){
+                $settings = array_merge($settings, $siteConfiguration['accelerator']['criticalCss'] ?? []);
+            }
         }
 
         return $settings;
+    }
+
+
+    /**
+     * @return \Psr\Http\Message\ServerRequestInterface ServerRequestInterface
+     */
+    private function getRequest(): ServerRequestInterface
+    {
+        return $GLOBALS['TYPO3_REQUEST'];
     }
 
 }

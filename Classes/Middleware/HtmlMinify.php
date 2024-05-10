@@ -57,7 +57,7 @@ final class HtmlMinify implements MiddlewareInterface
             $body->rewind();
             $content = $response->getBody()->getContents();
 
-            $this->loadSettings();
+            $this->loadSettings($request);
 
             // get minifier and process the response
             if ($this->minify($content)) {
@@ -114,9 +114,10 @@ final class HtmlMinify implements MiddlewareInterface
     /**
      * Loads settings
      *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
      * @return array
      */
-    public function loadSettings(): array
+    public function loadSettings(ServerRequestInterface $request): array
     {
         $settings = [
             'enable' => false,
@@ -124,7 +125,15 @@ final class HtmlMinify implements MiddlewareInterface
             'includePageTypes' => '0'
         ];
 
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['FE']['htmlMinify'])) {
+        if (
+            ($site = $request->getAttribute('site'))
+            && ($siteConfiguration = $site->getConfiguration())
+            && (isset($siteConfiguration['accelerator']['htmlMinifier']))
+        ){
+            $settings = array_merge($settings, $siteConfiguration['accelerator']['htmlMinifier'] ?? []);
+
+        /** @deprecated  */
+        } else if (is_array($GLOBALS['TYPO3_CONF_VARS']['FE']['htmlMinify'])) {
             $settings = array_merge($settings, $GLOBALS['TYPO3_CONF_VARS']['FE']['htmlMinify']);
         }
 

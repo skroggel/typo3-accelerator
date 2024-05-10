@@ -66,6 +66,7 @@ class HtmlMinifyTest extends FunctionalTestCase
 
         parent::setUp();
         $this->importDataSet(self::FIXTURE_PATH . '/Database/Global.xml');
+
         $this->setUpFrontendRootPage(
             1,
             [
@@ -73,7 +74,7 @@ class HtmlMinifyTest extends FunctionalTestCase
                 'EXT:accelerator/Configuration/TypoScript/constants.txt',
                 self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
             ],
-            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/config.yaml']
+            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Default.yaml']
         );
 
         $this->subject = GeneralUtility::makeInstance(HtmlMinify::class);
@@ -99,6 +100,16 @@ class HtmlMinifyTest extends FunctionalTestCase
          */
         include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check10.php');
 
+        $this->setUpFrontendRootPage(
+            1,
+            [
+                'EXT:accelerator/Configuration/TypoScript/setup.txt',
+                'EXT:accelerator/Configuration/TypoScript/constants.txt',
+                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
+            ],
+            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Check-10.yaml']
+        );
+        
         $result = $this->subject->loadSettings();
         $expected = [
             'enable' => true,
@@ -124,6 +135,7 @@ class HtmlMinifyTest extends FunctionalTestCase
          * When the method is called
          * Then the default configuration is returned
          */
+
 
         $result = $this->subject->loadSettings();
         $expected = [
@@ -186,7 +198,16 @@ class HtmlMinifyTest extends FunctionalTestCase
          * Then line-breaks and spaces in script-tags are kept with line-breaks
          */
 
-        include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check30.php');
+        $this->setUpFrontendRootPage(
+            1,
+            [
+                'EXT:accelerator/Configuration/TypoScript/setup.txt',
+                'EXT:accelerator/Configuration/TypoScript/constants.txt',
+                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
+            ],
+            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Check20.yaml']
+        );
+        
         $this->subject->loadSettings();
 
         // simulate relevant frontend values
@@ -194,7 +215,7 @@ class HtmlMinifyTest extends FunctionalTestCase
         $GLOBALS['TSFE']->type = 0;
 
         $html = file_get_contents(self::FIXTURE_PATH . '/Frontend/Templates/Default.html');
-        $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check30.html');
+        $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check20.html');
 
         self::assertTrue($this->subject->minify($html));
         self::assertEquals($expected, $html);
@@ -220,7 +241,16 @@ class HtmlMinifyTest extends FunctionalTestCase
          * Then the string is returned unchanged
          */
 
-        include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check40.php');
+        $this->setUpFrontendRootPage(
+            1,
+            [
+                'EXT:accelerator/Configuration/TypoScript/setup.txt',
+                'EXT:accelerator/Configuration/TypoScript/constants.txt',
+                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
+            ],
+            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Check30.yaml']
+        );
+        
         $this->subject->loadSettings();
 
         // simulate relevant frontend values
@@ -253,7 +283,16 @@ class HtmlMinifyTest extends FunctionalTestCase
          * Then the string is returned unchanged
          */
 
-        include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check50.php');
+        $this->setUpFrontendRootPage(
+            1,
+            [
+                'EXT:accelerator/Configuration/TypoScript/setup.txt',
+                'EXT:accelerator/Configuration/TypoScript/constants.txt',
+                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
+            ],
+            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Check40.yaml']
+        );
+        
         $this->subject->loadSettings();
 
         // simulate relevant frontend values
