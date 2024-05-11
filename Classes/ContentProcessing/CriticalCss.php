@@ -351,13 +351,29 @@ final class CriticalCss
         $request = $this->getRequest();
         if ($request) {
 
+            // NullSite will be set if in backend context
             if (
                 ($site = $request->getAttribute('site'))
                 && (! $site instanceof \TYPO3\CMS\Core\Site\Entity\NullSite)
-                && ($siteConfiguration = $site->getConfiguration())
-                && (isset($siteConfiguration['accelerator']['criticalCss']))
-            ){
-                $settings = array_merge($settings, $siteConfiguration['accelerator']['criticalCss'] ?? []);
+            ) {
+
+                if (
+                    ($siteConfiguration = $site->getConfiguration())
+                    && (isset($siteConfiguration['accelerator']['criticalCss']))
+                ){
+                    $settings = array_merge($settings, $siteConfiguration['accelerator']['criticalCss'] ?? []);
+                }
+
+                // deactive critical css if it is rendered via pageType
+                if (
+                    ($params = $request->getQueryParams())
+                    && (
+                        ($params['type'] == '1715339215')
+                        || ($params['no_critical_css'] == '1')
+                    )
+                ){
+                    $settings['enable'] = 0;
+                }
             }
         }
 

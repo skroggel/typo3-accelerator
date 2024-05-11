@@ -101,6 +101,8 @@ accelerator:
 * **filesForLayout** contaons the layout-keys for which the following CSS-files are to be included. If there is no match, no file will be included
 * **filesToRemoveWhenActive** defines files that will be remove from page.includeCss if criticalCSS is activated
 
+If the pageType 1715339215 or the GET-Param no_critical_css=1 is used critical css is disabled.
+This is helpful for rendering the critical css e.g. via NPM critical.
 ## 1.4 Extended ProxyCaching with Varnish
 This extension allows an extended setup with Varnish.
 By default pages are excluded from Varnish caching if a frontend cookie is set. This is to prevent personal data from being cached and thus becoming visible to strangers.
