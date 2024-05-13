@@ -42,11 +42,16 @@ Important: the DNS has to be configured accordingly and a Wildcard-TLS-certifica
 ```
 accelerator:
   pseudoCdn:
-    enable: 0
+    enable: 1
     maxConnectionsPerDomain: 4
     maxSubdomains: 100
     search: '/(href="|src="|srcset="|url\(\')\/?((uploads\/media|uploads\/pics|typo3temp\/compressor|typo3temp\/GB|typo3conf\/ext|fileadmin)([^"\']+))/i'
     ignoreIfContains: '/\.css|\.js|\.mp4|\.pdf|\?noCdn=1/'
+acceleratorVariants:
+  -
+    pseudoCdn:
+      enable: 0
+    condition: 'applicationContext == "Development/Local"'    
 ```
 * **enable** activates the Pseudo-CDN
 * **maxConnectionsPerDomain** defines how many resources are loaded from a subdomain.
@@ -65,9 +70,14 @@ It is now possible to configure it via your site-configuration (YAML) instead.
 ```
 accelerator:
   htmlMinifier:
-    enable: 0
+    enable: 1
     excludePids: ''
     includePageTypes: '0'
+acceleratorVariants:
+  -
+    htmlMinifier:
+      enable: 0
+    condition: 'applicationContext == "Development/Local"'        
 ```
 * **enable** activates the HTML Minify
 * **excludePids** excludes the PIDs defined in this comma-separated list
@@ -95,7 +105,12 @@ accelerator:
       -
         EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/removeOne.css
       - 
-        EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/removeTwo.css          
+        EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/removeTwo.css
+acceleratorVariants:
+  -
+    criticalCss:
+      enable: 0
+    condition: 'applicationContext == "Development/Local"'                      
 ```
 * **enable** activates the critical CSS inclusion
 * **filesForLayout** contaons the layout-keys for which the following CSS-files are to be included. If there is no match, no file will be included
