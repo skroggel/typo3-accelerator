@@ -1,4 +1,9 @@
 <?php
-$GLOBALS['TYPO3_CONF_VARS']['FE']['htmlMinify'] = [
-    'enable' => true,
+return [
+    'accelerator' => [
+        'htmlMinifier' => [
+            'enable' => true,
+            'excludePids' => '1'
+        ]
+    ]
 ];

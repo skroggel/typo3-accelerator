@@ -53,7 +53,7 @@ final class ProxyCachingHeader implements MiddlewareInterface
 
             $pid = intval($GLOBALS['TSFE']->id);
             $response = $response->withHeader('X-TYPO3-ProxyCaching', (string) $this->getProxyCachingSettingForPid($pid));
-            $response = $response->withHeader('xkey', $this->getSiteTag() . ' ' . $this->getSiteTag() . '_' . $pid);
+            $response = $response->withHeader('xkey', $this->getSiteTag($request) . ' ' . $this->getPageTag($request, $pid));
         }
 
         return $response;
@@ -78,7 +78,7 @@ final class ProxyCachingHeader implements MiddlewareInterface
             if ($rootlinePages[count($rootlinePages) - 1]['tx_accelerator_proxy_caching']) {
                 $status = intval($rootlinePages[count($rootlinePages) - 1]['tx_accelerator_proxy_caching']);
 
-                // else inherit
+            // else inherit
             } else {
 
                 foreach ($rootlinePages as $page => $values) {
@@ -97,10 +97,19 @@ final class ProxyCachingHeader implements MiddlewareInterface
     /**
      * Returns HMAC-value of TYPO3 instance
      *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
      * @return string
      */
-    public function getSiteTag(): string
+    public function getSiteTag(ServerRequestInterface $request): string
     {
+        if (
+            ($site = $request->getAttribute('site'))
+            && ($siteConfiguration = $site->getConfiguration())
+        ){
+            return GeneralUtility::hmac($siteConfiguration['websiteTitle']);
+        }
+
+        /** @deprecated  */
         return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
     }
 
@@ -108,11 +117,20 @@ final class ProxyCachingHeader implements MiddlewareInterface
     /**
      * Returns HMAC-value of TYPO3 instance plus pid
      *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param int $pid
      * @return string
      */
-    public function getPageTag(int $pid = 0): string
+    public function getPageTag(ServerRequestInterface $request, int $pid = 0): string
     {
+        if (
+            ($site = $request->getAttribute('site'))
+            && ($siteConfiguration = $site->getConfiguration())
+        ){
+            return GeneralUtility::hmac($siteConfiguration['websiteTitle'] . '_' . $pid);
+        }
+
+        /** @deprecated  */
         return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] . '_' . $pid);
     }
 }

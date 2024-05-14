@@ -27,6 +27,7 @@ use TYPO3\CMS\Core\Routing\SiteMatcher;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * Class PseudoCdn
@@ -43,22 +44,6 @@ final class PseudoCdn implements MiddlewareInterface
      * @var array
      */
     protected array $settings = [];
-
-
-    /**
-     * @var \TYPO3\CMS\Core\Routing\SiteMatcher
-     * @TYPO3\CMS\Extbase\Annotation\Inject
-     */
-    protected ?SiteMatcher $siteMatcher = null;
-
-
-    /**
-     * @param \TYPO3\CMS\Core\Routing\SiteMatcher $siteMatcher
-     */
-    public function injectSiteMatcher(SiteMatcher $siteMatcher)
-    {
-        $this->siteMatcher = $siteMatcher;
-    }
 
 
     /**
@@ -184,20 +169,13 @@ final class PseudoCdn implements MiddlewareInterface
      */
     public function loadSettings(ServerRequestInterface $request): array
     {
+
         /** @var array $serverParams */
         $serverParams = $request->getServerParams();
 
-        /** fix for strange behavior in test-context without dependency injection */
-        if (!$this->siteMatcher) {
-            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-            $this->siteMatcher = $objectManager->get(SiteMatcher::class);
-        }
-
-        /** @see \TYPO3\CMS\Core\Routing\RouteResultInterface */
-        $routeResult = $this->siteMatcher->matchRequest($request);
-
         /** @var \TYPO3\CMS\Core\Site\Entity\Site $site */
-        $site = $routeResult->getSite();
+        $site = $request->getAttribute('site');
+
         $domainParts = explode('.', $site->getBase()->getHost());
         $baseDomain = $domainParts[count($domainParts) -2]. '.' . $domainParts[count($domainParts) -1];
 
@@ -210,28 +188,36 @@ final class PseudoCdn implements MiddlewareInterface
             'baseDomain' => $baseDomain,
             'protocol' => (($serverParams['HTTPS']) || ($serverParams['SERVER_PORT'] == '443')) ? 'https://' : 'http://'
         ];
+        
+        if (
+            ($site = $request->getAttribute('site'))
+            && ($siteConfiguration = $site->getConfiguration())
+            && (isset($siteConfiguration['accelerator']['pseudoCdn']))
+        ){
+            $settings = array_merge($settings, $siteConfiguration['accelerator']['pseudoCdn'] ?? []);
 
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn'])) {
+        /** @deprecated  */
+        } else if (is_array($GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn'])) {
             $settings = array_merge($settings, $GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn']);
-        }
 
-        $rootPage = $site->getRootPageId();
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
-        $pageSwitch = $queryBuilder
-            ->select('tx_accelerator_pseudo_cdn')
-            ->from('pages')
-            ->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($rootPage))
-            )
-            ->execute()
-            ->fetchOne();
+            $rootPage = $site->getRootPageId();
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+            $pageSwitch = $queryBuilder
+                ->select('tx_accelerator_pseudo_cdn')
+                ->from('pages')
+                ->where(
+                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($rootPage))
+                )
+                ->execute()
+                ->fetchOne();
 
-        // check for site-specific override in rootPage
-        if ($pageSwitch== 1) {
-            $settings['enable'] = true;
-        } else if ($pageSwitch == 2) {
-            $settings['enable'] = false;
-        }
+            // check for site-specific override in rootPage
+            if ($pageSwitch== 1) {
+                $settings['enable'] = true;
+            } else if ($pageSwitch == 2) {
+                $settings['enable'] = false;
+            }
+        }        
 
         return $this->settings = $settings;
     }

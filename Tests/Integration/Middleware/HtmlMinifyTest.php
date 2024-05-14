@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace Madj2k\Accelerator\Tests\Integration\Middleware;
 
 /*
@@ -14,9 +15,9 @@ namespace Madj2k\Accelerator\Tests\Integration\Middleware;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Nimut\TestingFramework\TestCase\FunctionalTestCase;
+use Madj2k\Accelerator\Testing\FakeRequestTrait;
 use Madj2k\Accelerator\Middleware\HtmlMinify;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
  * HtmlMinifyTest
@@ -28,6 +29,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class HtmlMinifyTest extends FunctionalTestCase
 {
+    use FakeRequestTrait;
 
     /**
      * @const
@@ -65,18 +67,18 @@ class HtmlMinifyTest extends FunctionalTestCase
     {
 
         parent::setUp();
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Global.xml');
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Global.csv');
+
         $this->setUpFrontendRootPage(
             1,
             [
                 'EXT:accelerator/Configuration/TypoScript/setup.txt',
                 'EXT:accelerator/Configuration/TypoScript/constants.txt',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
+                'EXT:accelerator/Tests/Integration/Middleware/HtmlMinifyTest/Fixtures/Frontend/Configuration/Rootpage.typoscript',
             ],
-            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/config.yaml']
         );
 
-        $this->subject = GeneralUtility::makeInstance(HtmlMinify::class);
+        $this->subject = new HtmlMinify();
 
     }
 
@@ -97,9 +99,13 @@ class HtmlMinifyTest extends FunctionalTestCase
          * When the method is called
          * Then this configuration is returned
          */
-        include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check10.php');
 
-        $result = $this->subject->loadSettings();
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check10.php');
+
+        /** @var \Psr\Http\Message\ServerRequestInterface $request */
+        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+
+        $result = $this->subject->loadSettings($request);
         $expected = [
             'enable' => true,
             'excludePids' => '9999',
@@ -112,7 +118,6 @@ class HtmlMinifyTest extends FunctionalTestCase
 
     /**
      * @test
-     * @throws \Exception
      */
     public function loadSettingsTakesFallbackIfNoConfigurationSet()
     {
@@ -142,7 +147,7 @@ class HtmlMinifyTest extends FunctionalTestCase
     /**
      * @test
      */
-    public function minifyIsNotRunningIfNotEnabled()
+    public function minifyIsNotRunningIfNotExplicitlyEnabled()
     {
 
         /**
@@ -150,13 +155,10 @@ class HtmlMinifyTest extends FunctionalTestCase
          *
          * Given the default configuration is set
          * Given a string which can be minified
-         * Given loadSettings has been called before
          * When the method is called
          * Then false is returned
          * Then the string is returned unchanged
          */
-
-        $this->subject->loadSettings();
 
         $html = $htmlBefore = file_get_contents(self::FIXTURE_PATH . '/Frontend/Templates/Default.html');
 
@@ -167,9 +169,9 @@ class HtmlMinifyTest extends FunctionalTestCase
 
     /**
      * @test
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
+     * @throws \Exception
      */
-    public function minifyIsReducesHtmlIfEnabled()
+    public function minifyReducesHtmlIfEnabled()
     {
 
         /**
@@ -178,7 +180,6 @@ class HtmlMinifyTest extends FunctionalTestCase
          * Given the default configuration is set
          * Given enable is set to true
          * Given a string which can be minified
-         * Given loadSettings has been called before
          * When the method is called
          * Then line-breaks and spaces are removed from the HTML
          * Then line-breaks and spaces in textarea-tags are kept with line-breaks
@@ -186,15 +187,18 @@ class HtmlMinifyTest extends FunctionalTestCase
          * Then line-breaks and spaces in script-tags are kept with line-breaks
          */
 
-        include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check30.php');
-        $this->subject->loadSettings();
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check20.php');
+
+        /** @var \Psr\Http\Message\ServerRequestInterface $request */
+        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+        $this->subject->loadSettings($request);
 
         // simulate relevant frontend values
         $GLOBALS['TSFE']->page['uid'] = 1;
         $GLOBALS['TSFE']->type = 0;
 
         $html = file_get_contents(self::FIXTURE_PATH . '/Frontend/Templates/Default.html');
-        $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check30.html');
+        $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check20.html');
 
         self::assertTrue($this->subject->minify($html));
         self::assertEquals($expected, $html);
@@ -203,6 +207,7 @@ class HtmlMinifyTest extends FunctionalTestCase
 
     /**
      * @test
+     * @throws \Exception
      */
     public function processIgnoresPagesInIgnoreList()
     {
@@ -214,14 +219,16 @@ class HtmlMinifyTest extends FunctionalTestCase
          * Given enable is set to true
          * Given the current pid is configured to be ignored
          * Given a string which can be minified
-         * Given loadSettings has been called before
          * When the method is called
          * Then false is returned
          * Then the string is returned unchanged
          */
 
-        include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check40.php');
-        $this->subject->loadSettings();
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check30.php');
+
+        /** @var \Psr\Http\Message\ServerRequestInterface $request */
+        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+        $this->subject->loadSettings($request);
 
         // simulate relevant frontend values
         $GLOBALS['TSFE']->page['uid'] = 1;
@@ -247,14 +254,16 @@ class HtmlMinifyTest extends FunctionalTestCase
          * Given enable is set to true
          * Given the current pageType is not configured to be included
          * Given a string which can be minified
-         * Given loadSettings has been called before
          * When the method is called
          * Then false is returned
          * Then the string is returned unchanged
          */
 
-        include_once(self::FIXTURE_PATH . '/Frontend/Configuration/Check50.php');
-        $this->subject->loadSettings();
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check40.php');
+
+        /** @var \Psr\Http\Message\ServerRequestInterface $request */
+        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+        $this->subject->loadSettings($request);
 
         // simulate relevant frontend values
         $GLOBALS['TSFE']->page['uid'] = 1;
