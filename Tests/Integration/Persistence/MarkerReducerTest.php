@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace Madj2k\Accelerator\Tests\Integration\Persistence;
 
 /*
@@ -14,7 +15,6 @@ namespace Madj2k\Accelerator\Tests\Integration\Persistence;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 use Madj2k\Accelerator\Persistence\MarkerReducer;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Extbase\Domain\Model\FrontendUser;
@@ -23,6 +23,7 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
  * MarkerReducerTest
@@ -83,7 +84,7 @@ class MarkerReducerTest extends FunctionalTestCase
 
         parent::setUp();
 
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Global.xml');
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Global.csv');
         $this->setUpFrontendRootPage(
             1,
             [
@@ -92,10 +93,8 @@ class MarkerReducerTest extends FunctionalTestCase
             ]
         );
 
-        /** @var \TYPO3\CMS\Extbase\Object\ObjectManager $this->objectManager */
         $this->persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
-        $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->frontendUserRepository = $this->objectManager->get(FrontendUserRepository::class);
+        $this->frontendUserRepository = GeneralUtility::makeInstance(FrontendUserRepository::class);
     }
 
 
@@ -113,7 +112,7 @@ class MarkerReducerTest extends FunctionalTestCase
          * Scenario:
          *
          * Given a marker array contains four items
-         * Given three items are are persisted objects in the database
+         * Given three items are  persisted objects in the database
          * Given the fourth item is an objectStorage with two objects
          * Given these two objects are persisted in the database
          * When the method is called
@@ -121,7 +120,7 @@ class MarkerReducerTest extends FunctionalTestCase
          * Then the first three items are reduced to object-placeholders consisting of namespace and the uid
          * Then the fourth item is reduced to an array-placeholder with a comma-separated list of object-placeholders consisting of namespace and the uid
          */
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Check10.csv');
 
         /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
         $entityOne = $this->frontendUserRepository->findByIdentifier(1);
@@ -133,7 +132,7 @@ class MarkerReducerTest extends FunctionalTestCase
         $entityThree = $this->frontendUserRepository->findByIdentifier(3);
 
         /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
-        $objectStorage = $this->objectManager->get(ObjectStorage::class);
+        $objectStorage = GeneralUtility::makeInstance(ObjectStorage::class);
         $objectStorage->attach($entityTwo);
         $objectStorage->attach($entityThree);
 
@@ -184,7 +183,7 @@ class MarkerReducerTest extends FunctionalTestCase
          * Then the second item contains the complete non-persisted object
          * Then the fourth item contains the object-storage with the complete objects
          */
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Check10.csv');
 
         /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
         $entityOne = $this->frontendUserRepository->findByIdentifier(1);
@@ -196,7 +195,7 @@ class MarkerReducerTest extends FunctionalTestCase
         $entityThree = $this->frontendUserRepository->findByIdentifier(3);
 
         /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
-        $objectStorage = $this->objectManager->get(ObjectStorage::class);
+        $objectStorage = GeneralUtility::makeInstance(ObjectStorage::class);
         $objectStorage->attach($entityOne);
         $objectStorage->attach($entityTwo);
 
@@ -244,7 +243,7 @@ class MarkerReducerTest extends FunctionalTestCase
          * Then the second item contains the complete non-persisted object
          * Then the fourth item contains the object-storage with the complete objects
          */
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Check10.csv');
 
         /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
         $entityOne = $this->frontendUserRepository->findByIdentifier(1);
@@ -295,7 +294,7 @@ class MarkerReducerTest extends FunctionalTestCase
          * Then the two objects of the fourth item are the objects identified by the given uid
          */
 
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Check10.csv');
 
         /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
         $entityOne = $this->frontendUserRepository->findByIdentifier(1);
@@ -307,7 +306,7 @@ class MarkerReducerTest extends FunctionalTestCase
         $entityThree = $this->frontendUserRepository->findByIdentifier(3);
 
         /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
-        $objectStorage = $this->objectManager->get(ObjectStorage::class);
+        $objectStorage = GeneralUtility::makeInstance(ObjectStorage::class);
         $objectStorage->attach($entityTwo);
         $objectStorage->attach($entityThree);
 
@@ -370,7 +369,7 @@ class MarkerReducerTest extends FunctionalTestCase
          * Then the two objects of the fourth item are the objects identified by the given uid
          */
 
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Check10.csv');
 
         /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
         $entityOne = $this->frontendUserRepository->findByIdentifier(1);
@@ -386,7 +385,7 @@ class MarkerReducerTest extends FunctionalTestCase
         $this->persistenceManager->persistAll();
 
         /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
-        $objectStorage = $this->objectManager->get(ObjectStorage::class);
+        $objectStorage = GeneralUtility::makeInstance(ObjectStorage::class);
         $objectStorage->attach($entityTwo);
         $objectStorage->attach($entityThree);
 
@@ -449,7 +448,7 @@ class MarkerReducerTest extends FunctionalTestCase
          * Then the two objects of the fourth item are the objects identified by the given uid
          */
 
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Check10.csv');
 
         /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
         $entityOne = $this->frontendUserRepository->findByIdentifier(1);
@@ -469,7 +468,7 @@ class MarkerReducerTest extends FunctionalTestCase
             ->execute();
 
         /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
-        $objectStorage = $this->objectManager->get(ObjectStorage::class);
+        $objectStorage = GeneralUtility::makeInstance(ObjectStorage::class);
         $objectStorage->attach($entityTwo);
         $objectStorage->attach($entityThree);
 
@@ -536,7 +535,7 @@ class MarkerReducerTest extends FunctionalTestCase
          * Then the non-existing object in the object storage is missing
          */
 
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Check10.csv');
 
         /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
         $entityOne = $this->frontendUserRepository->findByIdentifier(1);
@@ -548,7 +547,7 @@ class MarkerReducerTest extends FunctionalTestCase
         $entityThree = $this->frontendUserRepository->findByIdentifier(3);
 
         /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
-        $objectStorage = $this->objectManager->get(ObjectStorage::class);
+        $objectStorage = GeneralUtility::makeInstance(ObjectStorage::class);
         $objectStorage->attach($entityThree);
 
         $marker = [
@@ -605,7 +604,7 @@ class MarkerReducerTest extends FunctionalTestCase
          * Then the third item is an object storage with no elements
          */
 
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Check10.csv');
 
         /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
         $entityOne = $this->frontendUserRepository->findByIdentifier(1);
@@ -614,7 +613,7 @@ class MarkerReducerTest extends FunctionalTestCase
         $entityTwo = $this->frontendUserRepository->findByIdentifier(2);
 
         /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
-        $objectStorage = $this->objectManager->get(ObjectStorage::class);
+        $objectStorage = GeneralUtility::makeInstance(ObjectStorage::class);
 
         $expected = [
             'test1' => $entityOne,
@@ -666,7 +665,7 @@ class MarkerReducerTest extends FunctionalTestCase
          * Then the fourth item is  returned as untouched string
          */
 
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Check10.csv');
 
         /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
         $entityOne = $this->frontendUserRepository->findByIdentifier(1);

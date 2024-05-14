@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace Madj2k\Accelerator\Tests\Integration\Middleware;
 
 /*
@@ -14,9 +15,10 @@ namespace Madj2k\Accelerator\Tests\Integration\Middleware;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 use Madj2k\Accelerator\Middleware\ProxyCachingHeader;
+use Madj2k\Accelerator\Testing\FakeRequestTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
  * ProxyCachingTest
@@ -29,6 +31,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class ProxyCachingTest extends FunctionalTestCase
 {
 
+    use FakeRequestTrait;
 
     /**
      * @const
@@ -64,22 +67,19 @@ class ProxyCachingTest extends FunctionalTestCase
      */
     protected function setUp(): void
     {
-
         parent::setUp();
 
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Global.xml');
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Global.csv');
         $this->setUpFrontendRootPage(
             1,
             [
                 'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
                 'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
+                'EXT:accelerator/Tests/Integration/Middleware/PseudoCdnTest/Fixtures/Frontend/Configuration/Rootpage.typoscript',
             ],
-            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/config.yaml']
         );
 
-        $this->subject = GeneralUtility::makeInstance(ProxyCachingHeader::class);
-
+        $this->subject = new ProxyCachingHeader();
 
     }
 
@@ -118,8 +118,8 @@ class ProxyCachingTest extends FunctionalTestCase
          * When then the method is called
          * Then the proxyCaching-value of the current page is returned
          */
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Check10.xml');
-        self::assertEquals(2, $this->subject->getProxyCachingSettingForPid(101));
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Check10.csv');
+        self::assertEquals(2, $this->subject->getProxyCachingSettingForPid(11));
     }
 
 
@@ -138,8 +138,8 @@ class ProxyCachingTest extends FunctionalTestCase
          * When getProxyCaching is called
          * Then the proxyCaching-value of the parent page is returned
          */
-        $this->importDataSet(self::FIXTURE_PATH . '//Database/Check20.xml');
-        self::assertEquals(1, $this->subject->getProxyCachingSettingForPid(201));
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Check20.csv');
+        self::assertEquals(1, $this->subject->getProxyCachingSettingForPid(21));
     }
 
 
@@ -159,8 +159,8 @@ class ProxyCachingTest extends FunctionalTestCase
          * When getProxyCaching is called
          * Then the proxyCaching-value of the parent page of the parent page is returned
          */
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Check30.xml');
-        self::assertEquals(1, $this->subject->getProxyCachingSettingForPid(2001));
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Check30.csv');
+        self::assertEquals(1, $this->subject->getProxyCachingSettingForPid(32));
     }
 
 
@@ -169,6 +169,7 @@ class ProxyCachingTest extends FunctionalTestCase
 
     /**
      * @test
+     * @throws \Exception
      */
     public function getSiteTagReturnsHmacValueOfTypo3Instance()
     {
@@ -180,10 +181,13 @@ class ProxyCachingTest extends FunctionalTestCase
          * When getSiteTag is called
          * Then the hmac-value of this sitename is returned
          */
+        $additionalSiteConfig = ['websiteTitle' => 'Test Test'];
 
-        $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] = 'test.com';
-        $expected = GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
-        self::assertEquals($expected, $this->subject->getSiteTag());
+        /** @var \Psr\Http\Message\ServerRequestInterface $request */
+        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+
+        $expected = GeneralUtility::hmac('Test Test');
+        self::assertEquals($expected, $this->subject->getSiteTag($request));
     }
 
 
@@ -192,6 +196,7 @@ class ProxyCachingTest extends FunctionalTestCase
 
     /**
      * @test
+     * @throws \Exception
      */
     public function getPageTagReturnsHmacValueOfSitenamePlusPid()
     {
@@ -204,9 +209,13 @@ class ProxyCachingTest extends FunctionalTestCase
          * Then the hmac-value of this sitename plus the given pid is returned
          */
 
-        $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] = 'test.com';
-        $expected = GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] . '_' . 2);
-        self::assertEquals($expected, $this->subject->getPageTag(2));
+        $additionalSiteConfig = ['websiteTitle' => 'Test Test'];
+
+        /** @var \Psr\Http\Message\ServerRequestInterface $request */
+        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+
+        $expected = GeneralUtility::hmac('Test Test' . '_' . 2);
+        self::assertEquals($expected, $this->subject->getPageTag($request, 2));
     }
 
 
