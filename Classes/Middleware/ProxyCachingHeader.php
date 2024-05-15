@@ -108,7 +108,7 @@ final class ProxyCachingHeader implements MiddlewareInterface
         ){
             return GeneralUtility::hmac($siteConfiguration['websiteTitle']);
         }
-        
+
         /** @deprecated  */
         return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
     }
@@ -127,9 +127,9 @@ final class ProxyCachingHeader implements MiddlewareInterface
             ($site = $request->getAttribute('site'))
             && ($siteConfiguration = $site->getConfiguration())
         ){
-            return GeneralUtility::hmac($siteConfiguration['websiteTitle']);
+            return GeneralUtility::hmac($siteConfiguration['websiteTitle'] . '_' . $pid);
         }
-        
+
         /** @deprecated  */
         return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] . '_' . $pid);
     }

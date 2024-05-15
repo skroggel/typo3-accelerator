@@ -44,7 +44,7 @@ final class CriticalCss
      */
     public function __construct()
     {
-        $this->settings = $this->getSettings();
+        $this->loadSettings($this->getRequest());
     }
 
 
@@ -57,13 +57,13 @@ final class CriticalCss
      */
     public function process(array &$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer): string
     {
+
         if (
             (! $this->settings['enable'])
             || (! $criticalCssFiles = $this->getCriticalCssFiles())
         ){
             return '';
         }
-
 
         /**
          * First of all we rebuild the existing cssInclude and cssLibs in order to load this files asynchronous.
@@ -106,33 +106,6 @@ final class CriticalCss
 
 
     /**
-     * Build tags which load CSS asynchonous
-     *
-     * @param string $file
-     * @param array $properties
-     * @return string
-     */
-    protected function buildStyleTag (string $file, array $properties): string {
-
-        $file = $this->getFilePath($file, true);
-        $tag = '<link'
-            . ' rel="stylesheet"'
-            . ' type="text/css" href="' . htmlspecialchars($file) .'"'
-            . ' media="' . htmlspecialchars($this->rebuildMediaList($properties['media'] ?: 'all')) . '"'
-            . ' data-media="' . $properties['media'] . '"'
-            . ($properties['title'] ? ' title="' . htmlspecialchars($properties['title']) . '"' : '')
-            . ' onload="this.media=this.dataset.media; this.onload = null"'
-            . ' />';
-        if ($properties['allWrap']) {
-            $wrapArr = explode($properties['splitChar'] ?: '|', $properties['allWrap'], 2);
-            $tag = $wrapArr[0] . $tag . $wrapArr[1];
-        }
-
-        return $tag;
-    }
-
-
-    /**
      * Removes default CSS files conditionally
      *
      * @param array $params
@@ -160,6 +133,34 @@ final class CriticalCss
 
         return true;
     }
+
+
+    /**
+     * Build tags which load CSS asynchronous
+     *
+     * @param string $file
+     * @param array $properties
+     * @return string
+     */
+    protected function buildStyleTag (string $file, array $properties): string {
+
+        $file = $this->getFilePath($file, true);
+        $tag = '<link'
+            . ' rel="stylesheet"'
+            . ' type="text/css" href="' . htmlspecialchars($file) .'"'
+            . ' media="' . htmlspecialchars($this->rebuildMediaList($properties['media'] ?: 'all')) . '"'
+            . ' data-media="' . $properties['media'] . '"'
+            . ($properties['title'] ? ' title="' . htmlspecialchars($properties['title']) . '"' : '')
+            . ' onload="this.media=this.dataset.media; this.onload = null"'
+            . ' />';
+        if ($properties['allWrap']) {
+            $wrapArr = explode($properties['splitChar'] ?: '|', $properties['allWrap'], 2);
+            $tag = $wrapArr[0] . $tag . $wrapArr[1];
+        }
+
+        return $tag;
+    }
+
 
 
     /**
@@ -236,7 +237,6 @@ final class CriticalCss
      */
     public function getCssFilesToRemove (): array
     {
-
         if (
             (! empty($this->settings['filesToRemoveWhenActive']))
             && (is_array($this->settings['filesToRemoveWhenActive']))
@@ -256,9 +256,21 @@ final class CriticalCss
     public function getLayoutOfPage (): string
     {
 
+        $request = $this->getRequest();
+
+        /** @var \TYPO3\CMS\Core\Routing\SiteRouteResult $pageArguments */
+        $pageArguments = $request->getAttribute('routing');
+        if (method_exists($pageArguments, 'getPageUid')) {
+            $pageId = $pageArguments->getPageId();
+        } else {
+            /** discouraged since TYPO3 v12 */
+            $pageId = $GLOBALS['TSFE']->id;
+        }
+
         // get rootline
-        $rootlinePages = GeneralUtility::makeInstance(RootlineUtility::class, intval($GLOBALS['TSFE']->id))->get();
+        $rootlinePages = GeneralUtility::makeInstance(RootlineUtility::class, $pageId)->get();
         $layout = '';
+
         if (is_array($rootlinePages)) {
             foreach ($rootlinePages as $key => $page) {
 
@@ -336,19 +348,18 @@ final class CriticalCss
     /**
      * Loads settings
      *
+     * @param \Psr\Http\Message\ServerRequestInterface|null $request
      * @return array
      */
-    public function getSettings(): array
+    public function loadSettings(?ServerRequestInterface $request = null): array
     {
 
         $settings = [
-            'enable' => 0,
+            'enable' => false,
             'filesForLayout' => [],
             'filesToRemoveWhenActive' => []
         ];
 
-        /** @var \Psr\Http\Message\ServerRequestInterface $rquest */
-        $request = $this->getRequest();
         if ($request) {
 
             // NullSite will be set if in backend context
@@ -377,14 +388,14 @@ final class CriticalCss
             }
         }
 
-        return $settings;
+        return $this->settings = $settings;
     }
 
 
     /**
-     * @return \Psr\Http\Message\ServerRequestInterface ServerRequestInterface
+     * @return \Psr\Http\Message\ServerRequestInterface|null
      */
-    private function getRequest(): ServerRequestInterface
+    private function getRequest(): ?ServerRequestInterface
     {
         return $GLOBALS['TYPO3_REQUEST'];
     }

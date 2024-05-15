@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace Madj2k\Accelerator\Tests\Integration\ContentProcessing;
 
 /*
@@ -14,10 +15,10 @@ namespace Madj2k\Accelerator\Tests\Integration\ContentProcessing;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 use Madj2k\Accelerator\ContentProcessing\CriticalCss;
+use Madj2k\Accelerator\Testing\FakeRequestTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
  * CriticalCssTest
@@ -29,6 +30,8 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  */
 class CriticalCssTest extends FunctionalTestCase
 {
+
+    use FakeRequestTrait;
 
     /**
      * @const
@@ -57,25 +60,25 @@ class CriticalCssTest extends FunctionalTestCase
 
 
     /**
-     * @var \TYPO3\CMS\Extbase\Object\ObjectManager|null
-     */
-    private ?ObjectManager $objectManager = null;
-
-
-    /**
      * Setup
      * @throws \Exception
      */
     protected function setUp(): void
     {
-
         parent::setUp();
 
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Global.xml');
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Global.csv');
+        $this->setUpFrontendRootPage(
+            1,
+            [
+                'EXT:accelerator/Configuration/TypoScript/setup.txt',
+                'EXT:accelerator/Configuration/TypoScript/constants.txt',
+                'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Configuration/Rootpage.typoscript',
+            ],
+        );
 
-        /** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
-        $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
+        $GLOBALS['TSFE']->id = 1; /** discouraged since TYPO3 v12 */
+        $this->subject = new CriticalCss();
     }
 
 
@@ -84,8 +87,9 @@ class CriticalCssTest extends FunctionalTestCase
 
     /**
      * @test
+     * @throws \Exception
      */
-    public function getSettingsTakesGivenConfig()
+    public function loadSettingsTakesGivenConfig()
     {
 
         /**
@@ -95,21 +99,13 @@ class CriticalCssTest extends FunctionalTestCase
          * When method is called
          * Then this configuration is returned
          */
-        $this->setUpFrontendRootPage(
-            1,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.txt',
-                'EXT:accelerator/Configuration/TypoScript/constants.txt',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Check10.typoscript',
-            ]
-        );
 
-        $this->subject = $this->objectManager->get(CriticalCss::class);
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check10.php');
+        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
 
-        $result = $this->subject->getSettings();
+        $result = $this->subject->loadSettings($request);
 
-        self::assertEquals('1', $result['enable']);
+        self::assertTrue($result['enable']);
         self::assertNotEmpty($result['filesForLayout']);
         self::assertNotEmpty($result['filesToRemoveWhenActive']);
 
@@ -118,8 +114,9 @@ class CriticalCssTest extends FunctionalTestCase
 
     /**
      * @test
+     * @throws \Exception
      */
-    public function getSettingsTakesFallbackIfNoConfigurationSet()
+    public function loadSettingsTakesFallbackIfNoConfigurationSet()
     {
 
         /**
@@ -129,20 +126,12 @@ class CriticalCssTest extends FunctionalTestCase
          * When method is called
          * Then the empty default configuration is returned
          */
-        $this->setUpFrontendRootPage(
-            1,
-            [
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-            ]
-        );
 
-        $this->subject = $this->objectManager->get(CriticalCss::class);
+        $result = $this->subject->loadSettings();
 
-        $result = $this->subject->getSettings();
-        self::assertEquals('0', $result['enable']);
+        self::assertFalse($result['enable']);
         self::assertEmpty($result['filesForLayout']);
         self::assertEmpty($result['filesToRemoveWhenActive']);
-
     }
 
 
@@ -163,7 +152,6 @@ class CriticalCssTest extends FunctionalTestCase
          * Then an absolute path on the local host is returned
          */
 
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
         $result = $this->subject->getFilePath(
             'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/all.css'
         );
@@ -187,7 +175,6 @@ class CriticalCssTest extends FunctionalTestCase
          * Then a path relative to the web-dir on the local host is returned
          */
 
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
         $result = $this->subject->getFilePath(
             'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/all.css',
             true
@@ -206,12 +193,11 @@ class CriticalCssTest extends FunctionalTestCase
         /**
          * Scenario:
          *
-         * Given an URL on another  host
+         * Given a URL on another  host
          * When the method is called
          * Then the url is returned unchanged
          */
 
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
         $result = $this->subject->getFilePath(
             'https://www.google.de/all.css'
         );
@@ -237,7 +223,6 @@ class CriticalCssTest extends FunctionalTestCase
          * Then the string "print" is returned
          */
 
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
         $result = $this->subject->rebuildMediaList('screen');
 
         self::assertEquals('print', $result);
@@ -258,7 +243,6 @@ class CriticalCssTest extends FunctionalTestCase
          * Then the string "print" is returned
          */
 
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
         $result = $this->subject->rebuildMediaList('screen, print');
 
         self::assertEquals('print', $result);
@@ -279,7 +263,6 @@ class CriticalCssTest extends FunctionalTestCase
          * Then the string "print" is returned
          */
 
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
         $result = $this->subject->rebuildMediaList('print');
 
         self::assertEquals('print', $result);
@@ -300,7 +283,6 @@ class CriticalCssTest extends FunctionalTestCase
          * Then the string "print,speech" is returned
          */
 
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
         $result = $this->subject->rebuildMediaList('all');
 
         self::assertEquals('print,speech', $result);
@@ -321,7 +303,6 @@ class CriticalCssTest extends FunctionalTestCase
          * Then the string "print,speech" is returned without keywords doubled
          */
 
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
         $result = $this->subject->rebuildMediaList('all,screen,print');
 
         self::assertEquals('print,speech', $result);
@@ -333,6 +314,7 @@ class CriticalCssTest extends FunctionalTestCase
 
     /**
      * @test
+     * @throws \Exception
      */
     public function getCssFilesToRemoveReturnsConfiguredFiles()
     {
@@ -346,34 +328,29 @@ class CriticalCssTest extends FunctionalTestCase
          * Then the array has two elements
          * Then these elements are the two defined css-files to be removed
          */
-        $this->setUpFrontendRootPage(
-            1,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.txt',
-                'EXT:accelerator/Configuration/TypoScript/constants.txt',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Check100.typoscript',
-            ]
-        );
 
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check20.php');
+        $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+
+        $this->subject = new CriticalCss();
         $result = $this->subject->getCssFilesToRemove();
 
         self::assertIsArray( $result);
         self::assertCount(2,$result);
         self::assertEquals(
             'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/removeOne.css',
-            $result[10]
+            $result[0]
         );
         self::assertEquals(
             'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/removeTwo.css',
-            $result[20]
+            $result[1]
         );
     }
 
 
     /**
      * @test
+     * @throws \Exception
      */
     public function getCssFilesToRemoveReturnsNoConfiguredFiles()
     {
@@ -386,15 +363,11 @@ class CriticalCssTest extends FunctionalTestCase
          * Then an array is returned
          * Then the array is empty
          */
-        $this->setUpFrontendRootPage(
-            1,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.txt',
-                'EXT:accelerator/Configuration/TypoScript/constants.txt',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Check110.typoscript',
-            ]
-        );
+
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check30.php');
+        $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+
+        $this->subject = new CriticalCss ();
 
         $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
         $result = $this->subject->getCssFilesToRemove();
@@ -410,6 +383,7 @@ class CriticalCssTest extends FunctionalTestCase
 
     /**
      * @test
+     * @throws \Exception
      */
     public function getCriticalCssFilesReturnsConfiguredFiles()
     {
@@ -417,41 +391,36 @@ class CriticalCssTest extends FunctionalTestCase
         /**
          * Scenario:
          *
-         * Given a page with layout 0
+         * Given a page with layout "home"
          * Given for that layout two critical css-files are defined
          * When the method is called
          * Then an array is returned
          * Then the array has two elements
          * Then these elements are the two defined critical css-files
          */
-        $this->setUpFrontendRootPage(
-            1,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.txt',
-                'EXT:accelerator/Configuration/TypoScript/constants.txt',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Check40.typoscript',
-            ]
-        );
 
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check40.php');
+        $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+
+        $this->subject = new CriticalCss ();
         $result = $this->subject->getCriticalCssFiles();
 
         self::assertIsArray( $result);
-        self::assertCount(2,$result);
+        self::assertCount(2, $result);
         self::assertEquals(
             'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/criticalOne.css',
-            $result[10]
+            $result[0]
         );
         self::assertEquals(
             'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/criticalTwo.css',
-            $result[20]
+            $result[1]
         );
     }
 
 
     /**
      * @test
+     * @throws \Exception
      */
     public function getCriticalCssFilesReturnsNoConfiguredFiles()
     {
@@ -459,23 +428,17 @@ class CriticalCssTest extends FunctionalTestCase
         /**
          * Scenario:
          *
-         * Given a page with layout 0
+         * Given a page with layout "home"
          * Given for that layout no critical css-files are defined
          * When the method is called
          * Then an array is returned
          * Then the array is empty
          */
-        $this->setUpFrontendRootPage(
-            1,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.txt',
-                'EXT:accelerator/Configuration/TypoScript/constants.txt',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Check50.typoscript',
-            ]
-        );
 
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check50.php');
+        $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+
+        $this->subject = new CriticalCss();
         $result = $this->subject->getCriticalCssFiles();
 
         self::assertIsArray( $result);
@@ -495,7 +458,7 @@ class CriticalCssTest extends FunctionalTestCase
         /**
          * Scenario:
          *
-         * Given a path to an critical css-file
+         * Given a path to a critical css-file
          * Given that file contains relative, absolute and external paths
          * When the method is called
          * Then the relative paths are prepended with the path to the web-dir
@@ -503,11 +466,9 @@ class CriticalCssTest extends FunctionalTestCase
          * Then the paths to external sources are kept unchanged
          */
 
-        $filePath = 'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Check90.css';
-
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
+        $filePath = 'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Check60.css';
         $result = $this->subject->getRebasedFileContent($filePath);
-        $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check90.css');
+        $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check60.css');
 
         self::assertEquals($expected, $result);
     }
@@ -518,6 +479,7 @@ class CriticalCssTest extends FunctionalTestCase
 
     /**
      * @test
+     * @throws \Exception
      */
     public function PreProcessAndProcessRewriteLinkTags()
     {
@@ -542,15 +504,17 @@ class CriticalCssTest extends FunctionalTestCase
             [
                 'EXT:accelerator/Configuration/TypoScript/setup.txt',
                 'EXT:accelerator/Configuration/TypoScript/constants.txt',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Check60.typoscript',
+                'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Configuration/Rootpage.typoscript',
+                'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Configuration/Check70.typoscript',
             ]
         );
 
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check70.php');
+        $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+        $this->subject = new CriticalCss();
 
         $result = $this->getFrontendResponse(1);
-        $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check60.html');
+        $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check70.html');
         self::assertStringContainsString($expected, $result->getContent());
     }
 
@@ -580,14 +544,18 @@ class CriticalCssTest extends FunctionalTestCase
             [
                 'EXT:accelerator/Configuration/TypoScript/setup.txt',
                 'EXT:accelerator/Configuration/TypoScript/constants.txt',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Check70.typoscript',
+                'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Configuration/Rootpage.typoscript',
+                'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Configuration/Check80.typoscript',
             ]
         );
 
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check80.php');
+        $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+        $this->subject = new CriticalCss();
+
         $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
         $result = $this->getFrontendResponse(1);
-        $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check70.html');
+        $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check80.html');
 
         self::assertStringContainsString($expected, $result->getContent());
     }
@@ -595,6 +563,7 @@ class CriticalCssTest extends FunctionalTestCase
 
     /**
      * @test
+     * @throws \Exception
      */
     public function PreProcessAndProcessDoNothingIfDisabled()
     {
@@ -618,12 +587,14 @@ class CriticalCssTest extends FunctionalTestCase
             [
                 'EXT:accelerator/Configuration/TypoScript/setup.txt',
                 'EXT:accelerator/Configuration/TypoScript/constants.txt',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Check80.typoscript',
+                'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Configuration/Rootpage.typoscript',
+                'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Configuration/Check90.typoscript',
             ]
         );
 
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check90.php');
+        $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+        $this->subject = new CriticalCss();
 
         $result = $this->getFrontendResponse(1);
 
@@ -661,12 +632,14 @@ class CriticalCssTest extends FunctionalTestCase
             [
                 'EXT:accelerator/Configuration/TypoScript/setup.txt',
                 'EXT:accelerator/Configuration/TypoScript/constants.txt',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Check120.typoscript',
+                'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Configuration/Rootpage.typoscript',
+                'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Configuration/Check100.typoscript',
             ]
         );
 
-        $this->subject = GeneralUtility::makeInstance(CriticalCss::class);
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check100.php');
+        $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+        $this->subject = new CriticalCss();
 
         $result = $this->getFrontendResponse(1);
 

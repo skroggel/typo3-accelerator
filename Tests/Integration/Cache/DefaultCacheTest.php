@@ -1,5 +1,6 @@
 <?php
-namespace  Madj2k\Accelerator\Tests\Integration\Cache;
+declare(strict_types=1);
+namespace Madj2k\Accelerator\Tests\Integration\Cache;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -15,11 +16,10 @@ namespace  Madj2k\Accelerator\Tests\Integration\Cache;
  */
 
 use Madj2k\Accelerator\Cache\DefaultCache;
-use Nimut\TestingFramework\TestCase\FunctionalTestCase;
+use Madj2k\Accelerator\Testing\FakeRequestTrait;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 use TYPO3\CMS\Core\Cache\CacheManager;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Request;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * DefaultCacheTest
@@ -31,6 +31,8 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  */
 class DefaultCacheTest extends FunctionalTestCase
 {
+
+    use FakeRequestTrait;
 
     /**
      * @const
@@ -59,12 +61,6 @@ class DefaultCacheTest extends FunctionalTestCase
 
 
     /**
-     * @var \TYPO3\CMS\Extbase\Object\ObjectManager|null
-     */
-    private ?ObjectManager $objectManager = null;
-
-
-    /**
      * Setup
      * @throws \Exception
      */
@@ -73,7 +69,7 @@ class DefaultCacheTest extends FunctionalTestCase
 
         parent::setUp();
 
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Global.xml');
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Global.csv');
 
         $this->setUpFrontendRootPage(
             1,
@@ -84,11 +80,8 @@ class DefaultCacheTest extends FunctionalTestCase
             ]
         );
 
-        /** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
-        $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
         /** @var  \Madj2k\Accelerator\Cache\DefaultCache */
-        $this->subject = $this->objectManager->get(DefaultCache::class);
+        $this->subject = new DefaultCache();
 
         // simulate frontend id
         $GLOBALS['TSFE']->id = 1;
@@ -207,7 +200,7 @@ class DefaultCacheTest extends FunctionalTestCase
         $this->subject->setEntryIdentifier('TestCäse');
 
         /** @var \TYPO3\CMS\Extbase\Mvc\Request $request */
-        $request = $this->objectManager->get(Request::class);
+        $request = new Request();
         $request->setPluginName('Plugin_Test');
         $request->setControllerExtensionName('Extension_Test');
 
@@ -236,7 +229,7 @@ class DefaultCacheTest extends FunctionalTestCase
          */
 
         /** @var \TYPO3\CMS\Extbase\Mvc\Request $request */
-        $request = $this->objectManager->get(Request::class);
+        $request = new Request();
         $request->setPluginName('Plugin_Test');
         $request->setControllerExtensionName('Extension_Test');
 
@@ -555,7 +548,7 @@ class DefaultCacheTest extends FunctionalTestCase
          */
 
         /** @var \TYPO3\CMS\Extbase\Mvc\Request $request */
-        $request = $this->objectManager->get(Request::class);
+        $request = new Request();
         $request->setPluginName('PluginTest');
         $request->setControllerExtensionName('ExtensionTest');
 
@@ -583,7 +576,7 @@ class DefaultCacheTest extends FunctionalTestCase
          */
 
         /** @var \TYPO3\CMS\Extbase\Mvc\Request $request */
-        $request = $this->objectManager->get(Request::class);
+        $request = new Request();
         $request->setPluginName('PluginTest');
         $request->setControllerExtensionName('ExtensionTest');
 
@@ -660,7 +653,7 @@ class DefaultCacheTest extends FunctionalTestCase
          */
 
         /** @var \TYPO3\CMS\Extbase\Mvc\Request $request */
-        $request = $this->objectManager->get(Request::class);
+        $request = new Request();
         $request->setControllerExtensionName('myExtension');
 
         $expected = [
@@ -700,7 +693,7 @@ class DefaultCacheTest extends FunctionalTestCase
          */
 
         /** @var \TYPO3\CMS\Extbase\Mvc\Request $request */
-        $request = $this->objectManager->get(Request::class);
+        $request = new Request();
         $request->setPluginName('myPlugin');
 
         $expected = [
@@ -740,7 +733,7 @@ class DefaultCacheTest extends FunctionalTestCase
          */
 
         /** @var \TYPO3\CMS\Extbase\Mvc\Request $request */
-        $request = $this->objectManager->get(Request::class);
+        $request = new Request();
         $request->setControllerExtensionName('myExtension');
         $request->setPluginName('myPlugin');
 
@@ -816,7 +809,7 @@ class DefaultCacheTest extends FunctionalTestCase
          */
 
         /** @var \TYPO3\CMS\Extbase\Mvc\Request $request */
-        $request = $this->objectManager->get(Request::class);
+        $request = new Request();
         $request->setPluginName('My Plugin');
 
         $expected = [

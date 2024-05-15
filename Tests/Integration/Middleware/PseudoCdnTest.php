@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace Madj2k\Accelerator\Tests\Integration\Middleware;
 
 /*
@@ -14,10 +15,10 @@ namespace Madj2k\Accelerator\Tests\Integration\Middleware;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Madj2k\Accelerator\Testing\FakeRequest;
-use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 use Madj2k\Accelerator\Middleware\PseudoCdn;
+use Madj2k\Accelerator\Testing\FakeRequestTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
@@ -31,6 +32,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 class PseudoCdnTest extends FunctionalTestCase
 {
 
+    use FakeRequestTrait;
 
     /**
      * @const
@@ -67,12 +69,6 @@ class PseudoCdnTest extends FunctionalTestCase
 
 
     /**
-     * @var array
-     */
-    private array $defaultSettings = [];
-
-
-    /**
      * Setup
      * @throws \Exception
      */
@@ -80,30 +76,18 @@ class PseudoCdnTest extends FunctionalTestCase
     {
 
         parent::setUp();
-        $this->importDataSet(self::FIXTURE_PATH . '/Database/Global.xml');
 
-        /** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
-        $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Global.csv');
 
-        $this->subject = $this->objectManager->get(PseudoCdn::class);
-        $this->defaultSettings = [
-            'enable' => false,
-            'maxConnectionsPerDomain' => 4,
-            'maxSubdomains' => 100,
-            'search' => '/(href="|src="|srcset="|url\(\')\/?((uploads\/media|uploads\/pics|typo3temp\/compressor|typo3temp\/GB|typo3conf\/ext|fileadmin)([^"\']+))/i',
-            'ignoreIfContains' => '/\.css|\.js|\.mp4|\.pdf|\?noCdn=1/',
-            'baseDomain' => 'example.com',
-            'protocol' => 'http://'
-        ];
+        $this->subject = new PseudoCdn();
 
         $this->setUpFrontendRootPage(
             1,
             [
                 'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
                 'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
-                self::FIXTURE_PATH . '/Frontend/Configuration/Rootpage.typoscript',
+                'EXT:accelerator/Tests/Integration/Middleware/PseudoCdnTest/Fixtures/Frontend/Configuration/Rootpage.typoscript',
             ],
-            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Default.yaml']
         );
 
     }
@@ -113,7 +97,8 @@ class PseudoCdnTest extends FunctionalTestCase
 
     /**
      * @test
-     * @throws \Exception|\Doctrine\DBAL\Driver\Exception
+     * @throws \Exception
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function loadSettingsLoadsConfigIfSet()
     {
@@ -126,31 +111,21 @@ class PseudoCdnTest extends FunctionalTestCase
          * Then an array is returned
          * Then the defined configuration is returned
          */
-        $this->setUpFrontendRootPage(
-            1,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
-                'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
-                self::FIXTURE_PATH. '/Frontend/Configuration/Rootpage.typoscript',
-            ],
-            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Check10.yaml']
-        );
-        
-        $fakeRequest = $this->objectManager->get(FakeRequest::class);
-        $request = $fakeRequest->getRequestForPid(1);
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check10.php');
+
+        /** @var \Psr\Http\Message\ServerRequestInterface $request */
+        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
 
         $result = $this->subject->loadSettings($request);
-        $expected = array_merge ($this->defaultSettings,
-            [
-                'enable' => true,
-                'maxConnectionsPerDomain' => 9,
-                'maxSubdomains' => 99,
-                'search' => '/test/i',
-                'ignoreIfContains' => '/test/',
-                'baseDomain' => 'test.com',
-                'protocol' => 'test://'
-            ]
-        );
+        $expected = [
+            'enable' => true,
+            'maxConnectionsPerDomain' => 9,
+            'maxSubdomains' => 99,
+            'search' => '/test/i',
+            'ignoreIfContains' => '/test/',
+            'baseDomain' => 'test.com',
+            'protocol' => 'test://'
+        ];
 
         self::assertEquals($expected, $result);
     }
@@ -173,15 +148,24 @@ class PseudoCdnTest extends FunctionalTestCase
          * Then the default configuration is returned
          */
 
-        $fakeRequest = $this->objectManager->get(FakeRequest::class);
-        $request = $fakeRequest->getRequestForPid(1);
+        /** @var \Psr\Http\Message\ServerRequestInterface $request */
+        $request = $this->createServerRequest(1, 'http://www.example.com');
+
+        $expected = [
+            'enable' => false,
+            'maxConnectionsPerDomain' => 4,
+            'maxSubdomains' => 100,
+            'search' => '/(href="|src="|srcset="|url\(\')\/?((uploads\/media|uploads\/pics|typo3temp\/compressor|typo3temp\/GB|typo3conf\/ext|fileadmin)([^"\']+))/i',
+            'ignoreIfContains' => '/\.css|\.js|\.mp4|\.pdf|\?noCdn=1/',
+            'baseDomain' => 'example.com',
+            'protocol' => 'http://'
+        ];
 
         $result = $this->subject->loadSettings($request);
-        self::assertEquals($this->defaultSettings, $result);
+        self::assertEquals($expected, $result);
     }
 
 
-   
 
     //=============================================
 
@@ -196,7 +180,7 @@ class PseudoCdnTest extends FunctionalTestCase
         /**
          * Scenario:
          *
-         * Given loadSettings has been called before
+         * Given pseudoCdn is enabled
          * Given a relative path
          * When the method is called
          * Then a string returned
@@ -204,8 +188,10 @@ class PseudoCdnTest extends FunctionalTestCase
          * Then the absolute path uses a static domain
          */
 
-        $fakeRequest = $this->objectManager->get(FakeRequest::class);
-        $request = $fakeRequest->getRequestForPid(1);
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check30.php');
+
+        /** @var \Psr\Http\Message\ServerRequestInterface $request */
+        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
         $this->subject->loadSettings($request);
 
         $relativePath = '/fileadmin/testen/test.jpg';
@@ -227,7 +213,7 @@ class PseudoCdnTest extends FunctionalTestCase
         /**
          * Scenario:
          *
-         * Given loadSettings has been called before
+         * Given pseudoCdn is enabled
          * Given a relative path
          * When the method is called multiple times
          * Then each time a string returned
@@ -236,18 +222,10 @@ class PseudoCdnTest extends FunctionalTestCase
          * Then for every maxConnectionsPerDomain a new static domain is used
          */
 
-        $this->setUpFrontendRootPage(
-            1,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
-                'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
-                self::FIXTURE_PATH. '/Frontend/Configuration/Rootpage.typoscript',
-            ],
-            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Check30.yaml']
-        );
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check30.php');
 
-        $fakeRequest = $this->objectManager->get(FakeRequest::class);
-        $request = $fakeRequest->getRequestForPid(1);
+        /** @var \Psr\Http\Message\ServerRequestInterface $request */
+        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
         $this->subject->loadSettings($request);
 
         $relativePath = '/fileadmin/testen/test.jpg';
@@ -279,23 +257,15 @@ class PseudoCdnTest extends FunctionalTestCase
         /**
          * Scenario:
          *
-         * Given loadSettings has been called before
+         * Given pseudoCdn is enabled
          * Given a relative path
          * When the method is called more often than maxSubdomains
          * Then the relative path is returned
          */
-        $this->setUpFrontendRootPage(
-            1,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
-                'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
-                self::FIXTURE_PATH. '/Frontend/Configuration/Rootpage.typoscript',
-            ],
-            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Check30.yaml']
-        );
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check30.php');
 
-        $fakeRequest = $this->objectManager->get(FakeRequest::class);
-        $request = $fakeRequest->getRequestForPid(1);
+        /** @var \Psr\Http\Message\ServerRequestInterface $request */
+        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
         $this->subject->loadSettings($request);
 
         $relativePath = '/fileadmin/testen/test.jpg';
@@ -313,7 +283,6 @@ class PseudoCdnTest extends FunctionalTestCase
     /**
      * @test
      * @throws \Exception
-     * @throws \Doctrine\DBAL\Driver\Exception
      */
     public function replaceIsNotRunningIfNotEnabled()
     {
@@ -323,16 +292,11 @@ class PseudoCdnTest extends FunctionalTestCase
          *
          * Given the default configuration is set
          * Given a string with replaceable relative paths
-         * Given loadSettings has been called before
          * When this method is called
          * Then false is returned
          * Then the string is returned unchanged
          */
 
-        $fakeRequest = $this->objectManager->get(FakeRequest::class);
-        $request = $fakeRequest->getRequestForPid(1);
-        $this->subject->loadSettings($request);
-        
         $html = $htmlBefore = file_get_contents(self::FIXTURE_PATH . '/Frontend/Templates/Default.html');
         self::assertFalse($this->subject->replace($html));
         self::assertEquals($html, $htmlBefore);
@@ -353,7 +317,6 @@ class PseudoCdnTest extends FunctionalTestCase
          * Given the default configuration is set
          * Given pseudoCdn has been enabled
          * Given a string with replaceable relative paths
-         * Given loadSettings has been called before
          * Then true is returned
          * Then the links to static contents are replaced in the string
          * Then links to CSS-files are not replaced
@@ -362,18 +325,10 @@ class PseudoCdnTest extends FunctionalTestCase
          * Then normal links are not replaced
          */
 
-        $this->setUpFrontendRootPage(
-            1,
-            [
-                'EXT:accelerator/Configuration/TypoScript/setup.typoscript',
-                'EXT:accelerator/Configuration/TypoScript/constants.typoscript',
-                self::FIXTURE_PATH. '/Frontend/Configuration/Rootpage.typoscript',
-            ],
-            ['example.com' => self::FIXTURE_PATH .  '/Frontend/Configuration/Check20.yaml']
-        );
-        
-        $fakeRequest = $this->objectManager->get(FakeRequest::class);
-        $request = $fakeRequest->getRequestForPid(1);
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check20.php');
+
+        /** @var \Psr\Http\Message\ServerRequestInterface $request */
+        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
         $this->subject->loadSettings($request);
 
         $html = file_get_contents(self::FIXTURE_PATH . '/Frontend/Templates/Default.html');
@@ -385,7 +340,7 @@ class PseudoCdnTest extends FunctionalTestCase
 
     //=============================================
 
-    
+
     /**
      * TearDown
      */

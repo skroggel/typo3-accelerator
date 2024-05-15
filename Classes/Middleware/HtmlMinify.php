@@ -57,7 +57,7 @@ final class HtmlMinify implements MiddlewareInterface
             $body->rewind();
             $content = $response->getBody()->getContents();
 
-            $this->loadSettings($request);
+            $this->settings = $this->loadSettings($request);
 
             // get minifier and process the response
             if ($this->minify($content)) {
@@ -114,10 +114,10 @@ final class HtmlMinify implements MiddlewareInterface
     /**
      * Loads settings
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ServerRequestInterface|null $request
      * @return array
      */
-    public function loadSettings(ServerRequestInterface $request): array
+    public function loadSettings(?ServerRequestInterface $request = null): array
     {
         $settings = [
             'enable' => false,
@@ -126,7 +126,8 @@ final class HtmlMinify implements MiddlewareInterface
         ];
 
         if (
-            ($site = $request->getAttribute('site'))
+            ($request)
+            && ($site = $request->getAttribute('site'))
             && ($siteConfiguration = $site->getConfiguration())
             && (isset($siteConfiguration['accelerator']['htmlMinifier']))
         ){
