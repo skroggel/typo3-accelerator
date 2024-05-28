@@ -20,14 +20,11 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\ExpressionLanguage\SyntaxError;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\ExpressionLanguage\Resolver;
 use TYPO3\CMS\Core\Http\NullResponse;
-use TYPO3\CMS\Core\Routing\RouteResultInterface;
-use TYPO3\CMS\Core\Routing\SiteMatcher;
-use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * Class PseudoCdn
@@ -188,13 +185,18 @@ final class PseudoCdn implements MiddlewareInterface
             'baseDomain' => $baseDomain,
             'protocol' => (($serverParams['HTTPS']) || ($serverParams['SERVER_PORT'] == '443')) ? 'https://' : 'http://'
         ];
-        
+
         if (
             ($site = $request->getAttribute('site'))
             && ($siteConfiguration = $site->getConfiguration())
             && (isset($siteConfiguration['accelerator']['pseudoCdn']))
         ){
+
             $settings = array_merge($settings, $siteConfiguration['accelerator']['pseudoCdn'] ?? []);
+            $settings['enable'] = $this->resolveEnableWithVariants(
+                $settings['enable'],
+                $siteConfiguration['acceleratorVariants']
+            );
 
         /** @deprecated  */
         } else if (is_array($GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn'])) {
@@ -217,13 +219,10 @@ final class PseudoCdn implements MiddlewareInterface
             } else if ($pageSwitch == 2) {
                 $settings['enable'] = false;
             }
-        }        
+        }
 
         return $this->settings = $settings;
     }
-<<<<<<< Updated upstream
-=======
-
 
 
     /**
@@ -260,7 +259,4 @@ final class PseudoCdn implements MiddlewareInterface
         }
         return $enable;
     }
-
->>>>>>> Stashed changes
-}
 

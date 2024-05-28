@@ -19,8 +19,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\ExpressionLanguage\SyntaxError;
+use TYPO3\CMS\Core\ExpressionLanguage\Resolver;
 use TYPO3\CMS\Core\Http\NullResponse;
-use TYPO3\CMS\Core\Routing\SiteMatcher;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -132,6 +133,10 @@ final class HtmlMinify implements MiddlewareInterface
             && (isset($siteConfiguration['accelerator']['htmlMinifier']))
         ){
             $settings = array_merge($settings, $siteConfiguration['accelerator']['htmlMinifier'] ?? []);
+            $settings['enable'] = $this->resolveEnableWithVariants(
+                $settings['enable'],
+                $siteConfiguration['acceleratorVariants']
+            );
 
         /** @deprecated  */
         } else if (is_array($GLOBALS['TYPO3_CONF_VARS']['FE']['htmlMinify'])) {
@@ -140,10 +145,8 @@ final class HtmlMinify implements MiddlewareInterface
 
         return $this->settings = $settings;
     }
-<<<<<<< Updated upstream
-=======
 
-
+    
     /**
      * Checks if the enable-property has variants, and takes the first variant which matches an expression.
      *
@@ -178,6 +181,5 @@ final class HtmlMinify implements MiddlewareInterface
         }
         return $enable;
     }
->>>>>>> Stashed changes
 }
 
