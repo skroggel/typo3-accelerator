@@ -378,9 +378,6 @@ final class CriticalCss
                         $settings['enable'],
                         $siteConfiguration['acceleratorVariants']
                     );
-
-                    DebuggerUtility::var_dump($settings);
-
                 }
 
                 // deactive critical css if it is rendered via pageType
