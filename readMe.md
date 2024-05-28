@@ -31,6 +31,8 @@ acceleratorVariants:
 * **excludePids** excludes the PIDs defined in this comma-separated list
 * **includePageTypes** includes the pageTypes defined in this comma-separated list
 
+Please note: The variants only work with the enable-attribute
+
 **For a default-setup it is sufficient to set**
 ```
 accelerator:
@@ -73,8 +75,7 @@ Example with active Pseudo-CDN
 ## 2.2 Settings
 IMPORTANT: Since TYPO3 v10 the configuration is no longer possible via TypoScript because it is now implemented as Middleware.
 It is now possible to configure the PseudoCdn via your site-configuration (YAML) instead.
-Important: the DNS has to be configured accordingly and a Wildcard-TLS-certificate has to be installed before activating this functonality
-
+Important: the DNS has to be configured accordingly and a Wildcard-TLS-certificate has to be installed before activating this functionality
 ```
 accelerator:
   pseudoCdn:
@@ -94,6 +95,8 @@ acceleratorVariants:
 * **maxSubdomains** defines how many sudomains there should be. If the value is set to 10 the subdomains static1.example.com to static10.example.com are used.
 * **search** allows to override the regular expression for searching/replacing paths to static content
 * **ignoreIfContains** allows to specify exclusion criteria for the pseudoCDN. Especially JS files should be excluded here (cross-domain issues)
+
+Please note: The variants only work with the enable-attribute
 
 **For a default-setup it is sufficient to set**
 ```
@@ -136,6 +139,8 @@ acceleratorVariants:
 * **enable** activates the critical CSS inclusion
 * **filesForLayout** contaons the layout-keys for which the following CSS-files are to be included. If there is no match, no file will be included
 * **filesToRemoveWhenActive** defines files that will be remove from page.includeCss if criticalCSS is activated
+
+Please note: The variants only work with the enable-attribute
 
 If the pageType 1715339215 or the GET-Param no_critical_css=1 is used critical css is disabled.
 This is helpful for rendering the critical css e.g. via NPM critical.

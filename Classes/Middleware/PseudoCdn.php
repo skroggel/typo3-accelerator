@@ -20,14 +20,11 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\ExpressionLanguage\SyntaxError;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\ExpressionLanguage\Resolver;
 use TYPO3\CMS\Core\Http\NullResponse;
-use TYPO3\CMS\Core\Routing\RouteResultInterface;
-use TYPO3\CMS\Core\Routing\SiteMatcher;
-use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * Class PseudoCdn
@@ -96,7 +93,7 @@ final class PseudoCdn implements MiddlewareInterface
     {
 
         // check if enabled
-        if (! $this->settings['enable']) {
+        if (!$this->settings['enable']) {
             return false;
         }
 
@@ -177,7 +174,7 @@ final class PseudoCdn implements MiddlewareInterface
         $site = $request->getAttribute('site');
 
         $domainParts = explode('.', $site->getBase()->getHost());
-        $baseDomain = $domainParts[count($domainParts) -2]. '.' . $domainParts[count($domainParts) -1];
+        $baseDomain = $domainParts[count($domainParts) - 2] . '.' . $domainParts[count($domainParts) - 1];
 
         $settings = [
             'enable' => false,
@@ -188,15 +185,20 @@ final class PseudoCdn implements MiddlewareInterface
             'baseDomain' => $baseDomain,
             'protocol' => (($serverParams['HTTPS']) || ($serverParams['SERVER_PORT'] == '443')) ? 'https://' : 'http://'
         ];
-        
+
         if (
             ($site = $request->getAttribute('site'))
             && ($siteConfiguration = $site->getConfiguration())
             && (isset($siteConfiguration['accelerator']['pseudoCdn']))
-        ){
-            $settings = array_merge($settings, $siteConfiguration['accelerator']['pseudoCdn'] ?? []);
+        ) {
 
-        /** @deprecated  */
+            $settings = array_merge($settings, $siteConfiguration['accelerator']['pseudoCdn'] ?? []);
+            $settings['enable'] = $this->resolveEnableWithVariants(
+                $settings['enable'],
+                $siteConfiguration['acceleratorVariants']
+            );
+
+            /** @deprecated */
         } else if (is_array($GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn'])) {
             $settings = array_merge($settings, $GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn']);
 
@@ -212,18 +214,15 @@ final class PseudoCdn implements MiddlewareInterface
                 ->fetchOne();
 
             // check for site-specific override in rootPage
-            if ($pageSwitch== 1) {
+            if ($pageSwitch == 1) {
                 $settings['enable'] = true;
             } else if ($pageSwitch == 2) {
                 $settings['enable'] = false;
             }
-        }        
+        }
 
         return $this->settings = $settings;
     }
-<<<<<<< Updated upstream
-=======
-
 
 
     /**
@@ -247,8 +246,8 @@ final class PseudoCdn implements MiddlewareInterface
                 try {
                     if (
                         ($expressionLanguageResolver->evaluate($variant['condition']))
-                        && ($variant['pseudoCdn']['enable'])
-                    ){
+                        && (isset($variant['pseudoCdn']['enable']))
+                    ) {
                         $enable = intval($variant['pseudoCdn']['enable']);
                         break;
                     }
@@ -260,7 +259,4 @@ final class PseudoCdn implements MiddlewareInterface
         }
         return $enable;
     }
-
->>>>>>> Stashed changes
 }
-

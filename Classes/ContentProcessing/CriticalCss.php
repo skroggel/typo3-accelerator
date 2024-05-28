@@ -16,11 +16,12 @@ namespace Madj2k\Accelerator\ContentProcessing;
  */
 
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\ExpressionLanguage\SyntaxError;
+use TYPO3\CMS\Core\ExpressionLanguage\Resolver;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * Class CriticalCss
@@ -373,6 +374,10 @@ final class CriticalCss
                     && (isset($siteConfiguration['accelerator']['criticalCss']))
                 ){
                     $settings = array_merge($settings, $siteConfiguration['accelerator']['criticalCss'] ?? []);
+                    $settings['enable'] = $this->resolveEnableWithVariants(
+                        $settings['enable'],
+                        $siteConfiguration['acceleratorVariants']
+                    );
                 }
 
                 // deactive critical css if it is rendered via pageType
@@ -391,10 +396,7 @@ final class CriticalCss
         return $this->settings = $settings;
     }
 
-
     /**
-<<<<<<< Updated upstream
-=======
      * Checks if the enable-property has variants, and takes the first variant which matches an expression.
      *
      * @param int $enable
@@ -415,7 +417,7 @@ final class CriticalCss
                 try {
                     if (
                         ($expressionLanguageResolver->evaluate($variant['condition']))
-                        && ($variant['criticalCss']['enable'])
+                        && (isset($variant['criticalCss']['enable']))
                     ){
                         $enable = intval($variant['criticalCss']['enable']);
                         break;
@@ -429,8 +431,8 @@ final class CriticalCss
         return $enable;
     }
 
+
     /**
->>>>>>> Stashed changes
      * @return \Psr\Http\Message\ServerRequestInterface|null
      */
     private function getRequest(): ?ServerRequestInterface
