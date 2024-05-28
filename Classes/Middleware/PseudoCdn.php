@@ -221,5 +221,46 @@ final class PseudoCdn implements MiddlewareInterface
 
         return $this->settings = $settings;
     }
+<<<<<<< Updated upstream
+=======
+
+
+
+    /**
+     * Checks if the enable-property has variants, and takes the first variant which matches an expression.
+     *
+     * @param int $enable
+     * @param array|null $variants
+     * @return int
+     */
+    protected function resolveEnableWithVariants(int $enable = 0, ?array $variants = null): int
+    {
+        if (!empty($variants)) {
+
+            /** @var \TYPO3\CMS\Core\ExpressionLanguage\Resolver $expressionLanguageResolver */
+            $expressionLanguageResolver = GeneralUtility::makeInstance(
+                Resolver::class,
+                'site',
+                []
+            );
+            foreach ($variants as $variant) {
+                try {
+                    if (
+                        ($expressionLanguageResolver->evaluate($variant['condition']))
+                        && ($variant['pseudoCdn']['enable'])
+                    ){
+                        $enable = intval($variant['pseudoCdn']['enable']);
+                        break;
+                    }
+                } catch (SyntaxError $e) {
+                    // silently fail and do not evaluate
+                    // no logger here, as Site is currently cached and serialized
+                }
+            }
+        }
+        return $enable;
+    }
+
+>>>>>>> Stashed changes
 }
 
