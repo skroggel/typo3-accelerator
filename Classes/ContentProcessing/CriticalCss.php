@@ -16,11 +16,12 @@ namespace Madj2k\Accelerator\ContentProcessing;
  */
 
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\ExpressionLanguage\SyntaxError;
+use TYPO3\CMS\Core\ExpressionLanguage\Resolver;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * Class CriticalCss
@@ -373,6 +374,13 @@ final class CriticalCss
                     && (isset($siteConfiguration['accelerator']['criticalCss']))
                 ){
                     $settings = array_merge($settings, $siteConfiguration['accelerator']['criticalCss'] ?? []);
+                    $settings['enable'] = $this->resolveEnableWithVariants(
+                        $settings['enable'],
+                        $siteConfiguration['acceleratorVariants']
+                    );
+
+                    DebuggerUtility::var_dump($settings);
+
                 }
 
                 // deactive critical css if it is rendered via pageType
@@ -391,6 +399,38 @@ final class CriticalCss
         return $this->settings = $settings;
     }
 
+
+    /**
+     * Checks if the enable-property has variants, and takes the first variant which matches an expression.
+     *
+     * @param int $enable
+     * @param array|null $variants
+     * @return int
+     */
+    protected function resolveEnableWithVariants(int $enable, ?array $variants): int
+    {
+        if (!empty($variants)) {
+
+            /** @var \TYPO3\CMS\Core\ExpressionLanguage\Resolver $expressionLanguageResolver */
+            $expressionLanguageResolver = GeneralUtility::makeInstance(
+                Resolver::class,
+                'site',
+                []
+            );
+            foreach ($variants as $variant) {
+                try {
+                    if ($expressionLanguageResolver->evaluate($variant['condition'])) {
+                        $enable = $variant['criticalCss']['enable'];
+                        break;
+                    }
+                } catch (SyntaxError $e) {
+                    // silently fail and do not evaluate
+                    // no logger here, as Site is currently cached and serialized
+                }
+            }
+        }
+        return $enable;
+    }
 
     /**
      * @return \Psr\Http\Message\ServerRequestInterface|null
