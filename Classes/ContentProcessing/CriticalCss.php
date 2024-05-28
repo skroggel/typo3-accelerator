@@ -265,7 +265,7 @@ final class CriticalCss
             $pageId = $pageArguments->getPageId();
         } else {
             /** discouraged since TYPO3 v12 */
-            $pageId = $GLOBALS['TSFE']->id;
+            $pageId = intval($GLOBALS['TSFE']->id);
         }
 
         // get rootline
