@@ -20,14 +20,11 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\ExpressionLanguage\SyntaxError;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\ExpressionLanguage\Resolver;
 use TYPO3\CMS\Core\Http\NullResponse;
-use TYPO3\CMS\Core\Routing\RouteResultInterface;
-use TYPO3\CMS\Core\Routing\SiteMatcher;
-use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * Class PseudoCdn
@@ -188,13 +185,18 @@ final class PseudoCdn implements MiddlewareInterface
             'baseDomain' => $baseDomain,
             'protocol' => (($serverParams['HTTPS']) || ($serverParams['SERVER_PORT'] == '443')) ? 'https://' : 'http://'
         ];
-        
+
         if (
             ($site = $request->getAttribute('site'))
             && ($siteConfiguration = $site->getConfiguration())
             && (isset($siteConfiguration['accelerator']['pseudoCdn']))
         ){
+
             $settings = array_merge($settings, $siteConfiguration['accelerator']['pseudoCdn'] ?? []);
+            $settings['enable'] = $this->resolveEnableWithVariants(
+                $settings['enable'],
+                $siteConfiguration['acceleratorVariants']
+            );
 
         /** @deprecated  */
         } else if (is_array($GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn'])) {
@@ -217,9 +219,44 @@ final class PseudoCdn implements MiddlewareInterface
             } else if ($pageSwitch == 2) {
                 $settings['enable'] = false;
             }
-        }        
+        }
 
         return $this->settings = $settings;
     }
+
+
+
+    /**
+     * Checks if the enable-property has variants, and takes the first variant which matches an expression.
+     *
+     * @param int $enable
+     * @param array|null $variants
+     * @return int
+     */
+    protected function resolveEnableWithVariants(int $enable, ?array $variants): int
+    {
+        if (!empty($variants)) {
+
+            /** @var \TYPO3\CMS\Core\ExpressionLanguage\Resolver $expressionLanguageResolver */
+            $expressionLanguageResolver = GeneralUtility::makeInstance(
+                Resolver::class,
+                'site',
+                []
+            );
+            foreach ($variants as $variant) {
+                try {
+                    if ($expressionLanguageResolver->evaluate($variant['condition'])) {
+                        $enable = $variant['pseudoCdn']['enable'];
+                        break;
+                    }
+                } catch (SyntaxError $e) {
+                    // silently fail and do not evaluate
+                    // no logger here, as Site is currently cached and serialized
+                }
+            }
+        }
+        return $enable;
+    }
+
 }
 
