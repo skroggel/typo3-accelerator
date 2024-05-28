@@ -1,7 +1,7 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
       xmlns:accelerator="http://typo3.org/ns/Madj2k/Accelerator/ViewHelpers"
     data-namespace-typo3-fluid="true">
-<f:debug>{_all}</f:debug>
+
     <f:if condition="{file}">
         <!-- Responsive Images v2.0 -->
         <picture{f:if(condition:'{additionalAttributes}', then: ' {additionalAttributes -> f:format.raw()}', else: ' {settings.additionalAttributes -> f:format.raw()}')}>
