@@ -396,7 +396,7 @@ final class CriticalCss
         return $this->settings = $settings;
     }
 
-   /**
+    /**
      * Checks if the enable-property has variants, and takes the first variant which matches an expression.
      *
      * @param int $enable
@@ -417,7 +417,7 @@ final class CriticalCss
                 try {
                     if (
                         ($expressionLanguageResolver->evaluate($variant['condition']))
-                        && ($variant['criticalCss']['enable'])
+                        && (isset($variant['criticalCss']['enable']))
                     ){
                         $enable = intval($variant['criticalCss']['enable']);
                         break;
@@ -431,7 +431,8 @@ final class CriticalCss
         return $enable;
     }
 
-   /**
+
+    /**
      * @return \Psr\Http\Message\ServerRequestInterface|null
      */
     private function getRequest(): ?ServerRequestInterface

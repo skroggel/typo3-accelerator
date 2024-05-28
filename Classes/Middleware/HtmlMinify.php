@@ -168,7 +168,7 @@ final class HtmlMinify implements MiddlewareInterface
                 try {
                     if (
                         ($expressionLanguageResolver->evaluate($variant['condition']))
-                        && ($variant['htmlMinifier']['enable'])
+                        && (isset($variant['htmlMinifier']['enable']))
                     ) {
                         $enable = intval($variant['htmlMinifier']['enable']);
                         break;
