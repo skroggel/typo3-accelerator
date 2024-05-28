@@ -136,7 +136,6 @@ lib.txAccelerator {
                     }
                 }
             }
-
         }
 	}
 }
