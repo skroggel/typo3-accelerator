@@ -18,6 +18,7 @@ namespace Madj2k\Accelerator\ContentProcessing;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\ExpressionLanguage\SyntaxError;
 use TYPO3\CMS\Core\ExpressionLanguage\Resolver;
+use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
@@ -256,7 +257,6 @@ final class CriticalCss
      */
     public function getLayoutOfPage (): string
     {
-
         $request = $this->getRequest();
 
         /** @var \TYPO3\CMS\Core\Routing\SiteRouteResult $pageArguments */
@@ -363,10 +363,28 @@ final class CriticalCss
 
         if ($request) {
 
-            // NullSite will be set if in backend context
+
+            /** @todo TYPO3_MODE can be removed when support for v10 is dropped */
+            $isfrontendContext = false;
+            if (
+                (defined('TYPO3_MODE'))
+                && (TYPO3_MODE === 'FE')
+            ){
+                $isfrontendContext = true;
+            }
+
+            if (
+                (class_exists(ApplicationType::class))
+                && (ApplicationType::fromRequest($request)->isFrontend())
+            ){
+                $isfrontendContext = true;
+            }
+
+            // NullSite may be set if in backend context
             if (
                 ($site = $request->getAttribute('site'))
                 && (! $site instanceof \TYPO3\CMS\Core\Site\Entity\NullSite)
+                && ($isfrontendContext)
             ) {
 
                 if (
