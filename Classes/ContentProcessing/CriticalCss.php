@@ -152,7 +152,7 @@ final class CriticalCss
             . ' type="text/css" href="' . htmlspecialchars($file) .'"'
             . ' media="' . htmlspecialchars($this->rebuildMediaList($properties['media'] ?: 'all')) . '"'
             . ' data-media="' . $properties['media'] . '"'
-            . ($properties['title'] ? ' title="' . htmlspecialchars($properties['title']) . '"' : '')
+            . (isset($properties['title']) ? ' title="' . htmlspecialchars($properties['title']) . '"' : '')
             . ' onload="this.media=this.dataset.media; this.onload = null"'
             . ' />';
         if ($properties['allWrap']) {
@@ -402,8 +402,14 @@ final class CriticalCss
                 if (
                     ($params = $request->getQueryParams())
                     && (
-                        ($params['type'] == '1715339215')
-                        || ($params['no_critical_css'] == '1')
+                        (
+                            (isset($params['type']))
+                            && ($params['type'] == '1715339215')
+                        )
+                        || (
+                            (isset($params['no_critical_css']))
+                            && ($params['no_critical_css'] == '1')
+                        )
                     )
                 ){
                     $settings['enable'] = 0;
