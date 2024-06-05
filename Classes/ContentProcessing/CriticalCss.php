@@ -402,7 +402,6 @@ final class CriticalCss
         return $this->settings = $settings;
     }
 
-
     /**
      * Checks if the enable-property has variants, and takes the first variant which matches an expression.
      *
@@ -410,7 +409,7 @@ final class CriticalCss
      * @param array|null $variants
      * @return int
      */
-    protected function resolveEnableWithVariants(int $enable, ?array $variants): int
+    protected function resolveEnableWithVariants(int $enable = 0, ?array $variants = null): int
     {
         if (!empty($variants)) {
 
@@ -422,8 +421,11 @@ final class CriticalCss
             );
             foreach ($variants as $variant) {
                 try {
-                    if ($expressionLanguageResolver->evaluate($variant['condition'])) {
-                        $enable = $variant['criticalCss']['enable'];
+                    if (
+                        ($expressionLanguageResolver->evaluate($variant['condition']))
+                        && (isset($variant['criticalCss']['enable']))
+                    ){
+                        $enable = intval($variant['criticalCss']['enable']);
                         break;
                     }
                 } catch (SyntaxError $e) {
@@ -434,6 +436,7 @@ final class CriticalCss
         }
         return $enable;
     }
+
 
     /**
      * @return \Psr\Http\Message\ServerRequestInterface|null

@@ -146,7 +146,7 @@ final class HtmlMinify implements MiddlewareInterface
         return $this->settings = $settings;
     }
 
-
+    
     /**
      * Checks if the enable-property has variants, and takes the first variant which matches an expression.
      *
@@ -154,7 +154,7 @@ final class HtmlMinify implements MiddlewareInterface
      * @param array|null $variants
      * @return int
      */
-    protected function resolveEnableWithVariants(int $enable, ?array $variants): int
+    protected function resolveEnableWithVariants(int $enable = 0, ?array $variants = null): int
     {
         if (!empty($variants)) {
 
@@ -166,8 +166,11 @@ final class HtmlMinify implements MiddlewareInterface
             );
             foreach ($variants as $variant) {
                 try {
-                    if ($expressionLanguageResolver->evaluate($variant['condition'])) {
-                        $enable = $variant['htmlMinifier']['enable'];
+                    if (
+                        ($expressionLanguageResolver->evaluate($variant['condition']))
+                        && (isset($variant['htmlMinifier']['enable']))
+                    ) {
+                        $enable = intval($variant['htmlMinifier']['enable']);
                         break;
                     }
                 } catch (SyntaxError $e) {

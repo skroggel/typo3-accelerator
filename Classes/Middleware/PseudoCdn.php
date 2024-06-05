@@ -93,7 +93,7 @@ final class PseudoCdn implements MiddlewareInterface
     {
 
         // check if enabled
-        if (! $this->settings['enable']) {
+        if (!$this->settings['enable']) {
             return false;
         }
 
@@ -174,7 +174,7 @@ final class PseudoCdn implements MiddlewareInterface
         $site = $request->getAttribute('site');
 
         $domainParts = explode('.', $site->getBase()->getHost());
-        $baseDomain = $domainParts[count($domainParts) -2]. '.' . $domainParts[count($domainParts) -1];
+        $baseDomain = $domainParts[count($domainParts) - 2] . '.' . $domainParts[count($domainParts) - 1];
 
         $settings = [
             'enable' => false,
@@ -190,7 +190,7 @@ final class PseudoCdn implements MiddlewareInterface
             ($site = $request->getAttribute('site'))
             && ($siteConfiguration = $site->getConfiguration())
             && (isset($siteConfiguration['accelerator']['pseudoCdn']))
-        ){
+        ) {
 
             $settings = array_merge($settings, $siteConfiguration['accelerator']['pseudoCdn'] ?? []);
             $settings['enable'] = $this->resolveEnableWithVariants(
@@ -198,7 +198,7 @@ final class PseudoCdn implements MiddlewareInterface
                 $siteConfiguration['acceleratorVariants']
             );
 
-        /** @deprecated  */
+            /** @deprecated */
         } else if (is_array($GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn'])) {
             $settings = array_merge($settings, $GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn']);
 
@@ -214,7 +214,7 @@ final class PseudoCdn implements MiddlewareInterface
                 ->fetchOne();
 
             // check for site-specific override in rootPage
-            if ($pageSwitch== 1) {
+            if ($pageSwitch == 1) {
                 $settings['enable'] = true;
             } else if ($pageSwitch == 2) {
                 $settings['enable'] = false;
@@ -225,7 +225,6 @@ final class PseudoCdn implements MiddlewareInterface
     }
 
 
-
     /**
      * Checks if the enable-property has variants, and takes the first variant which matches an expression.
      *
@@ -233,7 +232,7 @@ final class PseudoCdn implements MiddlewareInterface
      * @param array|null $variants
      * @return int
      */
-    protected function resolveEnableWithVariants(int $enable, ?array $variants): int
+    protected function resolveEnableWithVariants(int $enable = 0, ?array $variants = null): int
     {
         if (!empty($variants)) {
 
@@ -245,8 +244,11 @@ final class PseudoCdn implements MiddlewareInterface
             );
             foreach ($variants as $variant) {
                 try {
-                    if ($expressionLanguageResolver->evaluate($variant['condition'])) {
-                        $enable = $variant['pseudoCdn']['enable'];
+                    if (
+                        ($expressionLanguageResolver->evaluate($variant['condition']))
+                        && (isset($variant['pseudoCdn']['enable']))
+                    ) {
+                        $enable = intval($variant['pseudoCdn']['enable']);
                         break;
                     }
                 } catch (SyntaxError $e) {
@@ -257,6 +259,4 @@ final class PseudoCdn implements MiddlewareInterface
         }
         return $enable;
     }
-
 }
-
