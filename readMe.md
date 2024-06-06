@@ -18,13 +18,13 @@ It is now possible to configure it via your site-configuration (YAML) instead.
 ```
 accelerator:
   htmlMinifier:
-    enable: 1
+    enable: true
     excludePids: ''
     includePageTypes: '0'
 acceleratorVariants:
   -
     htmlMinifier:
-      enable: 0
+      enable: false
     condition: 'applicationContext == "Development/Local"'
 ```
 * **enable** activates the HTML Minify
@@ -37,7 +37,7 @@ Please note: The variants only work with the enable-attribute
 ```
 accelerator:
   htmlMinifier:
-    enable: 1
+    enable: true
 ```
 
 # 2. Pseudo-CDN
@@ -79,7 +79,7 @@ Important: the DNS has to be configured accordingly and a Wildcard-TLS-certifica
 ```
 accelerator:
   pseudoCdn:
-    enable: 1
+    enable: true
     maxConnectionsPerDomain: 4
     maxSubdomains: 100
     search: '/(href="|src="|srcset="|url\(\')\/?((uploads\/media|uploads\/pics|typo3temp\/compressor|typo3temp\/GB|typo3conf\/ext|fileadmin)([^"\']+))/i'
@@ -87,7 +87,7 @@ accelerator:
 acceleratorVariants:
   -
     pseudoCdn:
-      enable: 0
+      enable: false
     condition: 'applicationContext == "Development/Local"'
 ```
 * **enable** activates the Pseudo-CDN
@@ -102,7 +102,7 @@ Please note: The variants only work with the enable-attribute
 ```
 accelerator:
   pseudoCdn:
-    enable: 1
+    enable: true
 ```
 
 # 3. Inline Critical CSS (Above-The-Fold)
@@ -118,7 +118,9 @@ It is now possible to configure it via your site-configuration (YAML) instead.
 ```
 accelerator:
   criticalCss:
-    enable: 1
+    enable: true
+    layoutField: backend_layout
+    layoutFieldNextLevel: backend_layout_next_level
     filesForLayout:
       home:
         -
@@ -133,12 +135,14 @@ accelerator:
 acceleratorVariants:
   -
     criticalCss:
-      enable: 0
+      enable: false
     condition: 'applicationContext == "Development/Local"'
 ```
 * **enable** activates the critical CSS inclusion
-* **filesForLayout** contaons the layout-keys for which the following CSS-files are to be included. If there is no match, no file will be included
-* **filesToRemoveWhenActive** defines files that will be remove from page.includeCss if criticalCSS is activated
+* **layoutField** sets the field in page-properties which is used to determine the defined layout of the current page for including the correct css-files. The default value is "backend_layout". If you don't use another field you can omit this setting. **If you use your own property, make sure it is added as rootline-field.**
+* **layoutFieldNextLevel** sets the field in page-properties which is used to determine the defined layout of the subpages for including the correct css-files. The default value is "backend_layout_next_level". If you don't use another field you can omit this setting. **If you use your own property, make sure it is added as rootline-field.**
+* **filesForLayout** contains the keys and CSS-files that are to be included if the layout of the page matches the defined key. The keys are the values set in the defined layoutField- / layoutFieldNextLevel-property of the page ("pagets__"-prefix is removed). If there is no match, no file will be included. The example above would include the files criticalOne.css and criticalTwo.css on a page on which the backendLayout-property is set to "pagets__home".
+* **filesToRemoveWhenActive** defines files that will be removed from page.includeCss if criticalCSS is activated and working on the current page
 
 Please note: The variants only work with the enable-attribute
 

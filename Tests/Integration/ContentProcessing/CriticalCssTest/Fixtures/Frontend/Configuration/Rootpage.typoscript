@@ -3,7 +3,7 @@ config {
     xmlprologue = none
     xhtml_cleaning >
     disablePrefixComment = 1
-    headerComment = Website by RKW Kompetenzzentrum 
+    headerComment = Website by Madj2k
 
     inlineStyle2TempFile = 0
     removeDefaultJS = 0
