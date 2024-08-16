@@ -192,9 +192,9 @@ final class PseudoCdn implements MiddlewareInterface
             && (isset($siteConfiguration['accelerator']['pseudoCdn']))
         ) {
 
-            $settings = array_merge($settings, $siteConfiguration['accelerator']['pseudoCdn'] ?? []);
+            $settings = array_merge($settings, $siteConfiguration['accelerator']['pseudoCdn']);
             $settings['enable'] = $this->resolveEnableWithVariants(
-                $settings['enable'],
+                (bool) $settings['enable'],
                 $siteConfiguration['acceleratorVariants']
             );
 
@@ -228,11 +228,11 @@ final class PseudoCdn implements MiddlewareInterface
     /**
      * Checks if the enable-property has variants, and takes the first variant which matches an expression.
      *
-     * @param int $enable
+     * @param bool $enable
      * @param array|null $variants
-     * @return int
+     * @return bool
      */
-    protected function resolveEnableWithVariants(int $enable = 0, ?array $variants = null): int
+    protected function resolveEnableWithVariants(bool $enable = false, ?array $variants = null): bool
     {
         if (!empty($variants)) {
 
@@ -248,7 +248,7 @@ final class PseudoCdn implements MiddlewareInterface
                         ($expressionLanguageResolver->evaluate($variant['condition']))
                         && (isset($variant['pseudoCdn']['enable']))
                     ) {
-                        $enable = intval($variant['pseudoCdn']['enable']);
+                        $enable = boolval($variant['pseudoCdn']['enable']);
                         break;
                     }
                 } catch (SyntaxError $e) {

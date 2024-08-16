@@ -17,6 +17,7 @@ namespace Madj2k\Accelerator\Tests\Integration\ContentProcessing;
 
 use Madj2k\Accelerator\ContentProcessing\CriticalCss;
 use Madj2k\Accelerator\Testing\FakeRequestTrait;
+use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
@@ -79,6 +80,55 @@ class CriticalCssTest extends FunctionalTestCase
 
         $GLOBALS['TSFE']->id = 1; /** discouraged since TYPO3 v12 */
         $this->subject = new CriticalCss();
+
+    }
+
+    //=============================================
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function isInFrontendContextReturnsFalsePerDefault()
+    {
+
+        /**
+         * Scenario:
+         *
+         * Given a request object in backend-context
+         * When method is called
+         * Then false is returned
+         */
+
+        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', [], false);
+
+        $result = $this->subject->isInFrontendContext($request);
+        self::assertFalse($result);
+
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function isInFrontendContextReturnsTrueInFrontendContext()
+    {
+
+        /**
+         * Scenario:
+         *
+         * Given a request object in frontend-context
+         * When method is called
+         * Then true is returned
+         */
+
+        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', [], true);
+
+        $result = $this->subject->isInFrontendContext($request);
+        self::assertTrue($result);
+
     }
 
 
@@ -481,7 +531,7 @@ class CriticalCssTest extends FunctionalTestCase
      * @test
      * @throws \Exception
      */
-    public function PreProcessAndProcessRewriteLinkTags()
+    public function preProcessAndProcessRewriteLinkTags()
     {
 
         /**
@@ -609,6 +659,7 @@ class CriticalCssTest extends FunctionalTestCase
 
     /**
      * @test
+     * @throws \Exception
      */
     public function PreProcessAndProcessDoNothingIfNonMatchingLayout()
     {

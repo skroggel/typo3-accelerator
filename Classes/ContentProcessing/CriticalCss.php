@@ -22,7 +22,6 @@ use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * Class CriticalCss
@@ -152,7 +151,7 @@ final class CriticalCss
             . ' type="text/css" href="' . htmlspecialchars($file) .'"'
             . ' media="' . htmlspecialchars($this->rebuildMediaList($properties['media'] ?: 'all')) . '"'
             . ' data-media="' . $properties['media'] . '"'
-            . (isset($properties['title']) ? ' title="' . htmlspecialchars($properties['title']) . '"' : '')
+            . ((! empty($properties['title'])) ? ' title="' . htmlspecialchars($properties['title']) . '"' : '')
             . ' onload="this.media=this.dataset.media; this.onload = null"'
             . ' />';
         if ($properties['allWrap']) {
@@ -278,19 +277,20 @@ final class CriticalCss
                 // own layout-field overrides all
                 if (
                     ($key == (count($rootlinePages)-1))
-                    && ($page['backend_layout'])
+                    && (isset($this->settings['layoutField']))
+                    && (isset($page[$this->settings['layoutField']]))
                 ) {
-                    return str_replace('pagets__', '', $page['backend_layout']);
+                    return str_replace('pagets__', '', $page[$this->settings['layoutField']]);
                 }
 
                 // inherit layout from parent pages
                 if (
                     ($key != (count($rootlinePages)-1))
-                    && ($page['backend_layout_next_level'])
+                    && (isset($this->settings['layoutFieldNextLevel']))
+                    && (isset($page[$this->settings['layoutFieldNextLevel']]))
                 ) {
-                    return str_replace('pagets__', '', $page['backend_layout_next_level']);
+                    return str_replace('pagets__', '', $page[$this->settings['layoutFieldNextLevel']]);
                 }
-
             }
         }
 
@@ -357,48 +357,33 @@ final class CriticalCss
 
         $settings = [
             'enable' => false,
+            'layoutField' => 'backend_layout',
+            'layoutFieldNextLevel' => 'backend_layout_next_level',
             'filesForLayout' => [],
             'filesToRemoveWhenActive' => []
         ];
 
         if ($request) {
 
-
-            /** @todo TYPO3_MODE can be removed when support for v10 is dropped */
-            $isfrontendContext = false;
+            /** @var \TYPO3\CMS\Core\Site\Entity\Site $site */
             if (
-                (defined('TYPO3_MODE'))
-                && (TYPO3_MODE === 'FE')
-            ){
-                $isfrontendContext = true;
-            }
-
-            if (
-                (class_exists(ApplicationType::class))
-                && (ApplicationType::fromRequest($request)->isFrontend())
-            ){
-                $isfrontendContext = true;
-            }
-
-            // NullSite may be set if in backend context
-            if (
-                ($site = $request->getAttribute('site'))
-                && (! $site instanceof \TYPO3\CMS\Core\Site\Entity\NullSite)
-                && ($isfrontendContext)
+                ($this->isInFrontendContext($request))
+                && ($site = $request->getAttribute('site'))
+                && (!$site instanceof \TYPO3\CMS\Core\Site\Entity\NullSite)
             ) {
-
                 if (
                     ($siteConfiguration = $site->getConfiguration())
                     && (isset($siteConfiguration['accelerator']['criticalCss']))
-                ){
-                    $settings = array_merge($settings, $siteConfiguration['accelerator']['criticalCss'] ?? []);
+                ) {
+
+                    $settings = array_merge($settings, $siteConfiguration['accelerator']['criticalCss']);
                     $settings['enable'] = $this->resolveEnableWithVariants(
-                        $settings['enable'],
+                        (bool) $settings['enable'],
                         $siteConfiguration['acceleratorVariants']
                     );
                 }
 
-                // deactive critical css if it is rendered via pageType
+                // deactivate critical css if it is rendered via pageType
                 if (
                     ($params = $request->getQueryParams())
                     && (
@@ -411,8 +396,8 @@ final class CriticalCss
                             && ($params['no_critical_css'] == '1')
                         )
                     )
-                ){
-                    $settings['enable'] = 0;
+                ) {
+                    $settings['enable'] = false;
                 }
             }
         }
@@ -420,14 +405,46 @@ final class CriticalCss
         return $this->settings = $settings;
     }
 
+
+    /**
+     * Checks if we are in frontend context
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @return bool
+     */
+    public function isInFrontendContext(ServerRequestInterface $request): bool
+    {
+
+        /** @todo TYPO3_MODE can be removed when support for v10 is dropped */
+        $isInFrontendContext = false;
+        if (
+            (defined('TYPO3_MODE'))
+            && (TYPO3_MODE === 'FE')
+        ){
+            $isInFrontendContext = true;
+        }
+
+        if (
+            (class_exists(ApplicationType::class))
+            && (intval($request->getAttribute('applicationType')))
+            && (ApplicationType::fromRequest($request)->isFrontend())
+        ){
+            $isInFrontendContext = true;
+        }
+
+        return $isInFrontendContext;
+    }
+
+
+
     /**
      * Checks if the enable-property has variants, and takes the first variant which matches an expression.
      *
-     * @param int $enable
+     * @param bool $enable
      * @param array|null $variants
-     * @return int
+     * @return bool
      */
-    protected function resolveEnableWithVariants(int $enable = 0, ?array $variants = null): int
+    protected function resolveEnableWithVariants(bool $enable = false, ?array $variants = null): bool
     {
         if (!empty($variants)) {
 
@@ -437,13 +454,14 @@ final class CriticalCss
                 'site',
                 []
             );
+
             foreach ($variants as $variant) {
                 try {
                     if (
                         ($expressionLanguageResolver->evaluate($variant['condition']))
                         && (isset($variant['criticalCss']['enable']))
                     ){
-                        $enable = intval($variant['criticalCss']['enable']);
+                        $enable = boolval($variant['criticalCss']['enable']);
                         break;
                     }
                 } catch (SyntaxError $e) {
