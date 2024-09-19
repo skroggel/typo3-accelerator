@@ -144,7 +144,7 @@ accelerator:
 * **filesForLayout** contains the keys and CSS-files that are to be included if the layout of the page matches the defined key. The keys are the values set in the defined layoutField- / layoutFieldNextLevel-property of the page ("pagets__"-prefix is removed). If there is no match, no file will be included. The example above would include the files criticalOne.css and criticalTwo.css on a page on which the backendLayout-property is set to "pagets__home".
 * **filesToRemoveWhenActive** defines files that will be removed from page.includeCss if criticalCSS is activated and working on the current page
 
-Please note: The variants only work with the enable-attribute
+Please note: The variants only work with the enable-attribute.
 
 If the pageType 1715339215 or the GET-Param no_critical_css=1 is used critical css is disabled.
 This is helpful for rendering the critical css e.g. via NPM critical.
@@ -418,9 +418,22 @@ sub vcl_deliver {
 }
 
 ```
+# 5. Reducing arrays and objects for efficient serialization and storage
+In some use-cases you need to serialize arrays or objects in order to store them e.g. in the database.
+But especially objects can be very large and writing / reading them into / from the database is very inefficient.
+Not to mention the growing size of your database.
 
+The MarkerReducer uses several techniques to reduce the amount of data you need to handle.
+It originates form the need to store an array of markers for usage in templates of emails that are to be sent later via a cronjob (thus the name).
+The array contained strings, but also large objects which I did not want to serialize without reducing them before.
 
-# 5. Cache API for your extension
+It comes with to static functions:
+- public static function implode(array $marker): array - which takes your array and returns an reduced version of your array for storage
+- public static function explode(array $marker): array - which takes the reduced version of the array returns the original version again
+
+A special shout-out at this point to Christian Dilger who created an advanced version of the MarkerReducer.
+
+# 6. Cache API for your extension
 1. Activate it in your extension in `ext_localconf.php` by setting the frontend- and backend-cache.
 ```
 $cacheIdentifier = \Madj2k\CoreExtended\Utility\GeneralUtility::underscore($extKey);

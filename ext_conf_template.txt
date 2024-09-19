@@ -1,0 +1,2 @@
+# cat=Accelerator; type=options[legacy,advanced]; label=LLL:EXT:accelerator/Resources/Private/Language/locallang_be.xlf:markerReducerVersion
+markerReducerVersion = legacy

@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace Madj2k\Accelerator\Persistence;
+namespace Madj2k\Accelerator\Persistence\Representations;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -16,9 +16,9 @@ namespace Madj2k\Accelerator\Persistence;
  */
 
 /**
- * Class ReducedReference
+ * Class ReducedObject
  *
- * Represents a single reduced reference.
+ * Represents a reduced object.
  *
  * @author Steffen Kroggel <developer@steffenkroggel.de>
  * @author Christian Dilger <c.dilger@addorange.de>
@@ -27,57 +27,51 @@ namespace Madj2k\Accelerator\Persistence;
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  * @api
  */
-class ReducedReference extends ReducedValue
+class ReducedObject extends ReducedValue
 {
     /**
      * @var string
      */
-    private string $namespace;
+    private string $key;
+
 
     /**
-     * @var int
+     * @var array<string, mixed>
      */
-    private int $uid;
+    private array $properties;
+
 
     /**
-     * ReducedReference constructor.
+     * ReducedObject constructor.
      *
-     * @param string $namespace
-     * @param int $uid
+     * @param string $key
+     * @param array<string, mixed> $properties
      */
-    public function __construct(string $namespace, int $uid)
+    public function __construct(string $key, array $properties)
     {
-        $this->namespace = $namespace;
-        $this->uid = $uid;
+        $this->key = $key;
+        $this->properties = $properties;
     }
 
+
     /**
-     * Gets the namespace of the reduced reference.
+     * Gets the key of the reduced object.
      *
      * @return string
      */
-    public function getNamespace(): string
+    public function getKey(): string
     {
-        return $this->namespace;
+        return $this->key;
     }
 
-    /**
-     * Gets the UID of the reduced reference.
-     *
-     * @return int
-     */
-    public function getUid(): int
-    {
-        return $this->uid;
-    }
 
     /**
-     * Converts the ReducedReference to a string in the format "namespace:uid".
+     * Gets the properties of the reduced object.
      *
-     * @return string
+     * @return array<string, mixed>
      */
-    public function __toString(): string
+    public function getProperties(): array
     {
-        return $this->namespace . ':' . $this->uid;
+        return $this->properties;
     }
 }

@@ -16,9 +16,6 @@ namespace Madj2k\Accelerator\Persistence;
  */
 
 /**
- * Class ReducedObject
- *
- * Represents a reduced object.
  *
  * @author Steffen Kroggel <developer@steffenkroggel.de>
  * @author Christian Dilger <c.dilger@addorange.de>
@@ -27,47 +24,23 @@ namespace Madj2k\Accelerator\Persistence;
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  * @api
  */
-class ReducedObject extends ReducedValue
+interface MarkerReducerInterface
 {
     /**
-     * @var string
-     */
-    private string $key;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private array $properties;
-
-    /**
-     * ReducedObject constructor.
+     * Reduces the size of objects in an array by replacing persisted objects with references.
+     * Also processes non-persisted objects by checking their properties for persisted objects.
      *
-     * @param string $key
-     * @param array<string, mixed> $properties
+     * @param array $marker The array containing objects to be reduced.
+     * @return array<string, mixed> An associative array with strings as keys.
      */
-    public function __construct(string $key, array $properties)
-    {
-        $this->key = $key;
-        $this->properties = $properties;
-    }
+    public static function implode(array $marker): array;
+
 
     /**
-     * Gets the key of the reduced object.
+     * Rebuilds reduced objects from their references or ReducedObject instances in the marker array.
      *
-     * @return string
+     * @param array $marker The array containing reduced references or ReducedObject instances.
+     * @return array<string, mixed> An associative array with rebuilt objects or the original values if no reduction occurred.
      */
-    public function getKey(): string
-    {
-        return $this->key;
-    }
-
-    /**
-     * Gets the properties of the reduced object.
-     *
-     * @return array<string, mixed>
-     */
-    public function getProperties(): array
-    {
-        return $this->properties;
-    }
+    public static function explode(array $marker): array;
 }
