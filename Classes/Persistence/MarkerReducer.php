@@ -15,6 +15,8 @@ namespace Madj2k\Accelerator\Persistence;
  * The TYPO3 project - inspiring people to share!
  */
 
+use ReflectionClass;
+use ReflectionProperty;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\Log\LogManager;
@@ -23,12 +25,16 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
-use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 
 /**
- * A class to reduce the size of objects in order to be able to persist them in a database
+ * A class to reduce the size of objects in order to be able to persist them in a database.
+ *
+ * This class is used to transform objects and object collections into simpler references that can be stored
+ * more efficiently in a database. It handles both persisted and non-persisted objects, reducing only the
+ * persisted objects.
  *
  * @author Steffen Kroggel <developer@steffenkroggel.de>
+ * @author Christian Dilger <c.dilger@addorange.de>
  * @copyright Steffen Kroggel
  * @package Madj2k_Accelerator
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
@@ -36,297 +42,323 @@ use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
  */
 final class MarkerReducer
 {
-
     /**
-     * Namespace Keyword
+     * Reduces the size of objects in an array by replacing persisted objects with references.
+     * Also processes non-persisted objects by checking their properties for persisted objects.
      *
-     * @const string
-     */
-    const NAMESPACE_KEYWORD = 'TX_ACCELERATOR_NAMESPACES';
-
-
-    /**
-     * Namespace Keyword (old version)
-     *
-     * @const string
-     * @deprecated
-     */
-    const NAMESPACE_KEYWORD_OLD = 'RKW_MAILER_NAMESPACES';
-
-
-    /**
-     * Namespace Keyword for arrays
-     *
-     * @const string
-     */
-    const NAMESPACE_ARRAY_KEYWORD = 'TX_ACCELERATOR_NAMESPACES_ARRAY';
-
-
-    /**
-     * Namespace Keyword for arrays (old version)
-     *
-     * @const string
-     * @deprecated
-     */
-    const NAMESPACE_ARRAY_KEYWORD_OLD = 'RKW_MAILER_NAMESPACES_ARRAY';
-
-
-    /**
-     * implode
-     * transform objects into simple references
-     *
-     * @param array $marker
-     * @return array
-     * @throws \TYPO3\CMS\Extbase\Persistence\Generic\Exception
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
+     * @param array $marker The array containing objects to be reduced.
+     * @return array<string, mixed> An associative array with strings as keys.
      */
     public static function implode(array $marker): array
     {
-        /** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
+        /** @var ObjectManager $objectManager */
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
 
-        /** @var \TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper $dataMapper */
+        /** @var DataMapper $dataMapper */
         $dataMapper = $objectManager->get(DataMapper::class);
+
+        /** @var array<string, mixed> $reducedObjects */
+        $reducedObjects = [];
+
         foreach ($marker as $key => $value) {
-
-            // replace current entry with "table => uid" reference
-            // keep current variable name, don't use "unset"
-            if (is_object($value)) {
-
-                // Normal DomainObject
-                if ($value instanceof AbstractEntity) {
-
-                    $namespace = filter_var(
-                        $dataMapper->getDataMap(get_class($value))->getClassName(),
-                        FILTER_SANITIZE_STRING
-                    );
-
-                    if ($value->_isNew()) {
-                        self::getLogger()->log(
-                            LogLevel::WARNING,
-                            sprintf(
-                                'Object with namespace %s in marker-array is not persisted and will be '
-                                    . 'stored as serialized object in the database. This may cause performance issues!',
-                                $namespace
-                            )
-                        );
-                    } else {
-
-                        $marker[$key] = self::NAMESPACE_KEYWORD . ' ' . $namespace . ":" . $value->getUid();
-                        self::getLogger()->log(
-                            LogLevel::DEBUG,
-                            sprintf(
-                                'Replacing object with namespace %s and uid %s in marker-array.',
-                                $namespace,
-                                $value->getUid()
-                            )
-                        );
-                    }
-
-                // ObjectStorage or QueryResult
-                } else {
-
-                    if ($value instanceof \Iterator) {
-
-                        // rewind is crucial in live-context!
-                        $value->rewind();
-
-                        if (
-                            (
-                                ($value instanceof QueryResultInterface)
-                                && ($firstObject = $value->getFirst())
-                            )
-                            || (
-                                ($value instanceof ObjectStorage)
-                                && ($firstObject = $value->current())
-                            )
-                            && ($firstObject instanceof AbstractEntity)
-                        ) {
-
-                            $newValues = array();
-                            $namespace = filter_var($dataMapper->getDataMap(get_class($firstObject))->getClassName(), FILTER_SANITIZE_STRING);
-                            $replaceObjectStorage = true;
-                            foreach ($value as $object) {
-                                if ($object instanceof AbstractEntity) {
-
-                                    if ($object->_isNew()) {
-
-                                        $replaceObjectStorage = false;
-                                        self::getLogger()->log(
-                                            LogLevel::WARNING, sprintf(
-                                                'Object with namespace %s in marker-array is not persisted.'
-                                                    . ' The object storage it belongs to will be stored as serialized '
-                                                    . 'object in the database. This may cause performance issues!',
-                                                $namespace
-                                            )
-                                        );
-                                        break;
-
-                                    } else {
-
-                                        $newValues[] = $namespace . ":" . $object->getUid();
-                                        self::getLogger()->log(
-                                            LogLevel::DEBUG,
-                                            sprintf(
-                                                'Replacing object with namespace %s and uid %s in marker-array.',
-                                                $namespace,
-                                                $object->getUid()
-                                            )
-                                        );
-                                    }
-                                }
-                            }
-                            if ($replaceObjectStorage) {
-                                $marker[$key] = self::NAMESPACE_ARRAY_KEYWORD . ' ' . implode(',', $newValues);
-                            }
-
-                        } else {
-
-                            if (! count($value)) {
-                                self::getLogger()->log(
-                                    LogLevel::DEBUG,
-                                    sprintf(
-                                        'Object of class %s in marker-array is empty and will be stored as '
-                                            . 'serialized object in the database.',
-                                        get_class($value)
-                                    )
-                                );
-                            } else {
-                                self::getLogger()->log(
-                                    LogLevel::WARNING,
-                                    sprintf(
-                                        'Object of class %s in marker-array will be stored as serialized '
-                                            . 'object in the database. This may cause performance issues!',
-                                        get_class($value)
-                                    )
-                                );
-                            }
-                        }
-                    }
-                }
-            }
+            $reducedObjects[$key] = self::processValue($key, $value, $dataMapper);
         }
 
-        return $marker;
+        return $reducedObjects;
     }
-
 
     /**
-     * explode
-     * transform simple references to objects
+     * Processes a single value, reducing it if it's a persisted object or an iterable containing persisted objects.
+     * If the object is not persisted, it recursively checks its properties for persisted objects to reduce.
      *
-     * @param array $marker
-     * @return array
+     * @param string $key The key of the value.
+     * @param mixed $value The value to be processed.
+     * @param DataMapper $dataMapper The data mapper used to retrieve class metadata.
+     * @return mixed The processed value or the original value if not reduced.
      */
-    public static function explode(array $marker): array
+    protected static function processValue(string $key, $value, DataMapper $dataMapper)
     {
-        /** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        foreach ($marker as $key => $value) {
+        if (is_object($value)) {
 
-            // check for keyword
-            if (
-                (is_string($value))
-                && (
-                    (strpos(trim($value), self::NAMESPACE_KEYWORD) === 0)
-                    || (strpos(trim($value), self::NAMESPACE_ARRAY_KEYWORD) === 0)
-                    || (strpos(trim($value), self::NAMESPACE_KEYWORD_OLD) === 0)
-                    || (strpos(trim($value), self::NAMESPACE_ARRAY_KEYWORD_OLD) === 0)
+            if ($value instanceof AbstractEntity) {
+                return self::processDomainObject($value, $dataMapper);
+            }
+
+            if ($value instanceof \Iterator) {
+                return self::processIterable($value, $dataMapper);
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Processes a single domain object, reducing it if it's persisted.
+     * If the object is not persisted, it recursively checks its properties for persisted objects to reduce.
+     * The original object is not modified; instead, reductions are stored in a separate array.
+     *
+     * @param AbstractEntity $object The domain object to be processed.
+     * @param DataMapper $dataMapper The data mapper used to retrieve class metadata.
+     * @return ReducedValue The processed value as a ReducedValue.
+     */
+    protected static function processDomainObject(AbstractEntity $object, DataMapper $dataMapper): ReducedValue
+    {
+        if (!$object->_isNew()) {
+            $namespace = filter_var(
+                $dataMapper->getDataMap(get_class($object))->getClassName(),
+                FILTER_SANITIZE_STRING
+            );
+
+            self::getLogger()->log(
+                LogLevel::DEBUG,
+                sprintf(
+                    'Replacing object with namespace %s and uid %s.',
+                    $namespace,
+                    $object->getUid()
                 )
-            ) {
+            );
 
-                // check if we have an array here
-                $isArray = (bool)(strpos(trim($value), self::NAMESPACE_ARRAY_KEYWORD) === 0)
-                    || (strpos(trim($value), self::NAMESPACE_ARRAY_KEYWORD_OLD) === 0);
+            return new ReducedReference($namespace, $object->getUid());
+        }
 
-                self::getLogger()->log(
-                    LogLevel::DEBUG,
-                    sprintf(
-                        'Detection of objectStorage: %s.',
-                        intval($isArray)
-                    )
-                );
+        return self::reduceObjectProperties($object, $dataMapper);
+    }
 
-                /** @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage $objectStorage */
-                $objectStorage = $objectManager->get(ObjectStorage::class);
+    /**
+     * Recursively processes the properties of a non-persisted object, reducing any persisted objects it references.
+     * The original object is not modified; instead, reductions are stored in a ReducedObject instance.
+     *
+     * @param AbstractEntity $object The non-persisted object to process.
+     * @param DataMapper $dataMapper The data mapper used to retrieve class metadata.
+     * @return ReducedObject The object with its properties processed.
+     */
+    protected static function reduceObjectProperties(AbstractEntity $object, DataMapper $dataMapper): ReducedObject
+    {
+        /** @var ReflectionClass $reflection */
+        $reflection = new ReflectionClass($object);
 
-                // clean value from keyword
-                $cleanedValue = trim(
-                    str_replace(
-                        array(
-                            self::NAMESPACE_ARRAY_KEYWORD,
-                            self::NAMESPACE_KEYWORD,
-                            self::NAMESPACE_ARRAY_KEYWORD_OLD,
-                            self::NAMESPACE_KEYWORD_OLD,
-                        ),
-                        '',
-                        $value
-                    )
-                );
+        /** @var array<string, mixed> $reducedData */
+        $reducedData = [];
 
-                // Go through list of objects. May be comma-separated in case of QueryResultInterface or ObjectStorage
-                $listOfObjectDefinitions = GeneralUtility::trimExplode(',', $cleanedValue);
-                foreach ($listOfObjectDefinitions as $objectDefinition) {
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PROTECTED | ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PRIVATE) as $property) {
+            $property->setAccessible(true);
+            $value = $property->getValue($object);
 
-                    // explode namespace and uid
-                    $explodedValue = GeneralUtility::trimExplode(':', $objectDefinition);
-                    $namespace = trim($explodedValue[0]);
-                    $uid = intval($explodedValue[1]);
+            if (is_object($value)) {
+                if ($value instanceof ObjectStorage) {
+                    $reducedData[$property->getName()] = self::processObjectStorage($value, $dataMapper);
+                } else {
+                    $reducedData[$property->getName()] = self::processValue($property->getName(), $value, $dataMapper);
+                }
+            } else {
+                $reducedData[$property->getName()] = $value;
+            }
+        }
 
-                    if (class_exists($namespace)) {
+        return new ReducedObject($reflection->getName(), $reducedData);
+    }
 
-                        // @todo Find a way to get the repository namespace instead of this replace
-                        $repositoryName = str_replace('Model', 'Repository', $namespace) . 'Repository';
-                        if (class_exists($repositoryName)) {
+    /**
+     * Processes an ObjectStorage, ensuring that it only contains persisted objects.
+     * If the ObjectStorage contains non-persisted objects, it returns the original ObjectStorage.
+     *
+     * @param ObjectStorage $value The ObjectStorage to be processed.
+     * @param DataMapper $dataMapper The data mapper used to retrieve class metadata.
+     * @return ReducedCollection|ObjectStorage The ReducedCollection if all objects are persisted, otherwise the original ObjectStorage.
+     */
+    protected static function processObjectStorage(ObjectStorage $value, DataMapper $dataMapper)
+    {
+        $value->rewind(); // Ensure the ObjectStorage is rewound before iterating
+        $references = [];
 
-                            /** @var \TYPO3\CMS\Extbase\Persistence\Repository $repository */
-                            $repository = $objectManager->get($repositoryName);
+        foreach ($value as $object) {
+            if ($object instanceof AbstractEntity) {
+                if ($object->_isNew()) {
+                    self::getLogger()->log(
+                        LogLevel::WARNING,
+                        'ObjectStorage contains a non-persisted object and will not be reduced.'
+                    );
 
-                            // build query - we fetch everything here!
-                            $query = $repository->createQuery();
-                            $query->getQuerySettings()->setRespectStoragePage(false);
-                            $query->getQuerySettings()->setIgnoreEnableFields(true);
-                            $query->getQuerySettings()->setIncludeDeleted(true);
-                            $query->matching(
-                                $query->equals('uid', $uid)
-                            )->setLimit(1);
-
-
-                            if ($result = $query->execute()->getFirst()) {
-
-                                $objectStorage->attach($result);
-                                self::getLogger()->log(
-                                    LogLevel::DEBUG,
-                                    sprintf(
-                                        'Replacing object with namespace %s and uid %s in marker-array.',
-                                        $namespace,
-                                        $result->getUid()
-                                    )
-                                );
-                            }
-                        }
-                    }
+                    return $value;
                 }
 
-                // add complete objectStorage OR only the first item of it - depending on keyword
-                if ($isArray) {
-                    $marker[$key] = $objectStorage;
-                } else {
-
-                    // if object not found AND no object storage, delete empty key
-                    if ($objectStorage->count() > 0) {
-                        $objectStorage->rewind();
-                        $marker[$key] = $objectStorage->current();
-                    } else {
-                        unset($marker[$key]);
-                    }
+                $processedValue = self::processDomainObject($object, $dataMapper);
+                if ($processedValue instanceof ReducedReference) {
+                    $references[] = $processedValue;
                 }
             }
         }
 
-        return $marker;
+        return new ReducedCollection($references);
     }
 
+    /**
+     * Processes an iterable collection of domain objects, reducing the collection if all objects are persisted.
+     *
+     * @param \Iterator $value The iterable collection to be processed.
+     * @param DataMapper $dataMapper The data mapper used to retrieve class metadata.
+     * @return ReducedCollection A reference to the collection if all objects are persisted.
+     */
+    protected static function processIterable(\Iterator $value, DataMapper $dataMapper): ReducedCollection
+    {
+        $value->rewind();
+        $references = [];
+
+        foreach ($value as $object) {
+            if ($object instanceof AbstractEntity) {
+                $references[] = self::processDomainObject($object, $dataMapper);
+            }
+        }
+
+        return new ReducedCollection($references);
+    }
+
+    /**
+     * Rebuilds reduced objects from their references or ReducedObject instances in the marker array.
+     *
+     * @param array $marker The array containing reduced references or ReducedObject instances.
+     * @return array<string, mixed> An associative array with rebuilt objects or the original values if no reduction occurred.
+     */
+    public static function explode(array $marker)
+    {
+        $rebuiltObjects = [];
+
+        foreach ($marker as $key => $reducedValue) {
+            if ($reducedValue instanceof ReducedObject) {
+                $rebuiltObjects[$key] = self::rebuildObjectFromProperties($reducedValue);
+            } elseif ($reducedValue instanceof ReducedCollection) {
+                $rebuiltObjects[$key] = self::rebuildCollection($reducedValue->getReferences());
+            } elseif ($reducedValue instanceof ReducedReference) {
+                $rebuiltObjects[$key] = self::rebuildObject((string)$reducedValue);
+            } else {
+                $rebuiltObjects[$key] = $reducedValue;
+            }
+        }
+
+        return $rebuiltObjects;
+    }
+
+    /**
+     * Rebuilds an object from a ReducedObject instance.
+     *
+     * @param ReducedObject $reducedObject The ReducedObject instance to rebuild the original object.
+     * @return object|null The rebuilt object or null if the class does not exist.
+     */
+    protected static function rebuildObjectFromProperties(ReducedObject $reducedObject)
+    {
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $className = $reducedObject->getKey();
+
+        if (!class_exists($className)) {
+            return null;
+        }
+
+        $object = $objectManager->get($className);
+
+        foreach ($reducedObject->getProperties() as $propertyName => $value) {
+            $reflectionProperty = new ReflectionProperty($object, $propertyName);
+            $reflectionProperty->setAccessible(true);
+
+            if ($value instanceof ReducedReference) {
+                $reflectionProperty->setValue($object, self::rebuildObject((string)$value));
+            } elseif ($value instanceof ReducedCollection) {
+                $reflectionProperty->setValue($object, self::rebuildCollection($value->getReferences()));
+            } elseif (is_array($value)) {
+                $reflectionProperty->setValue($object, self::rebuildValue($value));
+            } else {
+                $reflectionProperty->setValue($object, $value);
+            }
+        }
+
+        return $object;
+    }
+
+    /**
+     * Rebuilds a value from a reduced reference or recursively from a ReducedObject instance.
+     *
+     * @param array $properties The reduced properties of the object.
+     * @return mixed The rebuilt object, collection, or original value.
+     */
+    protected static function rebuildValue(array $properties)
+    {
+        $rebuiltProperties = [];
+
+        foreach ($properties as $key => $value) {
+            if (is_array($value)) {
+                $rebuiltProperties[$key] = self::rebuildValue($value);
+            } elseif ($value instanceof ReducedCollection) {
+                $rebuiltProperties[$key] = self::rebuildCollection($value->getReferences());
+            } elseif ($value instanceof ReducedReference) {
+                $rebuiltProperties[$key] = self::rebuildObject((string)$value);
+            } else {
+                $rebuiltProperties[$key] = $value;
+            }
+        }
+
+        return $rebuiltProperties;
+    }
+
+    /**
+     * Rebuilds an object or a collection of objects from a reduced reference.
+     *
+     * @param string $value The reduced reference string.
+     * @return AbstractEntity|null The rebuilt object or collection, or null if not found.
+     */
+    protected static function rebuildObject(string $value)
+    {
+
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $explodedValue = GeneralUtility::trimExplode(':', $value);
+        $namespace = trim($explodedValue[0]);
+        $uid = (int)$explodedValue[1];
+
+        if (class_exists($namespace)) {
+            $repositoryName = str_replace('Model', 'Repository', $namespace) . 'Repository';
+
+            if (class_exists($repositoryName)) {
+                $repository = $objectManager->get($repositoryName);
+                $query = $repository->createQuery();
+                $query->getQuerySettings()->setRespectStoragePage(false);
+                $query->getQuerySettings()->setIgnoreEnableFields(true);
+                $query->getQuerySettings()->setIncludeDeleted(true);
+                $query->matching(
+                    $query->equals('uid', $uid)
+                )->setLimit(1);
+
+                return $query->execute()->getFirst();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Rebuilds a collection of objects from a reduced reference.
+     *
+     * @param array $references The reduced reference strings for the collection.
+     * @return ObjectStorage|null The rebuilt collection, or null if not found.
+     */
+    protected static function rebuildCollection(array $references): ?ObjectStorage
+    {
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $objectStorage = $objectManager->get(ObjectStorage::class);
+
+        foreach ($references as $reference) {
+            if ($reference instanceof ReducedReference) {
+                $object = self::rebuildObject((string)$reference);
+            }
+
+            if ($reference instanceof ReducedObject) {
+                $object = self::rebuildObjectFromProperties($reference);
+            }
+
+            if ($object instanceof AbstractEntity) {
+                $objectStorage->attach($object);
+            }
+        }
+
+        return $objectStorage;
+    }
 
     /**
      * Returns logger instance
