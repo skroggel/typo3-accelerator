@@ -195,7 +195,7 @@ final class PseudoCdn implements MiddlewareInterface
             $settings = array_merge($settings, $siteConfiguration['accelerator']['pseudoCdn']);
             $settings['enable'] = $this->resolveEnableWithVariants(
                 (bool) $settings['enable'],
-                $siteConfiguration['acceleratorVariants']
+                $siteConfiguration['acceleratorVariants'] ?? $siteConfiguration['accelerator']['variants']
             );
 
             /** @deprecated */
@@ -249,7 +249,6 @@ final class PseudoCdn implements MiddlewareInterface
                         && (isset($variant['pseudoCdn']['enable']))
                     ) {
                         $enable = boolval($variant['pseudoCdn']['enable']);
-                        break;
                     }
                 } catch (SyntaxError $e) {
                     // silently fail and do not evaluate

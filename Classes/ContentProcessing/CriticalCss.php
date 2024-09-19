@@ -22,6 +22,7 @@ use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * Class CriticalCss
@@ -379,7 +380,7 @@ final class CriticalCss
                     $settings = array_merge($settings, $siteConfiguration['accelerator']['criticalCss']);
                     $settings['enable'] = $this->resolveEnableWithVariants(
                         (bool) $settings['enable'],
-                        $siteConfiguration['acceleratorVariants']
+                        $siteConfiguration['acceleratorVariants'] ?? $siteConfiguration['accelerator']['variants']
                     );
                 }
 
@@ -462,7 +463,6 @@ final class CriticalCss
                         && (isset($variant['criticalCss']['enable']))
                     ){
                         $enable = boolval($variant['criticalCss']['enable']);
-                        break;
                     }
                 } catch (SyntaxError $e) {
                     // silently fail and do not evaluate

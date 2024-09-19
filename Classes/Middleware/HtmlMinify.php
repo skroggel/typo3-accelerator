@@ -23,6 +23,7 @@ use Symfony\Component\ExpressionLanguage\SyntaxError;
 use TYPO3\CMS\Core\ExpressionLanguage\Resolver;
 use TYPO3\CMS\Core\Http\NullResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * Class HtmlMinify
@@ -135,7 +136,7 @@ final class HtmlMinify implements MiddlewareInterface
             $settings = array_merge($settings, $siteConfiguration['accelerator']['htmlMinifier']);
             $settings['enable'] = $this->resolveEnableWithVariants(
                 (bool) $settings['enable'],
-                $siteConfiguration['acceleratorVariants']
+                $siteConfiguration['acceleratorVariants'] ?? $siteConfiguration['accelerator']['variants']
             );
 
         /** @deprecated  */
@@ -171,8 +172,8 @@ final class HtmlMinify implements MiddlewareInterface
                         && (isset($variant['htmlMinifier']['enable']))
                     ) {
                         $enable = boolval($variant['htmlMinifier']['enable']);
-                        break;
                     }
+
                 } catch (SyntaxError $e) {
                     // silently fail and do not evaluate
                     // no logger here, as Site is currently cached and serialized

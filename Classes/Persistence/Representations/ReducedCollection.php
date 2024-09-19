@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace Madj2k\Accelerator\Persistence;
+namespace Madj2k\Accelerator\Persistence\Representations;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -16,9 +16,9 @@ namespace Madj2k\Accelerator\Persistence;
  */
 
 /**
- * Class ReducedValue
+ * Class ReducedCollection
  *
- * A base class for all reduced values.
+ * Represents a reduced collection of objects.
  *
  * @author Steffen Kroggel <developer@steffenkroggel.de>
  * @author Christian Dilger <c.dilger@addorange.de>
@@ -27,7 +27,32 @@ namespace Madj2k\Accelerator\Persistence;
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  * @api
  */
-abstract class ReducedValue
+class ReducedCollection extends ReducedValue
 {
-    // Common properties or methods for all reduced values can go here
+    /**
+     * @var array<string>
+     */
+    private array $references;
+
+
+    /**
+     * ReducedCollection constructor.
+     *
+     * @param array<string> $references
+     */
+    public function __construct(array $references)
+    {
+        $this->references = $references;
+    }
+
+
+    /**
+     * Gets the references of the reduced collection.
+     *
+     * @return array<ReducedReference> An array of ReducedReference objects.
+     */
+    public function getReferences(): array
+    {
+        return $this->references;
+    }
 }

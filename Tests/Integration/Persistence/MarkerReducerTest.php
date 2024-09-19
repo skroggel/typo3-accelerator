@@ -16,9 +16,9 @@ namespace Madj2k\Accelerator\Tests\Integration\Persistence;
  */
 
 use Madj2k\Accelerator\Persistence\MarkerReducer;
-use Madj2k\Accelerator\Persistence\ReducedCollection;
-use Madj2k\Accelerator\Persistence\ReducedObject;
-use Madj2k\Accelerator\Persistence\ReducedReference;
+use Madj2k\Accelerator\Persistence\Representations\ReducedCollection;
+use Madj2k\Accelerator\Persistence\Representations\ReducedObject;
+use Madj2k\Accelerator\Persistence\Representations\ReducedReference;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FrontendUser;
@@ -98,6 +98,7 @@ class MarkerReducerTest extends FunctionalTestCase
 
         $this->persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
         $this->frontendUserRepository = GeneralUtility::makeInstance(FrontendUserRepository::class);
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['accelerator']['markerReducerVersion'] = 'advanced';
     }
 
 
