@@ -433,6 +433,9 @@ It comes with to static functions:
 
 A special shout-out at this point to Christian Dilger who created an advanced version of the MarkerReducer.
 
+**PLEASE NOTE: For backwards-compatibility per default the legacy-version of the MarkerReducer is used.**
+**To use the new, advanced version, go to Settings -> Extension Configuration and switch to the advanced version.**
+
 # 6. Cache API for your extension
 1. Activate it in your extension in `ext_localconf.php` by setting the frontend- and backend-cache.
 ```
