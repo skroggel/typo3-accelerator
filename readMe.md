@@ -21,11 +21,11 @@ accelerator:
     enable: true
     excludePids: ''
     includePageTypes: '0'
-acceleratorVariants:
-  -
-    htmlMinifier:
-      enable: false
-    condition: 'applicationContext == "Development/Local"'
+  variants:
+    -
+      htmlMinifier:
+        enable: false
+      condition: 'applicationContext == "Development/Local"'
 ```
 * **enable** activates the HTML Minify
 * **excludePids** excludes the PIDs defined in this comma-separated list
@@ -84,11 +84,11 @@ accelerator:
     maxSubdomains: 100
     search: '/(href="|src="|srcset="|url\(\')\/?((uploads\/media|uploads\/pics|typo3temp\/compressor|typo3temp\/GB|typo3conf\/ext|fileadmin)([^"\']+))/i'
     ignoreIfContains: '/\.css|\.js|\.mp4|\.pdf|\?noCdn=1/'
-acceleratorVariants:
-  -
-    pseudoCdn:
-      enable: false
-    condition: 'applicationContext == "Development/Local"'
+  variants:
+    -
+      pseudoCdn:
+        enable: false
+      condition: 'applicationContext == "Development/Local"'
 ```
 * **enable** activates the Pseudo-CDN
 * **maxConnectionsPerDomain** defines how many resources are loaded from a subdomain.
@@ -132,11 +132,11 @@ accelerator:
         EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/removeOne.css
       -
         EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/removeTwo.css
-acceleratorVariants:
-  -
-    criticalCss:
-      enable: false
-    condition: 'applicationContext == "Development/Local"'
+  variants:
+    -
+      criticalCss:
+        enable: false
+      condition: 'applicationContext == "Development/Local"'
 ```
 * **enable** activates the critical CSS inclusion
 * **layoutField** sets the field in page-properties which is used to determine the defined layout of the current page for including the correct css-files. The default value is "backend_layout". If you don't use another field you can omit this setting. **If you use your own property, make sure it is added as rootline-field.**
