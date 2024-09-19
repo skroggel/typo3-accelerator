@@ -55,7 +55,7 @@ final class MarkerReducer implements MarkerReducerInterface
             return MarkerReducerAdvanced::implode($marker);
         }
 
-        return MarkerReducer::implode($marker);
+        return MarkerReducerLegacy::implode($marker);
     }
 
 
@@ -78,7 +78,7 @@ final class MarkerReducer implements MarkerReducerInterface
             return MarkerReducerAdvanced::explode($marker);
         }
 
-        return MarkerReducer::explode($marker);
+        return MarkerReducerLegacy::explode($marker);
     }
 
 }
