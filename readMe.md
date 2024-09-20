@@ -424,14 +424,14 @@ But especially objects can be very large and writing / reading them into / from 
 Not to mention the growing size of your database.
 
 The MarkerReducer uses several techniques to reduce the amount of data you need to handle.
-It originates form the need to store an array of markers for usage in templates of emails that are to be sent later via a cronjob (thus the name).
+It originates from the need to store an array of markers for usage in templates of emails that are to be sent later via a cronjob (thus the name).
 The array contained strings, but also large objects which I did not want to serialize without reducing them before.
 
-It comes with to static functions:
+It comes with two static functions:
 - public static function implode(array $marker): array - which takes your array and returns an reduced version of your array for storage
-- public static function explode(array $marker): array - which takes the reduced version of the array returns the original version again
+- public static function explode(array $marker): array - which takes the reduced version of the array and returns the original version again
 
-A special shout-out at this point to Christian Dilger who created an advanced version of the MarkerReducer.
+A special shout-out at this point to Christian Dilger, who created an advanced version of the MarkerReducer.
 
 **PLEASE NOTE: For backwards-compatibility per default the legacy-version of the MarkerReducer is used.**
 **To use the new, advanced version, go to Settings -> Extension Configuration and switch to the advanced version.**
