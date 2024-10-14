@@ -281,7 +281,9 @@ final class MarkerReducerAdvanced implements MarkerReducerInterface
             $reflectionProperty = new ReflectionProperty($object, $propertyName);
             $reflectionProperty->setAccessible(true);
 
-            if ($value instanceof ReducedReference) {
+            if ($value instanceof ReducedObject) {
+                $reflectionProperty->setValue($object, self::rebuildObjectFromProperties($value));
+            } elseif ($value instanceof ReducedReference) {
                 $reflectionProperty->setValue($object, self::rebuildObject((string)$value));
             } elseif ($value instanceof ReducedCollection) {
                 $reflectionProperty->setValue($object, self::rebuildCollection($value->getReferences()));
