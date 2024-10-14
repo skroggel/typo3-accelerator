@@ -863,6 +863,37 @@ class MarkerReducerTest extends FunctionalTestCase
     }
 
 
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function legacyMarkersCanStillBeExplodedInAdvancedMode(): void
+    {
+        //  get a value imploded by legacy
+        //  read it
+        //  convert it with Legecy
+        //  go on
+
+        $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Check10.csv');
+
+        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $entityOne */
+        $entityOne = $this->frontendUserRepository->findByIdentifier(1);
+
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['accelerator']['markerReducerVersion'] = 'legacy';
+
+        $entityOneLegacy = MarkerReducer::implode(['key' => $entityOne]);
+
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['accelerator']['markerReducerVersion'] = 'advanced';
+
+        $explodedEntityOne = MarkerReducer::explode($entityOneLegacy);
+
+        self::assertSame($entityOne, $explodedEntityOne['key']);
+
+
+
+    }
+
+
     //=============================================
 
 

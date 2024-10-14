@@ -243,6 +243,11 @@ final class MarkerReducerAdvanced implements MarkerReducerInterface
         $rebuiltObjects = [];
 
         foreach ($marker as $key => $reducedValue) {
+
+            if (self::isLegacyValue($reducedValue)) {
+                return MarkerReducerLegacy::explode($marker);
+            }
+
             if ($reducedValue instanceof ReducedObject) {
                 $rebuiltObjects[$key] = self::rebuildObjectFromProperties($reducedValue);
             } elseif ($reducedValue instanceof ReducedCollection) {
@@ -401,5 +406,20 @@ final class MarkerReducerAdvanced implements MarkerReducerInterface
     protected static function getLogger(): Logger
     {
         return GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
+    }
+
+    /**
+     * @param $value
+     * @return bool
+     */
+    protected static function isLegacyValue($value): bool
+    {
+        return (is_string($value))
+            && (
+                (strpos(trim($value), MarkerReducerLegacy::NAMESPACE_KEYWORD) === 0)
+                || (strpos(trim($value), MarkerReducerLegacy::NAMESPACE_ARRAY_KEYWORD) === 0)
+                || (strpos(trim($value), MarkerReducerLegacy::NAMESPACE_KEYWORD_OLD) === 0)
+                || (strpos(trim($value), MarkerReducerLegacy::NAMESPACE_ARRAY_KEYWORD_OLD) === 0)
+            );
     }
 }
