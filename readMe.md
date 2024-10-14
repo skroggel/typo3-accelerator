@@ -428,7 +428,7 @@ It originates from the need to store an array of markers for usage in templates 
 The array contained strings, but also large objects which I did not want to serialize without reducing them before.
 
 It comes with two static functions:
-- public static function implode(array $marker): array - which takes your array and returns an reduced version of your array for storage
+- public static function implode(array $marker): array - which takes your array and returns a reduced version of your array for storage
 - public static function explode(array $marker): array - which takes the reduced version of the array and returns the original version again
 
 A special shout-out at this point to Christian Dilger, who created an advanced version of the MarkerReducer.
