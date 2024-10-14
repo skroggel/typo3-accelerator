@@ -869,10 +869,15 @@ class MarkerReducerTest extends FunctionalTestCase
      */
     public function legacyMarkersCanStillBeExplodedInAdvancedMode(): void
     {
-        //  get a value imploded by legacy
-        //  read it
-        //  convert it with Legecy
-        //  go on
+        /**
+         * Scenario:
+         *
+         * Given a marker
+         * Given the marker has been imploded in legacy mode
+         * Given the current mode is changed to advanced
+         * When the method is called
+         * Then the marker is nevertheless exploded to the complete oridinal object
+         */
 
         $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Check10.csv');
 
@@ -888,8 +893,6 @@ class MarkerReducerTest extends FunctionalTestCase
         $explodedEntityOne = MarkerReducer::explode($entityOneLegacy);
 
         self::assertSame($entityOne, $explodedEntityOne['key']);
-
-
 
     }
 
