@@ -105,10 +105,10 @@ final class ProxyCachingHeader implements MiddlewareInterface
             ($site = $request->getAttribute('site'))
             && ($siteConfiguration = $site->getConfiguration())
         ){
-            return GeneralUtility::hmac($siteConfiguration['websiteTitle']);
+        //    return GeneralUtility::hmac($siteConfiguration['websiteTitle']);
         }
 
-        /** @deprecated  */
+        /** @deprecated but still used by \Opsone\Varnish\Utility\VarnishGeneralUtility::getSitename()  */
         return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
     }
 
@@ -126,11 +126,11 @@ final class ProxyCachingHeader implements MiddlewareInterface
             ($site = $request->getAttribute('site'))
             && ($siteConfiguration = $site->getConfiguration())
         ){
-            return GeneralUtility::hmac($siteConfiguration['websiteTitle'] . '_' . $pid);
+        //     return GeneralUtility::hmac($siteConfiguration['websiteTitle']) . '_' . $pid;
         }
 
-        /** @deprecated  */
-        return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] . '_' . $pid);
+        /** @deprecated but still used by \Opsone\Varnish\Utility\VarnishGeneralUtility::getSitename()  */
+        return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']) . '_' . $pid;
     }
 }
 
