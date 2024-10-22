@@ -23,6 +23,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Http\NullResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
@@ -46,10 +47,8 @@ final class ProxyCachingHeader implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $response = $handler->handle($request);
-        if (
-            !($response instanceof NullResponse)
-            && $GLOBALS['TSFE'] instanceof TypoScriptFrontendController
-        ) {
+
+        if (!$response instanceof NullResponse) {
 
             $pid = intval($GLOBALS['TSFE']->id);
             $response = $response->withHeader('X-TYPO3-ProxyCaching', (string) $this->getProxyCachingSettingForPid($pid));
