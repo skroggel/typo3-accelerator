@@ -1,4 +1,8 @@
 <?php
+
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 defined('TYPO3') or die('Access denied.');
 
 call_user_func(
@@ -19,18 +23,22 @@ call_user_func(
                             ['LLL:EXT:accelerator/Resources/Private/Language/locallang_db.xlf:tx_accelerator_domain_model_pages.tx_accelerator_proxy_caching.I.inherit', 0],
                             ['LLL:EXT:accelerator/Resources/Private/Language/locallang_db.xlf:tx_accelerator_domain_model_pages.tx_accelerator_proxy_caching.I.enabled', 1],
                             ['LLL:EXT:accelerator/Resources/Private/Language/locallang_db.xlf:tx_accelerator_domain_model_pages.tx_accelerator_proxy_caching.I.disabled', 2],
-    
+
                         ],
                     ],
                 ],
             ]
         );
 
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addFieldsToPalette(
-            'pages', 
-            'access',
-            '--linebreak--,tx_accelerator_proxy_caching','after:fe_login_mode'
-        );
+        $extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('accelerator');
+        if ($extConf['proxyCachingMode'] !== 'hetzner') {
+
+            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addFieldsToPalette(
+                'pages',
+                'access',
+                '--linebreak--,tx_accelerator_proxy_caching', 'after:fe_group'
+            );
+        }
 
     },
     'accelerator'

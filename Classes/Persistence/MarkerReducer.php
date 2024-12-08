@@ -15,8 +15,8 @@ namespace Madj2k\Accelerator\Persistence;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Madj2k\CoreExtended\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 
 /**
@@ -43,7 +43,6 @@ final class MarkerReducer implements MarkerReducerInterface
      * @return array<string, mixed> An associative array with strings as keys.
      * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException
      * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
      * @throws \TYPO3\CMS\Extbase\Persistence\Generic\Exception
      */
     public static function implode(array $marker): array
@@ -67,7 +66,6 @@ final class MarkerReducer implements MarkerReducerInterface
      * @throws \ReflectionException
      * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException
      * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public static function explode(array $marker): array
     {

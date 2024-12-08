@@ -23,7 +23,7 @@ $EM_CONF[$_EXTKEY] = [
 		'conflicts' => [
 		],
 		'suggests' => [
-            'varnish' => '2.4.0-2.4.99'
+            'varnish' => '2.4.0-7.0.99'
 		],
 	],
 ];
