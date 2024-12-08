@@ -25,7 +25,7 @@
 		"typo3/testing-framework": "~6.16.9"
 	},
 	"suggest": {
-		"sopsone-ch/varnish": "~2.4"
+		"sopsone-ch/varnish": "*"
 	},
     "autoload": {
         "psr-4": {

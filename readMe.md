@@ -5,6 +5,7 @@ Speed up your TYPO3 installation:
 * minify the HTML of your website
 * use subdomains as CDN for your static contents (images, files, ...) to speed up the loading time of your website
 * manage proxy-caching (e.g with Varnish) via page-properties
+* can be used with Hetzner Varnish for Managed Servers
 * reduce database size when storing JSON-arrays with persisted objects to the database.
 
 # 1. HTML Minifier
@@ -150,6 +151,11 @@ If the pageType 1715339215 or the GET-Param no_critical_css=1 is used critical c
 This is helpful for rendering the critical css e.g. via NPM critical.
 
 # 4. Proxy Caching e.g. with Varnish
+
+**IMPORTANT: If you work with proxyCaching you definitivly need an extension
+that handles the purging of its cache if changes happen to your content.
+I strongly recommend sopsone-ch/varnish**
+
 ## 4.1 Description
 This extension allows an extended setup with a proxy-cache like e.g. Varnish.
 By default pages are excluded from proxy-caching if a frontend cookie is set. This is to prevent personal data from being cached and thus becoming visible to strangers.
@@ -165,17 +171,27 @@ The values of the fields are inherited down the page-tree and result in a HTTP-H
 ```
 X-Typo3-Proxycaching: 1
 ```
-Beyond that a second HTTP-Header is added which contains a unique tag (HMAC-Key) for the whole website and another one for the current page.
-They can be used for clearing the proxy-cache based on tags.
-```
-Xkey: 3ade06b8b96caba9c1717382f6dff9c7f049295e 2cbded6f9c51a25bc9f41b76e6834ea173066908
-```
 
-The setup only works if the appropriate settings are made in the proxy cache configuration.
+## 4.2 xkeys  sopsone-ch/varnish
+The madj2k/t3-accelerator normally add a second HTTP-Header which contains a unique tag (HMAC-Key) for the whole website and another one for the current page.
+They can be used for clearing the proxy-cache selectively based on tags.
+```
+xkey: 3ade06b8b96caba9c1717382f6dff9c7f049295e 2cbded6f9c51a25bc9f41b76e6834ea173066908
+```
+However, newer versions of sopsone-ch/varnish already implement xkey, so that if you activate it in sopsone-ch/varnish,
+the madj2k/t3-accelerator will not send xkeys any more.
+
+## 4.3 Hetzner Managed Server Varnish
+Hetzner recently implemented an own Varnish-Setup for their Managed Servers.
+They already use xkey with PURGE, but the header for the purge with xkey has to be `x-xkey-purge` in order to selectively purge the cache.
+However sopsone-ch/varnish uses `xkey-purge` as header. The madj2k/t3-accelerator fixes this
+if you set `proxyCachingMode` to `hetzner` in the extension-settings.
+
+## 4.4 Example-Configuration for usage with Varnish Proxy-Cache
+The proxy-caching setup only works if the appropriate settings are made in the proxy cache configuration.
 Since proxy-cache configurations are very individual, only the relevant lines that control the behavior of the proxy-cache according to the above specifications are listed here.
 The following configuration example assumes that ```madj2k/t3-accelerator``` is used together with ```opsone-ch/varnish```.
 
-## 4.1 Example-Configuration for usage with Varnish Proxy-Cache
 ```
 #
 # Varnish file by Steffen Kroggel (developer@steffenkroggel.de)
@@ -424,14 +440,14 @@ But especially objects can be very large and writing / reading them into / from 
 Not to mention the growing size of your database.
 
 The MarkerReducer uses several techniques to reduce the amount of data you need to handle.
-It originates form the need to store an array of markers for usage in templates of emails that are to be sent later via a cronjob (thus the name).
+It originates from the need to store an array of markers for usage in templates of emails that are to be sent later via a cronjob (thus the name).
 The array contained strings, but also large objects which I did not want to serialize without reducing them before.
 
-It comes with to static functions:
+It comes with two static functions:
 - public static function implode(array $marker): array - which takes your array and returns an reduced version of your array for storage
-- public static function explode(array $marker): array - which takes the reduced version of the array returns the original version again
+- public static function explode(array $marker): array - which takes the reduced version of the array and returns the original version again
 
-A special shout-out at this point to Christian Dilger who created an advanced version of the MarkerReducer.
+A special shout-out at this point to Christian Dilger, who created an advanced version of the MarkerReducer.
 
 **PLEASE NOTE: For backwards-compatibility per default the legacy-version of the MarkerReducer is used.**
 **To use the new, advanced version, go to Settings -> Extension Configuration and switch to the advanced version.**

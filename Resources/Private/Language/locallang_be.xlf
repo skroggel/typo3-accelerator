@@ -7,6 +7,9 @@
             <trans-unit id="markerReducerVersion">
                 <source>Used version of MarkerReducer (Default=legacy)</source>
             </trans-unit>
+			<trans-unit id="proxyCachingMode">
+				<source>Proxy Caching Mode</source>
+			</trans-unit>
 
 		</body>
 	</file>

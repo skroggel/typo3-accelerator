@@ -15,15 +15,15 @@ namespace Madj2k\Accelerator\Middleware;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Madj2k\Accelerator\ContentProcessing\ProxyCaching;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Http\NullResponse;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * Class ProxyCachingHeader
@@ -46,14 +46,23 @@ final class ProxyCachingHeader implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $response = $handler->handle($request);
-        if (
-            !($response instanceof NullResponse)
-            && $GLOBALS['TSFE'] instanceof TypoScriptFrontendController
-        ) {
+
+        if (!$response instanceof NullResponse) {
+
+            // if xkey is already added by varnish we don't have to take care of this!
+            $sendXKeyTags = true;
+            if (ExtensionManagementUtility::isLoaded('varnish')) {
+                $varnishExtConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('varnish');
+                if ($varnishExtConf['sendXkeyTags']) {
+                    $sendXKeyTags = false;
+                }
+            }
 
             $pid = intval($GLOBALS['TSFE']->id);
-            $response = $response->withHeader('X-TYPO3-ProxyCaching', (string) $this->getProxyCachingSettingForPid($pid));
-            $response = $response->withHeader('xkey', $this->getSiteTag($request) . ' ' . $this->getPageTag($request, $pid));
+            $response = $response->withHeader('X-TYPO3-ProxyCaching', (string)$this->getProxyCachingSettingForPid($pid));
+            if ($sendXKeyTags) {
+                $response = $response->withHeader('xkey', $this->getSiteTag($request) . ' ' . $this->getPageTag($request, $pid));
+            }
         }
 
         return $response;
@@ -106,10 +115,10 @@ final class ProxyCachingHeader implements MiddlewareInterface
             ($site = $request->getAttribute('site'))
             && ($siteConfiguration = $site->getConfiguration())
         ){
-            return GeneralUtility::hmac($siteConfiguration['websiteTitle']);
+        //    return GeneralUtility::hmac($siteConfiguration['websiteTitle']);
         }
 
-        /** @deprecated  */
+        /** @deprecated but still used by \Opsone\Varnish\Utility\VarnishGeneralUtility::getSitename()  */
         return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
     }
 
@@ -127,11 +136,11 @@ final class ProxyCachingHeader implements MiddlewareInterface
             ($site = $request->getAttribute('site'))
             && ($siteConfiguration = $site->getConfiguration())
         ){
-            return GeneralUtility::hmac($siteConfiguration['websiteTitle'] . '_' . $pid);
+        //     return GeneralUtility::hmac($siteConfiguration['websiteTitle']) . '_' . $pid;
         }
 
-        /** @deprecated  */
-        return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] . '_' . $pid);
+        /** @deprecated but still used by \Opsone\Varnish\Utility\VarnishGeneralUtility::getSitename()  */
+        return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']) . '_' . $pid;
     }
 }
 
