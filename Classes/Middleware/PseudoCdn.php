@@ -183,7 +183,7 @@ final class PseudoCdn implements MiddlewareInterface
             'search' => '/(href="|src="|srcset="|url\(\')\/?((uploads\/media|uploads\/pics|typo3temp\/compressor|typo3temp\/GB|typo3conf\/ext|fileadmin)([^"\']+))/i',
             'ignoreIfContains' => '/\.css|\.js|\.mp4|\.pdf|\?noCdn=1/',
             'baseDomain' => $baseDomain,
-            'protocol' => (($serverParams['HTTPS']) || ($serverParams['SERVER_PORT'] == '443')) ? 'https://' : 'http://'
+            'protocol' => (!empty($serverParams['HTTPS']) || !empty($serverParams['SERVER_PORT'] == '443')) ? 'https://' : 'http://'
         ];
 
         if (
