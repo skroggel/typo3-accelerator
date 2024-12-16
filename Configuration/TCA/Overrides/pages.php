@@ -31,7 +31,10 @@ call_user_func(
         );
 
         $extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('accelerator');
-        if ($extConf['proxyCachingMode'] !== 'hetzner') {
+        if (
+            (isset($extConf['proxyCachingMode']))
+            && ($extConf['proxyCachingMode'] !== 'hetzner')
+        ){
 
             \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addFieldsToPalette(
                 'pages',
