@@ -1,0 +1,5 @@
+# cat=Accelerator; type=options[legacy,advanced]; label=LLL:EXT:accelerator/Resources/Private/Language/locallang_be.xlf:markerReducerVersion
+markerReducerVersion = legacy
+
+# cat=Accelerator; type=options[default,hetzner]; label=LLL:EXT:accelerator/Resources/Private/Language/locallang_be.xlf:proxyCachingMode
+proxyCachingMode = default

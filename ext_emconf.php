@@ -15,7 +15,7 @@ $EM_CONF[$_EXTKEY] = [
 	'modify_tables' => '',
 	'clearCacheOnLoad' => 0,
 	'lockType' => '',
-	'version' => '12.4.10',
+	'version' => '12.4.18',
     'constraints' => [
 		'depends' => [
 			'typo3' => '10.4.0-12.4.99',
@@ -23,7 +23,7 @@ $EM_CONF[$_EXTKEY] = [
 		'conflicts' => [
 		],
 		'suggests' => [
-            'varnish' => '2.4.0-2.4.99'
+            'varnish' => '2.4.0-7.0.99'
 		],
 	],
 ];

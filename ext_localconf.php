@@ -1,4 +1,7 @@
 <?php
+
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+
 defined('TYPO3') || die('Access denied.');
 
 call_user_func(
@@ -31,6 +34,15 @@ call_user_func(
 
         if( !isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][$extKey]['backend'])) {
             $GLOBALS['TYPO3_CONF_VARS'] ['SYS']['caching']['cacheConfigurations'][$extKey]['backend'] = 'TYPO3\\CMS\\Core\\Cache\\Backend\\Typo3DatabaseBackend';
+        }
+
+        //=================================================================
+        // XClasses
+        //=================================================================
+        if (ExtensionManagementUtility::isLoaded('varnish')) {
+            $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\Opsone\Varnish\Utility\VarnishHttpUtility::class] = [
+                'className' => \Madj2k\Accelerator\Utility\VarnishHttpUtility::class,
+            ];
         }
 
         //=================================================================

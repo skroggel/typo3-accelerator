@@ -23,6 +23,7 @@ use Symfony\Component\ExpressionLanguage\SyntaxError;
 use TYPO3\CMS\Core\ExpressionLanguage\Resolver;
 use TYPO3\CMS\Core\Http\NullResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * Class HtmlMinify
@@ -132,10 +133,10 @@ final class HtmlMinify implements MiddlewareInterface
             && ($siteConfiguration = $site->getConfiguration())
             && (isset($siteConfiguration['accelerator']['htmlMinifier']))
         ){
-            $settings = array_merge($settings, $siteConfiguration['accelerator']['htmlMinifier'] ?? []);
+            $settings = array_merge($settings, $siteConfiguration['accelerator']['htmlMinifier']);
             $settings['enable'] = $this->resolveEnableWithVariants(
-                $settings['enable'],
-                $siteConfiguration['acceleratorVariants']
+                (bool) $settings['enable'],
+                $siteConfiguration['acceleratorVariants'] ?? $siteConfiguration['accelerator']['variants']
             );
 
         /** @deprecated  */
@@ -146,15 +147,15 @@ final class HtmlMinify implements MiddlewareInterface
         return $this->settings = $settings;
     }
 
-    
+
     /**
      * Checks if the enable-property has variants, and takes the first variant which matches an expression.
      *
-     * @param int $enable
+     * @param bool $enable
      * @param array|null $variants
-     * @return int
+     * @return bool
      */
-    protected function resolveEnableWithVariants(int $enable = 0, ?array $variants = null): int
+    protected function resolveEnableWithVariants(bool $enable = false, ?array $variants = null): bool
     {
         if (!empty($variants)) {
 
@@ -170,9 +171,9 @@ final class HtmlMinify implements MiddlewareInterface
                         ($expressionLanguageResolver->evaluate($variant['condition']))
                         && (isset($variant['htmlMinifier']['enable']))
                     ) {
-                        $enable = intval($variant['htmlMinifier']['enable']);
-                        break;
+                        $enable = boolval($variant['htmlMinifier']['enable']);
                     }
+
                 } catch (SyntaxError $e) {
                     // silently fail and do not evaluate
                     // no logger here, as Site is currently cached and serialized

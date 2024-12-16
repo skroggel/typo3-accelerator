@@ -5,6 +5,7 @@ Speed up your TYPO3 installation:
 * minify the HTML of your website
 * use subdomains as CDN for your static contents (images, files, ...) to speed up the loading time of your website
 * manage proxy-caching (e.g with Varnish) via page-properties
+* can be used with Hetzner Varnish for Managed Servers
 * reduce database size when storing JSON-arrays with persisted objects to the database.
 
 # 1. HTML Minifier
@@ -18,14 +19,14 @@ It is now possible to configure it via your site-configuration (YAML) instead.
 ```
 accelerator:
   htmlMinifier:
-    enable: 1
+    enable: true
     excludePids: ''
     includePageTypes: '0'
-acceleratorVariants:
-  -
-    htmlMinifier:
-      enable: 0
-    condition: 'applicationContext == "Development/Local"'
+  variants:
+    -
+      htmlMinifier:
+        enable: false
+      condition: 'applicationContext == "Development/Local"'
 ```
 * **enable** activates the HTML Minify
 * **excludePids** excludes the PIDs defined in this comma-separated list
@@ -37,7 +38,7 @@ Please note: The variants only work with the enable-attribute
 ```
 accelerator:
   htmlMinifier:
-    enable: 1
+    enable: true
 ```
 
 # 2. Pseudo-CDN
@@ -79,16 +80,16 @@ Important: the DNS has to be configured accordingly and a Wildcard-TLS-certifica
 ```
 accelerator:
   pseudoCdn:
-    enable: 1
+    enable: true
     maxConnectionsPerDomain: 4
     maxSubdomains: 100
     search: '/(href="|src="|srcset="|url\(\')\/?((uploads\/media|uploads\/pics|typo3temp\/compressor|typo3temp\/GB|typo3conf\/ext|fileadmin)([^"\']+))/i'
     ignoreIfContains: '/\.css|\.js|\.mp4|\.pdf|\?noCdn=1/'
-acceleratorVariants:
-  -
-    pseudoCdn:
-      enable: 0
-    condition: 'applicationContext == "Development/Local"'
+  variants:
+    -
+      pseudoCdn:
+        enable: false
+      condition: 'applicationContext == "Development/Local"'
 ```
 * **enable** activates the Pseudo-CDN
 * **maxConnectionsPerDomain** defines how many resources are loaded from a subdomain.
@@ -102,7 +103,7 @@ Please note: The variants only work with the enable-attribute
 ```
 accelerator:
   pseudoCdn:
-    enable: 1
+    enable: true
 ```
 
 # 3. Inline Critical CSS (Above-The-Fold)
@@ -118,7 +119,9 @@ It is now possible to configure it via your site-configuration (YAML) instead.
 ```
 accelerator:
   criticalCss:
-    enable: 1
+    enable: true
+    layoutField: backend_layout
+    layoutFieldNextLevel: backend_layout_next_level
     filesForLayout:
       home:
         -
@@ -130,22 +133,29 @@ accelerator:
         EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/removeOne.css
       -
         EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/removeTwo.css
-acceleratorVariants:
-  -
-    criticalCss:
-      enable: 0
-    condition: 'applicationContext == "Development/Local"'
+  variants:
+    -
+      criticalCss:
+        enable: false
+      condition: 'applicationContext == "Development/Local"'
 ```
 * **enable** activates the critical CSS inclusion
-* **filesForLayout** contaons the layout-keys for which the following CSS-files are to be included. If there is no match, no file will be included
-* **filesToRemoveWhenActive** defines files that will be remove from page.includeCss if criticalCSS is activated
+* **layoutField** sets the field in page-properties which is used to determine the defined layout of the current page for including the correct css-files. The default value is "backend_layout". If you don't use another field you can omit this setting. **If you use your own property, make sure it is added as rootline-field.**
+* **layoutFieldNextLevel** sets the field in page-properties which is used to determine the defined layout of the subpages for including the correct css-files. The default value is "backend_layout_next_level". If you don't use another field you can omit this setting. **If you use your own property, make sure it is added as rootline-field.**
+* **filesForLayout** contains the keys and CSS-files that are to be included if the layout of the page matches the defined key. The keys are the values set in the defined layoutField- / layoutFieldNextLevel-property of the page ("pagets__"-prefix is removed). If there is no match, no file will be included. The example above would include the files criticalOne.css and criticalTwo.css on a page on which the backendLayout-property is set to "pagets__home".
+* **filesToRemoveWhenActive** defines files that will be removed from page.includeCss if criticalCSS is activated and working on the current page
 
-Please note: The variants only work with the enable-attribute
+Please note: The variants only work with the enable-attribute.
 
 If the pageType 1715339215 or the GET-Param no_critical_css=1 is used critical css is disabled.
 This is helpful for rendering the critical css e.g. via NPM critical.
 
 # 4. Proxy Caching e.g. with Varnish
+
+**IMPORTANT: If you work with proxyCaching you definitivly need an extension
+that handles the purging of its cache if changes happen to your content.
+I strongly recommend sopsone-ch/varnish**
+
 ## 4.1 Description
 This extension allows an extended setup with a proxy-cache like e.g. Varnish.
 By default pages are excluded from proxy-caching if a frontend cookie is set. This is to prevent personal data from being cached and thus becoming visible to strangers.
@@ -161,17 +171,27 @@ The values of the fields are inherited down the page-tree and result in a HTTP-H
 ```
 X-Typo3-Proxycaching: 1
 ```
-Beyond that a second HTTP-Header is added which contains a unique tag (HMAC-Key) for the whole website and another one for the current page.
-They can be used for clearing the proxy-cache based on tags.
-```
-Xkey: 3ade06b8b96caba9c1717382f6dff9c7f049295e 2cbded6f9c51a25bc9f41b76e6834ea173066908
-```
 
-The setup only works if the appropriate settings are made in the proxy cache configuration.
+## 4.2 xkeys  sopsone-ch/varnish
+The madj2k/t3-accelerator normally add a second HTTP-Header which contains a unique tag (HMAC-Key) for the whole website and another one for the current page.
+They can be used for clearing the proxy-cache selectively based on tags.
+```
+xkey: 3ade06b8b96caba9c1717382f6dff9c7f049295e 2cbded6f9c51a25bc9f41b76e6834ea173066908
+```
+However, newer versions of sopsone-ch/varnish already implement xkey, so that if you activate it in sopsone-ch/varnish,
+the madj2k/t3-accelerator will not send xkeys any more.
+
+## 4.3 Hetzner Managed Server Varnish
+Hetzner recently implemented an own Varnish-Setup for their Managed Servers.
+They already use xkey with PURGE, but the header for the purge with xkey has to be `x-xkey-purge` in order to selectively purge the cache.
+However sopsone-ch/varnish uses `xkey-purge` as header. The madj2k/t3-accelerator fixes this
+if you set `proxyCachingMode` to `hetzner` in the extension-settings.
+
+## 4.4 Example-Configuration for usage with Varnish Proxy-Cache
+The proxy-caching setup only works if the appropriate settings are made in the proxy cache configuration.
 Since proxy-cache configurations are very individual, only the relevant lines that control the behavior of the proxy-cache according to the above specifications are listed here.
 The following configuration example assumes that ```madj2k/t3-accelerator``` is used together with ```opsone-ch/varnish```.
 
-## 4.1 Example-Configuration for usage with Varnish Proxy-Cache
 ```
 #
 # Varnish file by Steffen Kroggel (developer@steffenkroggel.de)
@@ -414,9 +434,25 @@ sub vcl_deliver {
 }
 
 ```
+# 5. Reducing arrays and objects for efficient serialization and storage
+In some use-cases you need to serialize arrays or objects in order to store them e.g. in the database.
+But especially objects can be very large and writing / reading them into / from the database is very inefficient.
+Not to mention the growing size of your database.
 
+The MarkerReducer uses several techniques to reduce the amount of data you need to handle.
+It originates from the need to store an array of markers for usage in templates of emails that are to be sent later via a cronjob (thus the name).
+The array contained strings, but also large objects which I did not want to serialize without reducing them before.
 
-# 5. Cache API for your extension
+It comes with two static functions:
+- public static function implode(array $marker): array - which takes your array and returns an reduced version of your array for storage
+- public static function explode(array $marker): array - which takes the reduced version of the array and returns the original version again
+
+A special shout-out at this point to Christian Dilger, who created an advanced version of the MarkerReducer.
+
+**PLEASE NOTE: For backwards-compatibility per default the legacy-version of the MarkerReducer is used.**
+**To use the new, advanced version, go to Settings -> Extension Configuration and switch to the advanced version.**
+
+# 6. Cache API for your extension
 1. Activate it in your extension in `ext_localconf.php` by setting the frontend- and backend-cache.
 ```
 $cacheIdentifier = \Madj2k\CoreExtended\Utility\GeneralUtility::underscore($extKey);

@@ -183,7 +183,7 @@ final class PseudoCdn implements MiddlewareInterface
             'search' => '/(href="|src="|srcset="|url\(\')\/?((uploads\/media|uploads\/pics|typo3temp\/compressor|typo3temp\/GB|typo3conf\/ext|fileadmin)([^"\']+))/i',
             'ignoreIfContains' => '/\.css|\.js|\.mp4|\.pdf|\?noCdn=1/',
             'baseDomain' => $baseDomain,
-            'protocol' => (($serverParams['HTTPS']) || ($serverParams['SERVER_PORT'] == '443')) ? 'https://' : 'http://'
+            'protocol' => (!empty($serverParams['HTTPS']) || !empty($serverParams['SERVER_PORT'] == '443')) ? 'https://' : 'http://'
         ];
 
         if (
@@ -192,10 +192,10 @@ final class PseudoCdn implements MiddlewareInterface
             && (isset($siteConfiguration['accelerator']['pseudoCdn']))
         ) {
 
-            $settings = array_merge($settings, $siteConfiguration['accelerator']['pseudoCdn'] ?? []);
+            $settings = array_merge($settings, $siteConfiguration['accelerator']['pseudoCdn']);
             $settings['enable'] = $this->resolveEnableWithVariants(
-                $settings['enable'],
-                $siteConfiguration['acceleratorVariants']
+                (bool) $settings['enable'],
+                $siteConfiguration['acceleratorVariants'] ?? $siteConfiguration['accelerator']['variants']
             );
 
             /** @deprecated */
@@ -228,11 +228,11 @@ final class PseudoCdn implements MiddlewareInterface
     /**
      * Checks if the enable-property has variants, and takes the first variant which matches an expression.
      *
-     * @param int $enable
+     * @param bool $enable
      * @param array|null $variants
-     * @return int
+     * @return bool
      */
-    protected function resolveEnableWithVariants(int $enable = 0, ?array $variants = null): int
+    protected function resolveEnableWithVariants(bool $enable = false, ?array $variants = null): bool
     {
         if (!empty($variants)) {
 
@@ -248,8 +248,7 @@ final class PseudoCdn implements MiddlewareInterface
                         ($expressionLanguageResolver->evaluate($variant['condition']))
                         && (isset($variant['pseudoCdn']['enable']))
                     ) {
-                        $enable = intval($variant['pseudoCdn']['enable']);
-                        break;
+                        $enable = boolval($variant['pseudoCdn']['enable']);
                     }
                 } catch (SyntaxError $e) {
                     // silently fail and do not evaluate

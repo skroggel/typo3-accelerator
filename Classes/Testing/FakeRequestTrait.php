@@ -17,6 +17,8 @@ namespace Madj2k\Accelerator\Testing;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Configuration\SiteConfiguration;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
+use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Localization\Locales;
@@ -46,7 +48,8 @@ trait FakeRequestTrait
         int $pid,
         string $url,
         string $method = 'GET',
-        array $additionalSiteConfig = []
+        array $additionalSiteConfig = [],
+        bool $frontendContext = true
     ): ServerRequestInterface {
 
         /** @see \TYPO3\TestingFramework\Core\Functional\FunctionalTestCase::createServerRequest() */
@@ -67,6 +70,7 @@ trait FakeRequestTrait
             'REQUEST_URI' => $requestUrlParts['path'] . (isset($requestUrlParts['query']) ? '?' . $requestUrlParts['query'] : ''),
             'REQUEST_METHOD' => $method,
         ];
+
         // Define HTTPS and server port
         if (isset($requestUrlParts['scheme'])) {
             if ($requestUrlParts['scheme'] === 'https') {
@@ -104,9 +108,15 @@ trait FakeRequestTrait
         /** @see \TYPO3\CMS\Frontend\Middleware\SiteResolver */
         $siteMatcher = GeneralUtility::makeInstance(SiteMatcher::class);
         $routeResult = $siteMatcher->matchRequest($request);
+
         $request = $request->withAttribute('site', $routeResult->getSite());
         $request = $request->withAttribute('language', $routeResult->getLanguage());
         $request = $request->withAttribute('routing', $routeResult);
+
+        if ($frontendContext) {
+            $request = $request->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE);
+        }
+
         if ($routeResult->getLanguage() instanceof SiteLanguage) {
             Locales::setSystemLocaleFromSiteLanguage($routeResult->getLanguage());
         }
