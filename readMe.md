@@ -110,8 +110,17 @@ accelerator:
 ## 3.1 Description
 To increase the loading speed of your website, so-called critical CSS (above the fold) can be stored in a separate file.
 This critical CSS is then written inline into the HTML of the website, while the rest of the CSS (which is included via page.includeCSS) is added in such a way that it does not block the rendering of the page (as is otherwise usual).
-The critical CSS can be specified per frontend-layout. We use the fields 'backend_layout' and 'backend_layout_next_level' from the pages-table here.
-If no critical CSS is specified for a layout, the CSS files are included normally.
+
+The critical CSS can be specified per
+* **url-path** (filesForPath): You can define regular expressions defining the url-path for your critical CSS
+* **page-uid** (filesForPage): You can define lists of pids for your critical CSS
+* **frontend-layout** (filesForLayout): We use the fields 'backend_layout' and 'backend_layout_next_level' from the pages-table here.
+
+Important:
+* The definintion-sets take action in the above order. So, if you define a rule by url-path it takes precedence over a rule by page-uid or frontend-layout.
+* The rules for filesForPath and filesForPage are processed in the order of their definition. If a rule in these sets matches, the rules later on in this set are ignored.
+
+If no critical CSS is specified, the CSS files are included normally.
 
 ## 3.2 Settings
 IMPORTANT: Since TYPO3 v10 the configuration is no longer possible via TypoScript because it is now implemented as Middleware.
@@ -122,6 +131,14 @@ accelerator:
     enable: true
     layoutField: backend_layout
     layoutFieldNextLevel: backend_layout_next_level
+    filesForPath:
+      '^/products/.+$':
+        -
+          EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/criticalOne.css
+    filesForPages:
+      '2,3,4':
+        -
+          EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/criticalOne.css
     filesForLayout:
       home:
         -
