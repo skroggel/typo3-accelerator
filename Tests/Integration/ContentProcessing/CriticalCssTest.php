@@ -43,7 +43,7 @@ class CriticalCssTest extends FunctionalTestCase
     /**
      * @var string[]
      */
-    protected $testExtensionsToLoad = [
+    protected array $testExtensionsToLoad = [
         'typo3conf/ext/accelerator',
     ];
 
@@ -51,7 +51,7 @@ class CriticalCssTest extends FunctionalTestCase
     /**
      * @var string[]
      */
-    protected $coreExtensionsToLoad = [ ];
+    protected array $coreExtensionsToLoad = [ ];
 
 
     /**
@@ -435,7 +435,7 @@ class CriticalCssTest extends FunctionalTestCase
      * @test
      * @throws \Exception
      */
-    public function getCriticalCssFilesReturnsConfiguredFiles()
+    public function getCriticalCssFilesReturnsConfiguredFilesForLayout()
     {
 
         /**
@@ -451,6 +451,79 @@ class CriticalCssTest extends FunctionalTestCase
 
         $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check40.php');
         $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+
+        $this->subject = new CriticalCss ();
+        $result = $this->subject->getCriticalCssFiles();
+
+        self::assertIsArray( $result);
+        self::assertCount(2, $result);
+        self::assertEquals(
+            'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/criticalOne.css',
+            $result[0]
+        );
+        self::assertEquals(
+            'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/criticalTwo.css',
+            $result[1]
+        );
+    }
+
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function getCriticalCssFilesReturnsConfiguredFilesForPath()
+    {
+
+        /**
+         * Scenario:
+         *
+         * Given a page with path /test/me
+         * Given for that path two critical css-files are defined with a preg-key
+         * When the method is called
+         * Then an array is returned
+         * Then the array has two elements
+         * Then these elements are the two defined critical css-files
+         */
+
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check41.php');
+        $this->createServerRequest(1, 'http://www.example.com/test/me', 'GET', $additionalSiteConfig);
+
+        $this->subject = new CriticalCss ();
+        $result = $this->subject->getCriticalCssFiles();
+
+        self::assertIsArray( $result);
+        self::assertCount(2, $result);
+        self::assertEquals(
+            'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/criticalOne.css',
+            $result[0]
+        );
+        self::assertEquals(
+            'EXT:accelerator/Tests/Integration/ContentProcessing/CriticalCssTest/Fixtures/Frontend/Files/Global/criticalTwo.css',
+            $result[1]
+        );
+    }
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function getCriticalCssFilesReturnsConfiguredFilesForPage()
+    {
+
+        /**
+         * Scenario:
+         *
+         * Given a page with id = 1
+         * Given for that pageId two critical css-files are defined
+         * When the method is called
+         * Then an array is returned
+         * Then the array has two elements
+         * Then these elements are the two defined critical css-files
+         */
+
+        $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check42.php');
+        $this->createServerRequest(1, 'http://www.example.com/', 'GET', $additionalSiteConfig);
 
         $this->subject = new CriticalCss ();
         $result = $this->subject->getCriticalCssFiles();
@@ -572,7 +645,7 @@ class CriticalCssTest extends FunctionalTestCase
     /**
      * @test
      */
-    public function PreProcessAndProcessAddCriticalCssInline()
+    public function preProcessAndProcessAddCriticalCssInline()
     {
 
         /**
@@ -615,7 +688,7 @@ class CriticalCssTest extends FunctionalTestCase
      * @test
      * @throws \Exception
      */
-    public function PreProcessAndProcessDoNothingIfDisabled()
+    public function preProcessAndProcessDoNothingIfDisabled()
     {
 
         /**
@@ -661,7 +734,7 @@ class CriticalCssTest extends FunctionalTestCase
      * @test
      * @throws \Exception
      */
-    public function PreProcessAndProcessDoNothingIfNonMatchingLayout()
+    public function preProcessAndProcessDoNothingIfNonMatchingLayout()
     {
 
         /**

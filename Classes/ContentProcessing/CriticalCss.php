@@ -221,7 +221,37 @@ final class CriticalCss
     public function getCriticalCssFiles (): array
     {
         if (
+            (! empty($this->settings['filesForPath']))
+            && (! empty($this->getPathOfPage()))
+        ){
+            foreach ($this->settings['filesForPath'] as $path => $config) {
+                if (
+                    (is_array($config))
+                    && (preg_match('#' . $path . '#', $this->getPathOfPage()))
+                ){
+                    return $config;
+                }
+            }
+        }
+
+
+        if (
+            (! empty($this->settings['filesForPages']))
+            && (! empty($this->getUidOfPage()))
+        ){
+            foreach ($this->settings['filesForPages'] as $pagesList => $config) {
+                if (
+                    ($pages = GeneralUtility::trimExplode(',', $pagesList))
+                    && (in_array($this->getUidOfPage(), $pages))
+                ){
+                    return $config;
+                }
+            }
+        }
+
+        if (
             (! empty($this->settings['filesForLayout']))
+            && (! empty($this->getLayoutOfPage()))
             && (isset($this->settings['filesForLayout'][$this->getLayoutOfPage()]))
             && (is_array($this->settings['filesForLayout'][$this->getLayoutOfPage()]))
         ){
@@ -255,18 +285,9 @@ final class CriticalCss
      *
      * @return string
      */
-    public function getLayoutOfPage (): string
+    public function getLayoutOfPage(): string
     {
-        $request = $this->getRequest();
-
-        /** @var \TYPO3\CMS\Core\Routing\SiteRouteResult $pageArguments */
-        $pageArguments = $request->getAttribute('routing');
-        if (method_exists($pageArguments, 'getPageUid')) {
-            $pageId = $pageArguments->getPageId();
-        } else {
-            /** discouraged since TYPO3 v12 */
-            $pageId = intval($GLOBALS['TSFE']->id);
-        }
+        $pageId = $this->getUidOfPage();
 
         // get rootline
         $rootlinePages = GeneralUtility::makeInstance(RootlineUtility::class, $pageId)->get();
@@ -296,6 +317,46 @@ final class CriticalCss
         }
 
         return $layout;
+    }
+
+
+    /**
+     * Returns the uri-path of the current page
+     *
+     * @return string
+     */
+    public function getPathOfPage(): string
+    {
+        $request = $this->getRequest();
+
+        /** @var \TYPO3\CMS\Core\Http\Uri $uri */
+        if ($uri = $request->getUri()) {
+            return $uri->getPath();
+        }
+
+        return '';
+    }
+
+
+    /**
+     * Returns the uid of the current page
+     *
+     * @return int
+     */
+    public function getUidOfPage(): int
+    {
+        $request = $this->getRequest();
+
+        /** @var \TYPO3\CMS\Core\Routing\PageArguments $pageArguments */
+        $pageArguments = $request->getAttribute('routing');
+        if (method_exists($pageArguments, 'getPageUid')) {
+            $pageId = $pageArguments->getPageId();
+        } else {
+            /** discouraged since TYPO3 v12 */
+            $pageId = intval($GLOBALS['TSFE']->id);
+        }
+
+        return $pageId;
     }
 
 
