@@ -402,7 +402,7 @@ final class CriticalCss
             && (strpos($file, '//') === false)
         ) {
             if ($fromWebDir) {
-                return trim(PathUtility::getAbsoluteWebPath(GeneralUtility::getFileAbsFileName($file)), '/');
+                return '/' . trim(PathUtility::getAbsoluteWebPath(GeneralUtility::getFileAbsFileName($file)), '/');
             }
             return GeneralUtility::getFileAbsFileName($file);
         }
