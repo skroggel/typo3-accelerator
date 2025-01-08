@@ -190,9 +190,12 @@ final class CriticalCss
                             )
                         ) {
                             // prepend web-path
-                            $webPath = dirname($this->getFilePath($filePath, true));
+                            // $webPath = dirname($this->getFilePath($filePath, true));
+                            // return 'url(/' . $webPath . '/' . $path . ')';
 
-                            return 'url(/' . $webPath . '/' . $path . ')';
+                            // remove relative path
+                            $path = trim($path, '.');
+                            return 'url(' . $path . ')';
                         }
 
                         // return path unchanged
@@ -399,7 +402,7 @@ final class CriticalCss
             && (strpos($file, '//') === false)
         ) {
             if ($fromWebDir) {
-                return '/' . trim(PathUtility::getAbsoluteWebPath(GeneralUtility::getFileAbsFileName($file)), '/');
+                return trim(PathUtility::getAbsoluteWebPath(GeneralUtility::getFileAbsFileName($file)), '/');
             }
             return GeneralUtility::getFileAbsFileName($file);
         }
