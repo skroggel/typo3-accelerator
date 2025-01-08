@@ -77,13 +77,22 @@ if (class_exists(\Opsone\Varnish\Utility\VarnishHttpUtility::class)){
                      *      }
                      * }
                      **/
+
+                    // if a xkey-header is used, we add the version for hetzner
+                    $xKeyUsed = false;
                     foreach ($header as $cnt => $headerString) {
 
                         if (strpos($headerString, 'xkey-purge:') === 0) {
                             if ($keyValueArray = GeneralUtility::trimExplode(':', $headerString)) {
                                 $header[$cnt] = 'x-xkey-purge: ' . $keyValueArray[1];
+                                $xKeyUsed = true;
                             }
                         }
+                    }
+
+                    // if no xKey is used, we add an xKey for the whole page
+                    if (! $xKeyUsed) {
+                        $header[] = 'x-xkey-purge: siteId_' . VarnishGeneralUtility::getSitename();
                     }
 
                     VarnishGeneralUtility::devLog('clearCache', array('headers' => $header));
