@@ -144,12 +144,20 @@ final class CriticalCss
      * @param array $properties
      * @return string
      */
-    protected function buildStyleTag (string $file, array $properties): string {
+    protected function buildStyleTag (string $file, array $properties): string
+    {
 
-        $file = $this->getFilePath($file, true);
+        $filePath = $this->getFilePath($file);
+        $fileWeb = $this->getFilePath($file, true);
+
+        $version = 0;
+        if ($this->settings['addVersion']) {
+            $version = filemtime($filePath);
+        }
+
         $tag = '<link'
             . ' rel="stylesheet"'
-            . ' type="text/css" href="' . htmlspecialchars($file) .'"'
+            . ' type="text/css" href="' . htmlspecialchars($fileWeb) . ($version > 0 ? '?' . $version : '') .'"'
             . ' media="' . htmlspecialchars($this->rebuildMediaList($properties['media'] ?: 'all')) . '"'
             . ' data-media="' . $properties['media'] . '"'
             . ((! empty($properties['title'])) ? ' title="' . htmlspecialchars($properties['title']) . '"' : '')
@@ -422,6 +430,7 @@ final class CriticalCss
 
         $settings = [
             'enable' => false,
+            'addVersion' => true,
             'layoutField' => 'backend_layout',
             'layoutFieldNextLevel' => 'backend_layout_next_level',
             'filesForLayout' => [],
