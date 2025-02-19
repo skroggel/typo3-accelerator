@@ -24,6 +24,7 @@ use TYPO3\CMS\Core\ExpressionLanguage\Resolver;
 use TYPO3\CMS\Core\Http\NullResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
+use TYPO3\CMS\Frontend\Page\PageInformation;
 
 /**
  * Class HtmlMinify
@@ -35,6 +36,12 @@ use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
  */
 final class HtmlMinify implements MiddlewareInterface
 {
+
+    /**
+     * @var \Psr\Http\Message\ServerRequestInterface|null
+     */
+    protected ?ServerRequestInterface $request = null;
+
 
     /**
      * @var array
@@ -51,6 +58,7 @@ final class HtmlMinify implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $this->request = $request;
         $response = $handler->handle($request);
         if (!$response instanceof NullResponse) {
 
@@ -84,21 +92,22 @@ final class HtmlMinify implements MiddlewareInterface
      */
     public function minify(string &$content): bool
     {
-        if (!$this->settings['enable']) {
+        if (empty($this->settings['enable'])) {
             return false;
         }
 
         $pages = GeneralUtility::trimExplode(',', $this->settings['excludePids']);
         if ($pages) {
             $pages = array_flip($pages);
-            if (isset($pages[$GLOBALS['TSFE']->page['uid']])) {
+            if (isset($pages[$this->getPageUid()])) {
                 return false;
             }
         }
 
         $pageTypes = GeneralUtility::trimExplode(',', $this->settings['includePageTypes']);
         $pageTypes = array_flip($pageTypes);
-        if (! isset($pageTypes[$GLOBALS['TSFE']->type])) {
+
+        if (! isset($pageTypes[$this->getPageType()])) {
             return false;
         }
 
@@ -116,19 +125,18 @@ final class HtmlMinify implements MiddlewareInterface
     /**
      * Loads settings
      *
-     * @param \Psr\Http\Message\ServerRequestInterface|null $request
      * @return array
      */
-    public function loadSettings(?ServerRequestInterface $request = null): array
+    public function loadSettings(): array
     {
         $settings = [
             'enable' => false,
             'excludePids' => '',
-            'includePageTypes' => '0'
+            'includePageTypes' => '0,1,7'
         ];
 
         if (
-            ($request)
+            ($request = $this->getRequest())
             && ($site = $request->getAttribute('site'))
             && ($siteConfiguration = $site->getConfiguration())
             && (isset($siteConfiguration['accelerator']['htmlMinifier']))
@@ -136,11 +144,14 @@ final class HtmlMinify implements MiddlewareInterface
             $settings = array_merge($settings, $siteConfiguration['accelerator']['htmlMinifier']);
             $settings['enable'] = $this->resolveEnableWithVariants(
                 (bool) $settings['enable'],
-                $siteConfiguration['acceleratorVariants'] ?? $siteConfiguration['accelerator']['variants']
+                $siteConfiguration['acceleratorVariants'] ?? $siteConfiguration['accelerator']['variants'] ?? null
             );
 
         /** @deprecated  */
-        } else if (is_array($GLOBALS['TYPO3_CONF_VARS']['FE']['htmlMinify'])) {
+        } else if (
+            (isset($GLOBALS['TYPO3_CONF_VARS']['FE']['htmlMinify']))
+            && (is_array($GLOBALS['TYPO3_CONF_VARS']['FE']['htmlMinify']))
+        ){
             $settings = array_merge($settings, $GLOBALS['TYPO3_CONF_VARS']['FE']['htmlMinify']);
         }
 
@@ -181,6 +192,63 @@ final class HtmlMinify implements MiddlewareInterface
             }
         }
         return $enable;
+    }
+
+
+    /**
+     * Returns the page uid
+     *
+     * @return int
+     */
+    protected function getPageUid(): int {
+
+        $typo3Version = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Information\Typo3Version::class);
+        $version = $typo3Version->getMajorVersion();
+
+        if ($version <= 12) {
+            return $GLOBALS['TSFE']->page['uid'];
+        }
+
+        if ($request = $this->getRequest()) {
+            /** @var \TYPO3\CMS\Frontend\Page\PageInformation $pageInformation */
+            $pageInformation = $request->getAttribute('frontend.page.information');
+            return $pageInformation->getId();
+        }
+
+        return 0;
+    }
+
+
+    /**
+     * Returns the page type
+     *
+     * @return int
+     */
+    protected function getPageType(): int {
+
+        $typo3Version = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Information\Typo3Version::class);
+        $version = $typo3Version->getMajorVersion();
+
+        if ($version <= 12) {
+            return $GLOBALS['TSFE']->type;
+        }
+
+        if ($request = $this->getRequest()) {
+            /** @var \TYPO3\CMS\Frontend\Page\PageInformation $pageInformation */
+            $pageInformation = $request->getAttribute('frontend.page.information');
+            return $pageInformation->getPageRecord()['doktype'];
+        }
+
+        return 0;
+    }
+
+
+    /**
+     * @return \Psr\Http\Message\ServerRequestInterface|null
+     */
+    private function getRequest(): ?ServerRequestInterface
+    {
+        return $this->request ?? $GLOBALS['TYPO3_REQUEST'] ?? null;
     }
 }
 

@@ -34,21 +34,21 @@ class HtmlMinifyTest extends FunctionalTestCase
     /**
      * @const
      */
-    const FIXTURE_PATH = __DIR__ . '/HtmlMinifyTest/Fixtures';
+    const string FIXTURE_PATH = __DIR__ . '/HtmlMinifyTest/Fixtures';
 
 
     /**
      * @var string[]
      */
-    protected $testExtensionsToLoad = [
-        'typo3conf/ext/accelerator',
+    protected array $testExtensionsToLoad = [
+        'accelerator',
     ];
 
 
     /**
      * @var string[]
      */
-    protected $coreExtensionsToLoad = [
+    protected array $coreExtensionsToLoad = [
 
     ];
 
@@ -103,9 +103,9 @@ class HtmlMinifyTest extends FunctionalTestCase
         $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check10.php');
 
         /** @var \Psr\Http\Message\ServerRequestInterface $request */
-        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+        $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+        $result = $this->subject->loadSettings();
 
-        $result = $this->subject->loadSettings($request);
         $expected = [
             'enable' => true,
             'excludePids' => '9999',
@@ -134,7 +134,7 @@ class HtmlMinifyTest extends FunctionalTestCase
         $expected = [
             'enable' => false,
             'excludePids' => '',
-            'includePageTypes' => '0'
+            'includePageTypes' => '0,1,7'
         ];
 
         self::assertEquals($expected, $result);
@@ -190,12 +190,8 @@ class HtmlMinifyTest extends FunctionalTestCase
         $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check20.php');
 
         /** @var \Psr\Http\Message\ServerRequestInterface $request */
-        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
-        $this->subject->loadSettings($request);
-
-        // simulate relevant frontend values
-        $GLOBALS['TSFE']->page['uid'] = 1;
-        $GLOBALS['TSFE']->type = 0;
+        $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+        $this->subject->loadSettings();
 
         $html = file_get_contents(self::FIXTURE_PATH . '/Frontend/Templates/Default.html');
         $expected = file_get_contents(self::FIXTURE_PATH . '/Expected/Check20.html');
@@ -227,12 +223,8 @@ class HtmlMinifyTest extends FunctionalTestCase
         $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check30.php');
 
         /** @var \Psr\Http\Message\ServerRequestInterface $request */
-        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
-        $this->subject->loadSettings($request);
-
-        // simulate relevant frontend values
-        $GLOBALS['TSFE']->page['uid'] = 1;
-        $GLOBALS['TSFE']->type = 0;
+        $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+        $this->subject->loadSettings();
 
         $html = $htmlBefore = file_get_contents(self::FIXTURE_PATH . '/Frontend/Templates/Default.html');
 
@@ -262,12 +254,8 @@ class HtmlMinifyTest extends FunctionalTestCase
         $additionalSiteConfig = require(self::FIXTURE_PATH . '/Frontend/Configuration/Check40.php');
 
         /** @var \Psr\Http\Message\ServerRequestInterface $request */
-        $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
-        $this->subject->loadSettings($request);
-
-        // simulate relevant frontend values
-        $GLOBALS['TSFE']->page['uid'] = 1;
-        $GLOBALS['TSFE']->type = 0;
+        $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
+        $this->subject->loadSettings();
 
         $html = $htmlBefore = file_get_contents(self::FIXTURE_PATH . '/Frontend/Templates/Default.html');
 

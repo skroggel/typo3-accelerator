@@ -11,12 +11,6 @@ call_user_func(
             'Accelerator'
         );
 
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile(
-            $extKey,
-            'Configuration/TypoScript/ResponsiveImages',
-            'Accelerator - Responsive Images (deprectated)'
-        );
-
     },
     'accelerator'
 );

@@ -20,6 +20,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\Http\NullResponse;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -76,6 +77,7 @@ final class ProxyCachingHeader implements MiddlewareInterface
      *
      * @param int $pid
      * @return int
+     * @throws \Doctrine\DBAL\Exception
      */
     public function getProxyCachingSettingForPid(int $pid): int
     {
@@ -120,8 +122,18 @@ final class ProxyCachingHeader implements MiddlewareInterface
         //    return GeneralUtility::hmac($siteConfiguration['websiteTitle']);
         }
 
+        /** @todo remove if support for v12 and below is dropped */
+        $typo3Version = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Information\Typo3Version::class);
+        $version = $typo3Version->getMajorVersion();
+        if ($version <= 12) {
+            /** @deprecated but still used by \Opsone\Varnish\Utility\VarnishGeneralUtility::getSitename()  */
+            return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
+        }
+
         /** @deprecated but still used by \Opsone\Varnish\Utility\VarnishGeneralUtility::getSitename()  */
-        return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
+        /** @var \TYPO3\CMS\Core\Crypto\HashService $hashService */
+        $hashService = GeneralUtility::makeInstance(HashService::class);
+        return $hashService->hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'], 'proxyCaching');
     }
 
 
@@ -141,8 +153,18 @@ final class ProxyCachingHeader implements MiddlewareInterface
         //     return GeneralUtility::hmac($siteConfiguration['websiteTitle']) . '_' . $pid;
         }
 
+        /** @todo remove if support for v12 and below is dropped */
+        $typo3Version = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Information\Typo3Version::class);
+        $version = $typo3Version->getMajorVersion();
+        if ($version <= 12) {
+            /** @deprecated but still used by \Opsone\Varnish\Utility\VarnishGeneralUtility::getSitename()  */
+            return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']). '_' . $pid;
+        }
+
         /** @deprecated but still used by \Opsone\Varnish\Utility\VarnishGeneralUtility::getSitename()  */
-        return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']) . '_' . $pid;
+        /** @var \TYPO3\CMS\Core\Crypto\HashService $hashService */
+        $hashService = GeneralUtility::makeInstance(HashService::class);
+        return $hashService->hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'], 'proxyCaching'). '_' . $pid;
     }
 }
 

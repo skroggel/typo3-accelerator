@@ -17,6 +17,7 @@ namespace Madj2k\Accelerator\Tests\Integration\Middleware;
 
 use Madj2k\Accelerator\Middleware\ProxyCachingHeader;
 use Madj2k\Accelerator\Testing\FakeRequestTrait;
+use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
@@ -36,21 +37,21 @@ class ProxyCachingTest extends FunctionalTestCase
     /**
      * @const
      */
-    const FIXTURE_PATH = __DIR__ . '/ProxyCachingTest/Fixtures';
+    const string FIXTURE_PATH = __DIR__ . '/ProxyCachingTest/Fixtures';
 
 
     /**
      * @var string[]
      */
-    protected $testExtensionsToLoad = [
-        'typo3conf/ext/accelerator',
+    protected array $testExtensionsToLoad = [
+        'accelerator',
     ];
 
 
     /**
      * @var string[]
      */
-    protected $coreExtensionsToLoad = [
+    protected array $coreExtensionsToLoad = [
 
     ];
 
@@ -182,11 +183,14 @@ class ProxyCachingTest extends FunctionalTestCase
          * Then the hmac-value of this sitename is returned
          */
         $additionalSiteConfig = ['websiteTitle' => 'Test Test'];
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] = 'Test Test';
 
         /** @var \Psr\Http\Message\ServerRequestInterface $request */
         $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
 
-        $expected = GeneralUtility::hmac('Test Test');
+        /** @var \TYPO3\CMS\Core\Crypto\HashService $hashService */
+        $hashService = GeneralUtility::makeInstance(HashService::class);
+        $expected = $hashService->hmac('Test Test', 'proxyCaching');
         self::assertEquals($expected, $this->subject->getSiteTag($request));
     }
 
@@ -210,11 +214,14 @@ class ProxyCachingTest extends FunctionalTestCase
          */
 
         $additionalSiteConfig = ['websiteTitle' => 'Test Test'];
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] = 'Test Test';
 
         /** @var \Psr\Http\Message\ServerRequestInterface $request */
         $request = $this->createServerRequest(1, 'http://www.example.com', 'GET', $additionalSiteConfig);
 
-        $expected = GeneralUtility::hmac('Test Test' . '_' . 2);
+        /** @var \TYPO3\CMS\Core\Crypto\HashService $hashService */
+        $hashService = GeneralUtility::makeInstance(HashService::class);
+        $expected = $hashService->hmac('Test Test', 'proxyCaching')  . '_' . 2;
         self::assertEquals($expected, $this->subject->getPageTag($request, 2));
     }
 
