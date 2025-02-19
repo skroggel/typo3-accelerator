@@ -38,7 +38,6 @@ final class CriticalCssHook
      */
     function render_postTransform(array &$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer): void
     {
-
         /** @var \Madj2k\Accelerator\ContentProcessing\CriticalCss $criticalCss */
         $criticalCss = GeneralUtility::makeInstance(CriticalCss::class);
 
@@ -56,7 +55,6 @@ final class CriticalCssHook
      */
     function render_preProcess(array &$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer): void
     {
-
         /** @var \Madj2k\Accelerator\ContentProcessing\CriticalCss $criticalCss */
         $criticalCss = GeneralUtility::makeInstance(CriticalCss::class);
         $criticalCss->preProcess($params, $pageRenderer);

@@ -18,12 +18,12 @@ $EM_CONF[$_EXTKEY] = [
 	'version' => '12.4.17',
     'constraints' => [
 		'depends' => [
-			'typo3' => '10.4.0-12.4.99',
+			'typo3' => '10.4.0-13.4.99',
         ],
 		'conflicts' => [
 		],
 		'suggests' => [
-            'varnish' => '2.4.0-7.0.99'
+            'varnish' => '7.0.0-7.0.99'
 		],
 	],
 ];

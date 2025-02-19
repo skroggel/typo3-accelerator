@@ -1,7 +1,7 @@
 {
     "name": "madj2k/t3-accelerator",
     "type": "typo3-cms-extension",
-    "description": "Speed up your TYPO3 installation: add Critical CSS (Above The Fold) inline, minify the HTML of your website, use subdomains as CDN to reduce page load, manage proxy-caching (e.g with Varnish) via page-properties, reduce database size when storing JSON-arrays with persisted objects to the database",
+    "description": "Speed up your TYPO3 installation: add Critical CSS (Above The Fold) inline, minify the HTML of your website, use subdomains as CDN to reduce page load, manage proxy-caching (e.g with Varnish) via page-properties.",
     "homepage": "https://www.steffenkroggel.de",
     "license": ["GPL-2.0+"],
 	"keywords": ["TYPO3 CMS", "Critical CSS", "Above The Fold", "CDN", "HTML Minify", "Proxy Cache", "Varnish"],
@@ -17,7 +17,7 @@
         }
     ],
     "require": {
-        "php": ">=7.4",
+        "php": ">=8.3",
         "ext-json": "*",
 		"typo3/cms-core": "~10.4.0 || ~11.5.0 || ~12.4.0 || ~13.4.0"
 	},
@@ -25,7 +25,7 @@
 		"typo3/testing-framework": "~6.16.9"
 	},
 	"suggest": {
-		"sopsone-ch/varnish": "*"
+		"sopsone-ch/varnish": "~7.0.0"
 	},
     "autoload": {
         "psr-4": {

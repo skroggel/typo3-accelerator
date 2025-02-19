@@ -1,0 +1,18 @@
+page {
+
+    includeCSS {
+
+        file5 = EXT:accelerator/Resources/Public/Tests/Fixtures/Global/removeOne.css
+        file5.media = all
+
+        file10 = EXT:accelerator/Resources/Public/Tests/Fixtures/Global/all.css
+        file10.media = all
+
+        file20 = EXT:accelerator/Resources/Public/Tests/Fixtures/Global/print.css
+        file20.media = print
+
+        file30 = EXT:accelerator/Resources/Public/Tests/Fixtures/Global/screen.css
+        file30.media = screen
+        file30.forceOnTop = 1
+    }
+}

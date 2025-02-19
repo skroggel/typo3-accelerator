@@ -37,21 +37,21 @@ class PseudoCdnTest extends FunctionalTestCase
     /**
      * @const
      */
-    const FIXTURE_PATH = __DIR__ . '/PseudoCdnTest/Fixtures';
+    const string FIXTURE_PATH = __DIR__ . '/PseudoCdnTest/Fixtures';
 
 
     /**
      * @var string[]
      */
-    protected $testExtensionsToLoad = [
-        'typo3conf/ext/accelerator',
+    protected array $testExtensionsToLoad = [
+        'accelerator',
     ];
 
 
     /**
      * @var string[]
      */
-    protected $coreExtensionsToLoad = [
+    protected array $coreExtensionsToLoad = [
 
     ];
 
@@ -61,11 +61,6 @@ class PseudoCdnTest extends FunctionalTestCase
      */
     private ?PseudoCdn $subject = null;
 
-
-    /**
-     * @var \TYPO3\CMS\Extbase\Object\ObjectManager|null
-     */
-    private ?ObjectManager $objectManager = null;
 
 
     /**
@@ -78,7 +73,6 @@ class PseudoCdnTest extends FunctionalTestCase
         parent::setUp();
 
         $this->importCSVDataSet(self::FIXTURE_PATH . '/Database/Global.csv');
-
         $this->subject = new PseudoCdn();
 
         $this->setUpFrontendRootPage(

@@ -15,10 +15,15 @@ namespace Madj2k\Accelerator\ContentProcessing;
  * The TYPO3 project - inspiring people to share!
  */
 
+use Madj2k\Accelerator\Testing\FakeRequestTrait;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\ExpressionLanguage\SyntaxError;
+use Symfony\Component\Filesystem\Exception\IOException;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\ExpressionLanguage\Resolver;
 use TYPO3\CMS\Core\Http\ApplicationType;
+use TYPO3\CMS\Core\Package\Exception\PackageAssetsPublishingFailedException;
+use TYPO3\CMS\Core\Page\AssetCollector;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
@@ -36,9 +41,15 @@ final class CriticalCss
 {
 
     /**
+     * @var \Psr\Http\Message\ServerRequestInterface|null
+     */
+    protected ?ServerRequestInterface $request = null;
+
+
+    /**
      * @var array
      */
-    protected array $settings = [];
+    private array $settings = [];
 
 
     /**
@@ -46,7 +57,7 @@ final class CriticalCss
      */
     public function __construct()
     {
-        $this->loadSettings($this->getRequest());
+        $this->loadSettings();
     }
 
 
@@ -59,9 +70,8 @@ final class CriticalCss
      */
     public function process(array &$params, \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer): string
     {
-
         if (
-            (! $this->settings['enable'])
+            (empty($this->settings['enable']))
             || (! $criticalCssFiles = $this->getCriticalCssFiles())
         ){
             return '';
@@ -118,7 +128,7 @@ final class CriticalCss
     {
 
         if (
-            (!$this->settings['enable'])
+            (empty($this->settings['enable']))
             || (!$this->getCriticalCssFiles())
             || (!$removeCssFiles = $this->getCssFilesToRemove())
         ) {
@@ -127,8 +137,15 @@ final class CriticalCss
 
         if (is_array($params['cssFiles'])) {
             foreach ($removeCssFiles as $file) {
+
+                // resolved path
                 if (isset($params['cssFiles'][$this->getFilePath($file, true)])) {
                     unset($params['cssFiles'][$this->getFilePath($file, true)]);
+                }
+
+                // or given path (e.g. when EXT-Path)
+                if (isset($params['cssFiles'][$file])) {
+                    unset($params['cssFiles'][$file]);
                 }
             }
         }
@@ -144,12 +161,20 @@ final class CriticalCss
      * @param array $properties
      * @return string
      */
-    protected function buildStyleTag (string $file, array $properties): string {
+    protected function buildStyleTag (string $file, array $properties): string
+    {
 
-        $file = $this->getFilePath($file, true);
+        $filePath = $this->getFilePath($file);
+        $fileWeb = $this->getFilePath($file, true);
+
+        $version = 0;
+        if ($this->settings['addVersion']) {
+            $version = filemtime($filePath);
+        }
+
         $tag = '<link'
             . ' rel="stylesheet"'
-            . ' type="text/css" href="' . htmlspecialchars($file) .'"'
+            . ' type="text/css" href="' . htmlspecialchars($fileWeb) . ($version > 0 ? '?' . $version : '') .'"'
             . ' media="' . htmlspecialchars($this->rebuildMediaList($properties['media'] ?: 'all')) . '"'
             . ' data-media="' . $properties['media'] . '"'
             . ((! empty($properties['title'])) ? ' title="' . htmlspecialchars($properties['title']) . '"' : '')
@@ -164,12 +189,12 @@ final class CriticalCss
     }
 
 
-
     /**
      * Rebase relative paths in CSS
      *
      * @param string $filePath
      * @return string
+     * @see \TYPO3\CMS\Core\Composer\PackageArtifactBuilder::publishResources()
      */
     public function getRebasedFileContent (string $filePath): string
     {
@@ -181,25 +206,9 @@ final class CriticalCss
                     '#url\([\'\"]?([^\)\'\"]+)[\'\"]?\)#',
                     function (array $match) use ($filePath) {
 
-                        if (
-                            ($path = $match[1])
-                            && (
-                                (strpos($path, '/') === 0)
-                                || (strpos($path, './') === 0)
-                                || (strpos($path, '../') === 0)
-                            )
-                        ) {
-                            // prepend web-path
-                            // $webPath = dirname($this->getFilePath($filePath, true));
-                            // return 'url(/' . $webPath . '/' . $path . ')';
+                        $resolvedPath = $this->getFilePath($match[1], true);
+                        return 'url(' . $resolvedPath . ')';
 
-                            // remove relative path
-                            $path = trim($path, '.');
-                            return 'url(' . $path . ')';
-                        }
-
-                        // return path unchanged
-                        return 'url(' . $match[1] . ')';
                     },
                     $fileContent
                 )) {
@@ -236,7 +245,6 @@ final class CriticalCss
                 }
             }
         }
-
 
         if (
             (! empty($this->settings['filesForPages']))
@@ -305,7 +313,7 @@ final class CriticalCss
                     && (isset($this->settings['layoutField']))
                     && (isset($page[$this->settings['layoutField']]))
                 ) {
-                    return str_replace('pagets__', '', $page[$this->settings['layoutField']]);
+                    return str_replace('pagets__', '', (string) $page[$this->settings['layoutField']]);
                 }
 
                 // inherit layout from parent pages
@@ -314,7 +322,7 @@ final class CriticalCss
                     && (isset($this->settings['layoutFieldNextLevel']))
                     && (isset($page[$this->settings['layoutFieldNextLevel']]))
                 ) {
-                    return str_replace('pagets__', '', $page[$this->settings['layoutFieldNextLevel']]);
+                    return str_replace('pagets__', '', (string) $page[$this->settings['layoutFieldNextLevel']]);
                 }
             }
         }
@@ -352,7 +360,7 @@ final class CriticalCss
 
         /** @var \TYPO3\CMS\Core\Routing\PageArguments $pageArguments */
         $pageArguments = $request->getAttribute('routing');
-        if (method_exists($pageArguments, 'getPageUid')) {
+        if (method_exists($pageArguments, 'getPageId')) {
             $pageId = $pageArguments->getPageId();
         } else {
             /** discouraged since TYPO3 v12 */
@@ -396,10 +404,12 @@ final class CriticalCss
      */
     public function getFilePath (string $file, bool $fromWebDir = false): string
     {
+        // relative paths will be relative paths - like web-paths!
         if (
-            (strpos($file, 'http://') === false)
-            && (strpos($file, 'https://') === false)
-            && (strpos($file, '//') === false)
+            (! PathUtility::hasProtocolAndScheme($file))
+            && (! str_starts_with($file, './'))
+            && (! str_starts_with($file,'../'))
+            && (! str_starts_with($file,'/'))
         ) {
             if ($fromWebDir) {
                 return '/' . trim(PathUtility::getAbsoluteWebPath(GeneralUtility::getFileAbsFileName($file)), '/');
@@ -414,21 +424,21 @@ final class CriticalCss
     /**
      * Loads settings
      *
-     * @param \Psr\Http\Message\ServerRequestInterface|null $request
      * @return array
      */
-    public function loadSettings(?ServerRequestInterface $request = null): array
+    public function loadSettings(): array
     {
 
         $settings = [
             'enable' => false,
+            'addVersion' => true,
             'layoutField' => 'backend_layout',
             'layoutFieldNextLevel' => 'backend_layout_next_level',
             'filesForLayout' => [],
             'filesToRemoveWhenActive' => []
         ];
 
-        if ($request) {
+        if ($request = $this->getRequest()) {
 
             /** @var \TYPO3\CMS\Core\Site\Entity\Site $site */
             if (
@@ -444,7 +454,7 @@ final class CriticalCss
                     $settings = array_merge($settings, $siteConfiguration['accelerator']['criticalCss']);
                     $settings['enable'] = $this->resolveEnableWithVariants(
                         (bool) $settings['enable'],
-                        $siteConfiguration['acceleratorVariants'] ?? $siteConfiguration['accelerator']['variants']
+                        $siteConfiguration['acceleratorVariants'] ?? $siteConfiguration['accelerator']['variants'] ?? null
                     );
                 }
 
@@ -501,7 +511,6 @@ final class CriticalCss
     }
 
 
-
     /**
      * Checks if the enable-property has variants, and takes the first variant which matches an expression.
      *
@@ -543,7 +552,7 @@ final class CriticalCss
      */
     private function getRequest(): ?ServerRequestInterface
     {
-        return $GLOBALS['TYPO3_REQUEST'];
+        return $this->request ?? $GLOBALS['TYPO3_REQUEST'] ?? null;
     }
 
 }
