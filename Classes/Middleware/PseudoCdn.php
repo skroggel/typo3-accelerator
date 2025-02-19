@@ -38,6 +38,12 @@ final class PseudoCdn implements MiddlewareInterface
 {
 
     /**
+     * @var \Psr\Http\Message\ServerRequestInterface|null
+     */
+    protected ?ServerRequestInterface $request = null;
+
+
+    /**
      * @var array
      */
     protected array $settings = [];
@@ -49,15 +55,17 @@ final class PseudoCdn implements MiddlewareInterface
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Server\RequestHandlerInterface $handler
      * @return \Psr\Http\Message\ResponseInterface
+     * @throws \Doctrine\DBAL\Exception
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $this->request = $request;
         $response = $handler->handle($request);
         if (!$response instanceof NullResponse) {
 
             try {
 
-                $this->loadSettings($request);
+                $this->loadSettings();
 
                 // extract the content
                 $body = $response->getBody();
@@ -142,7 +150,7 @@ final class PseudoCdn implements MiddlewareInterface
         }
 
         // cut of leading backslash
-        if (strpos($relativePath, '/') === 0) {
+        if (str_starts_with($relativePath, '/')) {
             $relativePath = substr($relativePath, 1);
         }
 
@@ -160,12 +168,14 @@ final class PseudoCdn implements MiddlewareInterface
     /**
      * Loads settings
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
      * @return array
      * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Doctrine\DBAL\Exception
      */
-    public function loadSettings(ServerRequestInterface $request): array
+    public function loadSettings(): array
     {
+
+        $request = $this->getRequest();
 
         /** @var array $serverParams */
         $serverParams = $request->getServerParams();
@@ -198,9 +208,20 @@ final class PseudoCdn implements MiddlewareInterface
                 $siteConfiguration['acceleratorVariants'] ?? $siteConfiguration['accelerator']['variants']
             );
 
-            /** @deprecated */
-        } else if (is_array($GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn'])) {
+        /** @deprecated */
+        } else if (
+            (isset($GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn']))
+            && (is_array($GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn']))
+        ){
             $settings = array_merge($settings, $GLOBALS['TYPO3_CONF_VARS']['FE']['pseudoCdn']);
+
+            /** @todo remove when support for v12 and below is dropped */
+            $typo3Version = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Information\Typo3Version::class);
+            $version = $typo3Version->getMajorVersion();
+            $executeCommand = 'executeQuery';
+            if ($version <= 12) {
+                $executeCommand = 'execute';
+            }
 
             $rootPage = $site->getRootPageId();
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
@@ -210,7 +231,7 @@ final class PseudoCdn implements MiddlewareInterface
                 ->where(
                     $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($rootPage))
                 )
-                ->execute()
+                ->$executeCommand()
                 ->fetchOne();
 
             // check for site-specific override in rootPage
@@ -257,5 +278,14 @@ final class PseudoCdn implements MiddlewareInterface
             }
         }
         return $enable;
+    }
+
+
+    /**
+     * @return \Psr\Http\Message\ServerRequestInterface|null
+     */
+    private function getRequest(): ?ServerRequestInterface
+    {
+        return $this->request ?? $GLOBALS['TYPO3_REQUEST'] ?? null;
     }
 }

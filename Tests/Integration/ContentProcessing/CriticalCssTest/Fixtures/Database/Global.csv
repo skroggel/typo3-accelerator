@@ -1,4 +1,4 @@
-pages,,,,,,
-,uid,pid,sys_language_uid,title,backend_layout,is_siteroot
-,1,0,0,Rootpage,pagets__home,1
-,2,0,0,Rootpage 2,pagets__home,1
+pages,,,,,,,
+,uid,pid,sys_language_uid,title,backend_layout,is_siteroot,slug
+,1,0,0,Rootpage,pagets__home,1,/
+,2,0,0,Rootpage 2,pagets__home,1,/sub
