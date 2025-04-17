@@ -11,6 +11,7 @@ call_user_func(
         //=================================================================
         // Add Rootline Fields
         //=================================================================
+        /** @todo remove if support for v12 and below is dropped */
         $rootlineFields = &$GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields'];
         $newRootlineFields = 'backend_layout, tx_accelerator_proxy_caching';
         $rootlineFields .= (empty($rootlineFields))? $newRootlineFields : ',' . $newRootlineFields;

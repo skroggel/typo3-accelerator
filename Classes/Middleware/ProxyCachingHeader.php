@@ -45,6 +45,7 @@ final class ProxyCachingHeader implements MiddlewareInterface
      * @return \Psr\Http\Message\ResponseInterface
      * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException
      * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException
+     * @throws \Doctrine\DBAL\Exception
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
