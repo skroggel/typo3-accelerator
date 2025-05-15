@@ -6,7 +6,6 @@ Speed up your TYPO3 installation:
 * use subdomains as CDN for your static contents (images, files, ...) to speed up the loading time of your website
 * manage proxy-caching (e.g with Varnish) via page-properties
 * can be used with Hetzner Varnish for Managed Servers
-* reduce database size when storing JSON-arrays with persisted objects to the database.
 
 # 1. HTML Minifier
 ## 1.1 Description
