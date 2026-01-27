@@ -112,8 +112,9 @@ final class PseudoCdn implements MiddlewareInterface
         $contentBefore = $content;
         $callback = function ($matches) use ($object, $config, &$replacementCnt, &$domainCnt) {
 
-            if ($config['ignoreIfContains']) {
-                if (preg_match($config['ignoreIfContains'], $matches[2])) {
+            $ignore = $config['ignoreIfContains'] ?? null;
+            if (is_string($ignore) && $ignore !== '') {
+                if (preg_match($ignore, $matches[2])) {
                     return $matches[1] . $matches[2];
                 }
             }
@@ -186,6 +187,7 @@ final class PseudoCdn implements MiddlewareInterface
         $domainParts = explode('.', $site->getBase()->getHost());
         $baseDomain = $domainParts[count($domainParts) - 2] . '.' . $domainParts[count($domainParts) - 1];
 
+        $isHttps = !empty($serverParams['HTTPS']) || (($serverParams['SERVER_PORT'] ?? null) === '443');
         $settings = [
             'enable' => false,
             'maxConnectionsPerDomain' => 4,
@@ -193,7 +195,7 @@ final class PseudoCdn implements MiddlewareInterface
             'search' => '/(href="|src="|srcset="|url\(\')\/?((uploads\/media|uploads\/pics|typo3temp\/compressor|typo3temp\/GB|typo3conf\/ext|fileadmin)([^"\']+))/i',
             'ignoreIfContains' => '/\.css|\.js|\.mp4|\.pdf|\?noCdn=1/',
             'baseDomain' => $baseDomain,
-            'protocol' => (!empty($serverParams['HTTPS']) || !empty($serverParams['SERVER_PORT'] == '443')) ? 'https://' : 'http://'
+            'protocol' => $isHttps ? 'https://' : 'http://',
         ];
 
         if (
