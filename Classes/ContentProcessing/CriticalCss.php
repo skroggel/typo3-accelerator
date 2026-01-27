@@ -252,7 +252,7 @@ final class CriticalCss
         ){
             foreach ($this->settings['filesForPages'] as $pagesList => $config) {
                 if (
-                    ($pages = GeneralUtility::trimExplode(',', $pagesList))
+                    ($pages = GeneralUtility::trimExplode(',', (string) $pagesList))
                     && (in_array($this->getUidOfPage(), $pages))
                 ){
                     return $config;
