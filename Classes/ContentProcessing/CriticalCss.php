@@ -88,7 +88,7 @@ final class CriticalCss
                 foreach ($params[$paramKey] as $file => $properties) {
 
                     $tag = $this->buildStyleTag($file, $properties);
-                    if ($properties['forceOnTop']) {
+                    if (($properties['forceOnTop'] ?? false) === true) {
                         array_unshift($cssCode, $tag);
                     } else {
                         $cssCode[] = $tag;
@@ -168,20 +168,22 @@ final class CriticalCss
         $fileWeb = $this->getFilePath($file, true);
 
         $version = 0;
-        if ($this->settings['addVersion']) {
+        if (($this->settings['addVersion'] ?? false) === true) {
             $version = filemtime($filePath);
         }
 
+        $media = (string)($properties['media'] ?? 'all');
         $tag = '<link'
             . ' rel="stylesheet"'
             . ' type="text/css" href="' . htmlspecialchars($fileWeb) . ($version > 0 ? '?' . $version : '') .'"'
-            . ' media="' . htmlspecialchars($this->rebuildMediaList($properties['media'] ?: 'all')) . '"'
-            . ' data-media="' . $properties['media'] . '"'
+            . ' media="' . htmlspecialchars($this->rebuildMediaList($media)) . '"'
+            . ' data-media="' . $media . '"'
             . ((! empty($properties['title'])) ? ' title="' . htmlspecialchars($properties['title']) . '"' : '')
             . ' onload="this.media=this.dataset.media; this.onload = null"'
             . ' />';
-        if ($properties['allWrap']) {
-            $wrapArr = explode($properties['splitChar'] ?: '|', $properties['allWrap'], 2);
+        if (! empty($properties['allWrap'])) {
+            $splitChar = (string)($properties['splitChar'] ?? '|');
+            $wrapArr = explode($splitChar, (string) $properties['allWrap'], 2);
             $tag = $wrapArr[0] . $tag . $wrapArr[1];
         }
 
@@ -234,6 +236,7 @@ final class CriticalCss
     {
         if (
             (! empty($this->settings['filesForPath']))
+            && (is_array($this->settings['filesForPath']))
             && (! empty($this->getPathOfPage()))
         ){
             foreach ($this->settings['filesForPath'] as $path => $config) {
@@ -248,6 +251,7 @@ final class CriticalCss
 
         if (
             (! empty($this->settings['filesForPages']))
+            && (is_array($this->settings['filesForPages']))
             && (! empty($this->getUidOfPage()))
         ){
             foreach ($this->settings['filesForPages'] as $pagesList => $config) {

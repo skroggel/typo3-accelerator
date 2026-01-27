@@ -57,7 +57,7 @@ final class ProxyCachingHeader implements MiddlewareInterface
             $sendXKeyTags = true;
             if (ExtensionManagementUtility::isLoaded('varnish')) {
                 $varnishExtConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('varnish');
-                if ($varnishExtConf['sendXkeyTags']) {
+                if (($varnishExtConf['sendXkeyTags'] ?? false) === true) {
                     $sendXKeyTags = false;
                 }
             }
@@ -85,26 +85,22 @@ final class ProxyCachingHeader implements MiddlewareInterface
         // get PageRepository and rootline
         $rootlinePages = GeneralUtility::makeInstance(RootlineUtility::class, $pid)->get();
 
-        $status = 0;
-        if (isset($rootlinePages[count($rootlinePages) - 1])) {
+        $last = $rootlinePages[count($rootlinePages) - 1] ?? null;
+        if (is_array($last)) {
+            $current = (int)($last['tx_accelerator_proxy_caching'] ?? 0);
+            if ($current > 0) {
+                return $current;
+            }
 
-            // check if something is set in current page
-            if ($rootlinePages[count($rootlinePages) - 1]['tx_accelerator_proxy_caching']) {
-                $status = intval($rootlinePages[count($rootlinePages) - 1]['tx_accelerator_proxy_caching']);
-
-            // else inherit
-            } else {
-
-                foreach ($rootlinePages as $page => $values) {
-                    if ($values['tx_accelerator_proxy_caching'] > 0) {
-                        $status = intval($values['tx_accelerator_proxy_caching']);
-                        break;
-                    }
+            foreach ($rootlinePages as $values) {
+                $val = (int)($values['tx_accelerator_proxy_caching'] ?? 0);
+                if ($val > 0) {
+                    return $val;
                 }
             }
         }
+        return 0;
 
-        return $status;
     }
 
 
@@ -128,13 +124,15 @@ final class ProxyCachingHeader implements MiddlewareInterface
         $version = $typo3Version->getMajorVersion();
         if ($version <= 12) {
             /** @deprecated but still used by \Opsone\Varnish\Utility\VarnishGeneralUtility::getSitename()  */
-            return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']);
+            $sitename = (string)($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ?? '');
+            return GeneralUtility::hmac($sitename);
         }
 
         /** @deprecated but still used by \Opsone\Varnish\Utility\VarnishGeneralUtility::getSitename()  */
         /** @var \TYPO3\CMS\Core\Crypto\HashService $hashService */
         $hashService = GeneralUtility::makeInstance(HashService::class);
-        return $hashService->hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'], 'proxyCaching');
+        $sitename = (string)($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ?? '');
+        return $hashService->hmac($sitename, 'proxyCaching');
     }
 
 
@@ -159,13 +157,15 @@ final class ProxyCachingHeader implements MiddlewareInterface
         $version = $typo3Version->getMajorVersion();
         if ($version <= 12) {
             /** @deprecated but still used by \Opsone\Varnish\Utility\VarnishGeneralUtility::getSitename()  */
-            return GeneralUtility::hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']). '_' . $pid;
+            $sitename = (string)($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ?? '');
+            return GeneralUtility::hmac($sitename). '_' . $pid;
         }
 
         /** @deprecated but still used by \Opsone\Varnish\Utility\VarnishGeneralUtility::getSitename()  */
         /** @var \TYPO3\CMS\Core\Crypto\HashService $hashService */
         $hashService = GeneralUtility::makeInstance(HashService::class);
-        return $hashService->hmac($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'], 'proxyCaching'). '_' . $pid;
+        $sitename = (string)($GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ?? '');
+        return $hashService->hmac($sitename, 'proxyCaching'). '_' . $pid;
     }
 }
 
